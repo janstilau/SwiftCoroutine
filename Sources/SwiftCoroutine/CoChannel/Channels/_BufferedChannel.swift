@@ -59,8 +59,8 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             }.old
             guard state == 0 else { return }
             count < 0
-                ? self.receiveCallbacks.blockingPop()(.success($0))
-                : self.sendBlocks.push(.init(element: $0, resumeBlock: nil))
+            ? self.receiveCallbacks.blockingPop()(.success($0))
+            : self.sendBlocks.push(.init(element: $0, resumeBlock: nil))
         }
     }
     
