@@ -97,6 +97,7 @@ extension SharedCoroutine: CoroutineProtocol {
     internal func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
         state = .suspending
+        
         let tag = awaitTag
         var result: T!
         callback { value in

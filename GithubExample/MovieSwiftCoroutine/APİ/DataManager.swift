@@ -11,7 +11,7 @@ import SwiftCoroutine
 
 //MARK:-> URL
 fileprivate struct movieApiConstant {
-    private static let api_key = "?api_key=YOUR_TheMovieDatabase_API_KEY_HERE"
+    private static let api_key = "?api_key=22da445752083e2b1c7cba53e1db864e"
     
     static var popularMovies_URL : String {
         return "https://api.themoviedb.org/3/movie/popular\(movieApiConstant.api_key)&language=en-US"
@@ -25,7 +25,7 @@ class DataManager {
         let movies = CoPromise<Movies>()
         
         DispatchQueue.main.startCoroutine {
-            let (data , response , error) = try Coroutine.await{ callback in
+            let (data , response , error) = try Coroutine.await { callback in
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
             if let response = response {

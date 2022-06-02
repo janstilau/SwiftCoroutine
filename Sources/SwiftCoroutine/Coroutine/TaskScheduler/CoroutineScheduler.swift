@@ -1,18 +1,10 @@
-//
-//  CoroutineScheduler.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 26.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 /// A protocol that defines how to execute a task.
 ///
 /// This protocol has extension methods that allow to launch coroutines on a current scheduler.
 /// Inside the coroutine you can use such methods as `Coroutine.await(_:)`, `CoFuture.await()`,
 /// and `CoroutineScheduler.await(_:)` to suspend the coroutine without blocking a thread
 /// and resume it when the result is ready.
-///
+// 
 /// To launch a coroutine, use `CoroutineScheduler.startCoroutine(_:)`.
 /// ```
 /// //execute coroutine on the main thread
