@@ -98,7 +98,7 @@ public struct Coroutine {
     ///     }
     /// }
     /// ```
-    /// - Parameter callback: The callback для resume coroutine. Must be called inside a coroutine.
+    /// - Parameter callback: The callback  resume coroutine. Must be called inside a coroutine.
     /// - Returns: The result which is passed to callback.
     /// - Throws: `CoroutineError`.
     @inlinable public static func await<T, N, M>(_ callback: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {

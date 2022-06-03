@@ -20,41 +20,46 @@ internal final class CoroutineContext {
     
     internal let haveGuardPage: Bool
     internal let stackSize: Int
-    private let stack: UnsafeMutableRawPointer
-    private let returnEnv: UnsafeMutableRawPointer
-    internal var block: (() -> Void)?
+    private let contextStack: UnsafeMutableRawPointer
+    private let jumpBufferAddress: UnsafeMutableRawPointer
+    internal var startTask: (() -> Void)?
     
     internal init(stackSize: Int, guardPage: Bool = true) {
         self.stackSize = stackSize
-        returnEnv = .allocate(byteCount: .environmentSize, alignment: 16)
+        // returnEnv 中存储的是, 寄存器的值.
+        jumpBufferAddress = .allocate(byteCount: .environmentSize, alignment: 16)
         haveGuardPage = guardPage
         if guardPage {
-            stack = .allocate(byteCount: stackSize + .pageSize, alignment: .pageSize)
-            mprotect(stack, .pageSize, PROT_READ)
+            contextStack = .allocate(byteCount: stackSize + .pageSize, alignment: .pageSize)
+            mprotect(contextStack, .pageSize, PROT_READ)
         } else {
-            stack = .allocate(byteCount: stackSize, alignment: .pageSize)
+            contextStack = .allocate(byteCount: stackSize, alignment: .pageSize)
         }
     }
     
+    // contextStack 给与外边使用的就是这里.
     @inlinable internal var stackTop: UnsafeMutableRawPointer {
-        .init(stack + stackSize)
+        .init(contextStack + stackSize)
     }
     
     // MARK: - Start
     
     @inlinable internal func start() -> Bool {
-       __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
+       __start(jumpBufferAddress,
+               stackTop,
+               Unmanaged.passUnretained(self).toOpaque()) {
            __longjmp(Unmanaged<CoroutineContext>
                .fromOpaque($0!)
                .takeUnretainedValue()
-               .performBlock(), .finished)
+               .performBlock(),
+                        .finished)
        } == .finished
     }
     
     private func performBlock() -> UnsafeMutableRawPointer {
-        block?()
-        block = nil
-        return returnEnv
+        startTask?()
+        startTask = nil
+        return jumpBufferAddress
     }
     
     // MARK: - Operations
@@ -64,24 +69,27 @@ internal final class CoroutineContext {
         var sp: UnsafeMutableRawPointer!
     }
     
+    // 真正的进行协程的恢复.
     @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
-        __save(env, returnEnv, .suspended) == .finished
+        __save(env, jumpBufferAddress, .suspended) == .finished
     }
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __suspend(data.pointee.env, &data.pointee.sp, returnEnv, .suspended)
+        __suspend(data.pointee.env,
+                  &data.pointee.sp,
+                  jumpBufferAddress, .suspended)
     }
     
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        __save(returnEnv, env, .suspended)
+        __save(jumpBufferAddress, env, .suspended)
     }
     
     deinit {
         if haveGuardPage {
-            mprotect(stack, .pageSize, PROT_READ | PROT_WRITE)
+            mprotect(contextStack, .pageSize, PROT_READ | PROT_WRITE)
         }
-        returnEnv.deallocate()
-        stack.deallocate()
+        jumpBufferAddress.deallocate()
+        contextStack.deallocate()
     }
     
 }

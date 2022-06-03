@@ -1,23 +1,14 @@
-//
-//  CoFuture2.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 26.01.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 private protocol _CoFutureCancellable: AnyObject {
-    
     func cancel()
-    
 }
 
 /// Holder for a result that will be provided later.
-///
+
 /// `CoFuture` and its subclass `CoPromise` are the implementation of the Future/Promise approach.
 /// They allow to launch asynchronous tasks and immediately return` CoFuture` with its future results.
 /// The available result can be observed by the `whenComplete()` callback
 /// or by `await()` inside a coroutine without blocking a thread.
+
 ///
 /// ```
 /// func makeFutureOne(args) -> CoFuture<Response> {
@@ -78,14 +69,15 @@ private protocol _CoFutureCancellable: AnyObject {
 ///     let data: Data = try future.await()
 /// }
 /// ```
-///
+
+
 public class CoFuture<Value> {
     
     @usableFromInline internal typealias _Result = Result<Value, Error>
     
     private var resultState: Int
     private var nodes: CallbackStack<_Result>
-    private var _result: Optional<_Result>
+    private var _result: _Result?
     private unowned(unsafe) var parent: _CoFutureCancellable?
     
     @usableFromInline internal init(_result: _Result?) {

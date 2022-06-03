@@ -40,6 +40,7 @@ internal final class SharedCoroutine {
         performAsCurrent(resumeContext)
     }
     
+    // 真正的记性协程恢复的地方.
     private func resumeContext() -> CompletionState {
         perform { queue.context.resume(from: environment.pointee.env) }
     }
@@ -92,28 +93,48 @@ internal final class SharedCoroutine {
     
 }
 
+// 真正的, 实现了 CoroutineProtocol 的实现类.
+// 目前在类库里面, 只有这样的一个类, 实现了 CoroutineProtocol 的抽象.
 extension SharedCoroutine: CoroutineProtocol {
     
-    internal func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T {
+    // Await, 参数是一个异步函数的触发器.
+    // 这个异步函数, 接受一个回调, 来作为自己的 CompletionHandler
+    internal func await<T>(_ asyncTrigger: (@escaping (T) -> Void) -> Void)
+    throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
         state = .suspending
         
-        let tag = awaitTag
+        let tagWhenTrigger = awaitTag
         var result: T!
-        callback { value in
+        // 在这里, 使用异步 API 触发了异步函数.
+        // 只有在异步 API 的回调里面, 才进行 resume 处理.
+        asyncTrigger { value in
             while true {
-                guard self.awaitTag == tag else { return }
-                if atomicCAS(&self.awaitTag, expected: tag, desired: tag + 1) { break }
+                // 如果, id 已经改变了, 那么就没有必要进行 result 的赋值了.
+                guard self.awaitTag == tagWhenTrigger else { return }
+                
+                // 唯一进行 awaitTag 改变的地方, 就是这里了.
+                if atomicCAS(&self.awaitTag,
+                             expected: tagWhenTrigger,
+                             desired: tagWhenTrigger + 1) { break }
             }
+            // 在 asyncTrigger 的异步回调里面, 是做真正的值的提取.
+            // 所以, 实际上还是使用了以后的异步触发机制. 只是现在变为了, 只有异步返回之后, 才能进行后续的操作.
             result = value
+            // 在异步操作完成之后, 进行调度.
             self.resumeIfSuspended()
         }
-        if state == .suspending { suspend() }
+        if state == .suspending {
+            // 在异步函数, 触发之后, 进行调度.
+            suspend()
+        }
+        
         if isCanceled == 1 { throw CoroutineError.canceled }
         return result
     }
     
-    internal func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T) throws -> T {
+    internal func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T)
+    throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
         let currentScheduler = self.scheduler
         setScheduler(scheduler)
@@ -136,11 +157,15 @@ extension SharedCoroutine: CoroutineProtocol {
     
     private func resumeIfSuspended() {
         while true {
+            // 使用, atomicCAS 进行值的替换.
+            // 不太明白, atomic_compare_exchange_strong 这样的意义在哪里.
+            // 不过, 在协程的概念里面, 确实是听到了, 不要进行上锁, 而是进行原子操作的这样的语句.
             switch state {
             case .suspending:
                 if atomicCAS(&state, expected: .suspending, desired: .running) { return }
             case .suspended:
                 if atomicCAS(&state, expected: .suspended, desired: .running) {
+                    // 真正的进行调度, 是在 queue 里面.
                     return queue.resume(coroutine: self)
                 }
             default:
@@ -151,11 +176,10 @@ extension SharedCoroutine: CoroutineProtocol {
     
 }
 
+// 可以使用 Int 来当做状态值, 只是, 需要显式的进行特殊值的预先构建.
 fileprivate extension Int {
-    
     static let running = 0
     static let suspending = 1
     static let suspended = 2
     static let restarting = 3
-    
 }

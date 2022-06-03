@@ -25,8 +25,8 @@ class movieCollectionViewCell: UICollectionViewCell {
         self.layer.shadowOffset = CGSize(width: 10, height: 10)
         self.layer.shadowRadius = 30
         
+        // View 的构建构成, 在初始化方法中
         self.setMainView()
-        
         self.setMovieImageView()
         self.setTitleLabel()
     }
@@ -73,11 +73,13 @@ class movieCollectionViewCell: UICollectionViewCell {
         self.movieNameLabel.heightAnchor.constraint(equalTo: self.mainView.heightAnchor).isActive = true
         
     }
+    
     func setData(_ movieName :String? , imageURL :String?){
         self.movieNameLabel.text = movieName
         let image_url = "https://image.tmdb.org/t/p/w500/"
         self.imageView.sd_setImage(with: URL(string: image_url + imageURL!), completed: nil)
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

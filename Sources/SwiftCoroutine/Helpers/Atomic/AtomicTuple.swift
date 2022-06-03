@@ -9,6 +9,7 @@
 internal struct AtomicTuple {
     
     internal typealias Tuple = (Int32, Int32)
+    // 一个值, 两处用. 
     private(set) var rawValue = 0
     
     @inline(__always) internal var value: Tuple {

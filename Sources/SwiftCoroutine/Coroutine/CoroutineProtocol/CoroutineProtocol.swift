@@ -19,11 +19,11 @@ import Darwin
     func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T
     func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T) throws -> T
     func cancel()
-    
 }
 
 extension CoroutineProtocol {
     
+    // 将, 当前的协程, 设置到线程里面. 
     @inlinable internal func performAsCurrent<T>(_ block: () -> T) -> T {
         let caller = pthread_getspecific(.coroutine)
         pthread_setspecific(.coroutine, Unmanaged.passUnretained(self).toOpaque())
@@ -57,7 +57,6 @@ extension pthread_key_t {
         pthread_key_create(&key, nil)
         return key
     }()
-    
 }
 
 

@@ -38,10 +38,11 @@ internal final class SharedCoroutineQueue {
         coroutine?.saveStack()
         coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
-        context.block = task
+        context.startTask = task
         complete(with: coroutine.start())
     }
     
+    // 真正的, 进行协程恢复的地方.
     internal func resume(coroutine: SharedCoroutine) {
         let (state, _) = atomic.update { state, count in
             if state == .isFree {
@@ -50,16 +51,20 @@ internal final class SharedCoroutineQueue {
                 return (.running, count + 1)
             }
         }.old
+        
         state == .isFree ? resumeOnQueue(coroutine) : prepared.push(coroutine)
     }
     
     private func resumeOnQueue(_ coroutine: SharedCoroutine) {
         if self.coroutine !== coroutine {
+            // 原有协程的状态存储.
             self.coroutine?.saveStack()
+            // 新来的协程的恢复.
             coroutine.restoreStack()
             self.coroutine = coroutine
         }
         coroutine.scheduler.scheduleTask {
+            // 真正的协程恢复, 是在 coroutine.resume 的调用中. 
             self.complete(with: coroutine.resume())
         }
     }

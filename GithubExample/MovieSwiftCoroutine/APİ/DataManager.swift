@@ -25,9 +25,11 @@ class DataManager {
         let movies = CoPromise<Movies>()
         
         DispatchQueue.main.startCoroutine {
+            // callback 从哪里来的啊.
             let (data , response , error) = try Coroutine.await { callback in
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
+            
             if let response = response {
                 let httpResponse = response as! HTTPURLResponse
                 print(httpResponse.statusCode)

@@ -1,11 +1,3 @@
-//
-//  CoPromise.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.02.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 /// A promise to provide a result later.
 ///
 /// `CoPromise` is a subclass of `CoFuture` that allows to deliver the result.
