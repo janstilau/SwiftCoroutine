@@ -45,7 +45,7 @@ internal final class CoroutineContext {
     // MARK: - Start
     
     @inlinable internal func start() -> Bool {
-       __start(jumpBufferAddress,
+       __assemblyStart(jumpBufferAddress,
                stackTop,
                Unmanaged.passUnretained(self).toOpaque()) {
            __longjmp(Unmanaged<CoroutineContext>
@@ -71,17 +71,17 @@ internal final class CoroutineContext {
     
     // 真正的进行协程的恢复.
     @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
-        __save(env, jumpBufferAddress, .suspended) == .finished
+        __assemblySave(env, jumpBufferAddress, .suspended) == .finished
     }
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __suspend(data.pointee.env,
+        __assemblySuspend(data.pointee.env,
                   &data.pointee.sp,
                   jumpBufferAddress, .suspended)
     }
     
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        __save(jumpBufferAddress, env, .suspended)
+        __assemblySave(jumpBufferAddress, env, .suspended)
     }
     
     deinit {

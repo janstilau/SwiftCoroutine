@@ -15,7 +15,7 @@
  */
 // MARK: - context
 
-int __start(void* jumpBufferAddress,
+int __assemblyStart(void* jumpBufferAddress,
             const void* stack,
             const void* param,
             const void (*block)(const void*)) {
@@ -42,7 +42,7 @@ int __start(void* jumpBufferAddress,
 
 
 // Wait 操作的实现.
-void __suspend(void* env, void** sp, void* ret, int retVal) {
+void __assemblySuspend(void* env, void** sp, void* ret, int retVal) {
     if (_setjmp(env)) return;
     char x; *sp = (void*)&x;
     // 切换回原有的环境
@@ -50,7 +50,7 @@ void __suspend(void* env, void** sp, void* ret, int retVal) {
 }
 
 // Resume 操作的实现.
-int __save(void* env, void* ret, int retVal) {
+int __assemblySave(void* env, void* ret, int retVal) {
     int n = _setjmp(ret);
     if (n) return n;
     _longjmp(env, retVal);
