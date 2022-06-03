@@ -1,10 +1,3 @@
-//
-//  CoScope.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 09.05.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 /// The holder of uncompleted `CoCancellable` and coroutines.
 ///
@@ -13,7 +6,8 @@
 /// All completed objects are automaticaly removed from scope.
 ///
 /// - Note: `CoScope` keeps weak references.
-///
+
+
 /// ```
 /// let scope = CoScope()
 ///

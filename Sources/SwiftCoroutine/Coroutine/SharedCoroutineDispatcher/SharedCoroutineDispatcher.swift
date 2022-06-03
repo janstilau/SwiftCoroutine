@@ -12,7 +12,8 @@
     static let `default` = SharedCoroutineDispatcher(capacity: .processorsNumber * 2,
                                                      stackSize: .recommended)
     
-    private let stackSize, capacity: Int
+    private let stackSize: Int
+    private let capacity: Int
     private var queues = FifoQueue<SharedCoroutineQueue>()
     private var queuesCount = 0
     

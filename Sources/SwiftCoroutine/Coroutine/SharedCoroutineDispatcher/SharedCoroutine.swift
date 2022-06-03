@@ -11,7 +11,8 @@ internal final class SharedCoroutine {
     internal typealias CompletionState = SharedCoroutineQueue.CompletionState
     
     private struct StackBuffer {
-        let stack: UnsafeMutableRawPointer, size: Int
+        let stack: UnsafeMutableRawPointer
+        let size: Int
     }
     
     internal let dispatcher: SharedCoroutineDispatcher
@@ -121,6 +122,9 @@ extension SharedCoroutine: CoroutineProtocol {
             // 在 asyncTrigger 的异步回调里面, 是做真正的值的提取.
             // 所以, 实际上还是使用了以后的异步触发机制. 只是现在变为了, 只有异步返回之后, 才能进行后续的操作.
             result = value
+            
+            // 这里有点类似于条件锁, 在 commit 线程, 进行 lock 处理, 然后在异步 callback 中, 进行 unlock 的操作.
+            // 这样, commit 线程才能继续进行. 
             // 在异步操作完成之后, 进行调度.
             self.resumeIfSuspended()
         }

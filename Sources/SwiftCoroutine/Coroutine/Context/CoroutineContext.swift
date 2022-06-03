@@ -102,9 +102,7 @@ extension Int32 {
 }
 
 extension CoroutineContext.SuspendData {
-    
     internal init() {
         self = .init(env: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
     }
-    
 }

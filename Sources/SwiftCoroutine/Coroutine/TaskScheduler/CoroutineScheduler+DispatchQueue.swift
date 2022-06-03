@@ -8,6 +8,8 @@
 
 import Foundation
 
+// DispatchQueue 实现调度.
+// 线程切换. 
 extension DispatchQueue: CoroutineScheduler {
     
     @inlinable public func scheduleTask(_ task: @escaping () -> Void) {

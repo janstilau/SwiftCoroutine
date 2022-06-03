@@ -1,9 +1,12 @@
+
+
 /// A protocol that defines how to execute a task.
 ///
 /// This protocol has extension methods that allow to launch coroutines on a current scheduler.
 /// Inside the coroutine you can use such methods as `Coroutine.await(_:)`, `CoFuture.await()`,
 /// and `CoroutineScheduler.await(_:)` to suspend the coroutine without blocking a thread
 /// and resume it when the result is ready.
+
 // 
 /// To launch a coroutine, use `CoroutineScheduler.startCoroutine(_:)`.
 /// ```
@@ -30,6 +33,11 @@
 ///
 /// }
 /// ```
+///
+///
+
+// 调度器的概念, 和 Combine, Rx 是一套思想.
+// 各种的操作, 都是在 extension 中添加的.
 public protocol CoroutineScheduler {
     
     /// Performs the task at the next possible opportunity.

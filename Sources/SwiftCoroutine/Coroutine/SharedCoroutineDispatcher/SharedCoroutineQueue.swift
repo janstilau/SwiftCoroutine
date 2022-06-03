@@ -1,11 +1,3 @@
-//
-//  SharedCoroutineQueue.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.04.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 internal final class SharedCoroutineQueue {
     
     private struct Task {

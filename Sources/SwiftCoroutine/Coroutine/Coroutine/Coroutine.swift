@@ -8,11 +8,11 @@
 
 import Dispatch
 
+// 直接调用, 没有调度的含义在里面. 
 @usableFromInline internal struct ImmediateScheduler: CoroutineScheduler {
     
     @usableFromInline init() {}
     @inlinable func scheduleTask(_ task: @escaping () -> Void) { task() }
-    
 }
 
 /// Additional struct with utility methods to work with coroutines.
