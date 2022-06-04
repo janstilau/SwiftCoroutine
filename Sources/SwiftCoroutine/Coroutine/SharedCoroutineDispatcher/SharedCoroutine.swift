@@ -11,8 +11,8 @@ internal final class SharedCoroutine {
     internal typealias CompletionState = SharedCoroutineQueue.CompletionState
     
     private struct StackBuffer {
-        let stack: UnsafeMutableRawPointer
-        let size: Int
+        let startPointer: UnsafeMutableRawPointer
+        let stackSize: Int
     }
     
     internal let dispatcher: SharedCoroutineDispatcher
@@ -41,9 +41,9 @@ internal final class SharedCoroutine {
         performAsCurrent(resumeContext)
     }
     
-    // 真正的记性协程恢复的地方.
+    // 真正的协程恢复的地方.
     private func resumeContext() -> CompletionState {
-        perform { queue.context.resume(from: environment.pointee.env) }
+        perform { queue.context.resume(from: environment.pointee._jumpBuffer) }
     }
     
     private func perform(_ block: () -> Bool) -> CompletionState {
@@ -75,20 +75,21 @@ internal final class SharedCoroutine {
     // MARK: - Stack
     
     internal func saveStack() {
-        let size = environment.pointee.sp.distance(to: queue.context.stackTop)
+        let size = environment.pointee._stackTop.distance(to: queue.context.stackBottom)
         let stack = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-        stack.copyMemory(from: environment.pointee.sp, byteCount: size)
-        stackBuffer = .init(stack: stack, size: size)
+        // 不会吧所有的都存储下来, 只是把当前使用到的栈顶存储下来. 
+        stack.copyMemory(from: environment.pointee._stackTop, byteCount: size)
+        stackBuffer = .init(startPointer: stack, stackSize: size)
     }
     
     internal func restoreStack() {
-        environment.pointee.sp.copyMemory(from: stackBuffer.stack, byteCount: stackBuffer.size)
-        stackBuffer.stack.deallocate()
+        environment.pointee._stackTop.copyMemory(from: stackBuffer.startPointer, byteCount: stackBuffer.stackSize)
+        stackBuffer.startPointer.deallocate()
         stackBuffer = nil
     }
     
     deinit {
-        environment?.pointee.env.deallocate()
+        environment?.pointee._jumpBuffer.deallocate()
         environment?.deallocate()
     }
     
@@ -100,6 +101,12 @@ extension SharedCoroutine: CoroutineProtocol {
     
     // Await, 参数是一个异步函数的触发器.
     // 这个异步函数, 接受一个回调, 来作为自己的 CompletionHandler
+    
+    /*
+     { callback in
+         URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+     }
+     */
     internal func await<T>(_ asyncTrigger: (@escaping (T) -> Void) -> Void)
     throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }

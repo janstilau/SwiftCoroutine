@@ -6,14 +6,17 @@
 //  Copyright © 2020 Alex Belozierov. All rights reserved.
 //
 
+// 使用链表的方式, 将所有的回调进行了存储.
+// 使用数组有什么问题????
 internal struct CallbackStack<T> {
-    
-    private typealias Pointer = UnsafeMutablePointer<Node>
     
     private struct Node {
         let callback: (T) -> Void
         var next = 0
     }
+    
+    // 大量的使用了 typealias
+    private typealias Pointer = UnsafeMutablePointer<Node>
     
     private var rawValue = 0
     
@@ -28,6 +31,7 @@ internal struct CallbackStack<T> {
     @inlinable internal var isEmpty: Bool { rawValue <= 0 }
     @inlinable internal var isClosed: Bool { rawValue == -1 }
     
+    // 链表头插法进行存储.
     @inlinable internal mutating func append(_ callback: @escaping (T) -> Void) -> Bool {
         var pointer: Pointer!
         while true {
@@ -40,7 +44,9 @@ internal struct CallbackStack<T> {
                 pointer.initialize(to: Node(callback: callback))
             }
             pointer.pointee.next = address
-            if atomicCAS(&rawValue, expected: address, desired: Int(bitPattern: pointer)) {
+            if atomicCAS(&rawValue,
+                         expected: address,
+                         desired: Int(bitPattern: pointer)) {
                 return true
             }
         }

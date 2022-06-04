@@ -20,7 +20,9 @@ extension CoFuture {
     /// - Parameter callback: The callback that is called with the successful result of the `CoFuture`.
     @inlinable public func whenSuccess(_ callback: @escaping (Value) -> Void) {
         addCallback { result in
-            if case .success(let value) = result { callback(value) }
+            if case .success(let value) = result {
+                callback(value)
+            }
         }
     }
     
@@ -28,7 +30,9 @@ extension CoFuture {
     /// - Parameter callback: The callback that is called with the failed result of the `CoFuture`.
     @inlinable public func whenFailure(_ callback: @escaping (Error) -> Void) {
         addCallback { result in
-            if case .failure(let error) = result { callback(error) }
+            if case .failure(let error) = result {
+                callback(error)
+            }
         }
     }
     
@@ -37,7 +41,9 @@ extension CoFuture {
     @inlinable public func whenCanceled(_ callback: @escaping () -> Void) {
         addCallback { result in
             if case .failure(let error as CoFutureError) = result,
-                error == .canceled { callback() }
+                error == .canceled {
+                callback()
+            }
         }
     }
     

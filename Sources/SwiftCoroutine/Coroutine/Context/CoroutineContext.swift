@@ -37,8 +37,9 @@ internal final class CoroutineContext {
         }
     }
     
-    // contextStack 给与外边使用的就是这里.
-    @inlinable internal var stackTop: UnsafeMutableRawPointer {
+    // 栈空间, 是从高到低的.
+    // 所以加过去, 高的地方是栈底空间. 
+    @inlinable internal var stackBottom: UnsafeMutableRawPointer {
         .init(contextStack + stackSize)
     }
     
@@ -46,13 +47,16 @@ internal final class CoroutineContext {
     
     @inlinable internal func start() -> Bool {
        __assemblyStart(jumpBufferAddress,
-               stackTop,
+               stackBottom,
                Unmanaged.passUnretained(self).toOpaque()) {
-           __longjmp(Unmanaged<CoroutineContext>
+           __longjmp(
+            // $0 就是 self 了.
+            Unmanaged<CoroutineContext>
                .fromOpaque($0!)
                .takeUnretainedValue()
                .performBlock(),
-                        .finished)
+            
+                .finished)
        } == .finished
     }
     
@@ -65,8 +69,8 @@ internal final class CoroutineContext {
     // MARK: - Operations
     
     internal struct SuspendData {
-        let env: UnsafeMutableRawPointer
-        var sp: UnsafeMutableRawPointer!
+        let _jumpBuffer: UnsafeMutableRawPointer
+        var _stackTop: UnsafeMutableRawPointer!
     }
     
     // 真正的进行协程的恢复.
@@ -75,8 +79,9 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __assemblySuspend(data.pointee.env,
-                  &data.pointee.sp,
+        // data.pointee._stackTop 唯一会修改的地方. 
+        __assemblySuspend(data.pointee._jumpBuffer,
+                  &data.pointee._stackTop,
                   jumpBufferAddress, .suspended)
     }
     
@@ -103,6 +108,6 @@ extension Int32 {
 
 extension CoroutineContext.SuspendData {
     internal init() {
-        self = .init(env: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
+        self = .init(_jumpBuffer: .allocate(byteCount: .environmentSize, alignment: 16), _stackTop: nil)
     }
 }

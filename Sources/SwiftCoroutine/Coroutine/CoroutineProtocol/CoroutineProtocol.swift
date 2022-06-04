@@ -36,6 +36,7 @@ extension CoroutineProtocol {
 extension Coroutine {
     
     @inlinable internal static var currentPointer: UnsafeMutableRawPointer? {
+        // 从线程中, 获取当前执行的协程对象.
         pthread_getspecific(.coroutine)
     }
     

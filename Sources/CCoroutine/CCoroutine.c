@@ -42,22 +42,23 @@ int __assemblyStart(void* jumpBufferAddress,
 
 
 // Wait 操作的实现.
-void __assemblySuspend(void* env, void** sp, void* ret, int retVal) {
-    if (_setjmp(env)) return;
-    char x; *sp = (void*)&x;
+void __assemblySuspend(void* toSaveEnv, void** stackTopAddress, void* jumpToEnv, int retVal) {
+    if (_setjmp(toSaveEnv)) return;
+    // 非常狗的一个做法, 使用一个临时变量, 来衡量出现在使用了多少栈空间. 
+    char x; *stackTopAddress = (void*)&x;
     // 切换回原有的环境
-    _longjmp(ret, retVal);
+    _longjmp(jumpToEnv, retVal);
 }
 
 // Resume 操作的实现.
-int __assemblySave(void* env, void* ret, int retVal) {
-    int n = _setjmp(ret);
+int __assemblySave(void* jumpToEnv, void* toSavedEnv, int retVal) {
+    int n = _setjmp(toSavedEnv);
     if (n) return n;
-    _longjmp(env, retVal);
+    _longjmp(jumpToEnv, retVal);
 }
 
-void __longjmp(void* env, int retVal) {
-    _longjmp(env, retVal);
+void __longjmp(void* jumpToEnv, int retVal) {
+    _longjmp(jumpToEnv, retVal);
 }
 
 // MARK: - atomic

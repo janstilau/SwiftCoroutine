@@ -10,10 +10,8 @@
 import Glibc
 
 extension Int {
-    
     internal static let pageSize = sysconf(Int32(_SC_PAGESIZE))
     internal static let processorsNumber = sysconf(Int32(_SC_NPROCESSORS_ONLN))
-    
 }
 
 #else
@@ -33,7 +31,5 @@ public typealias jmp_buf = (Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int
 public typealias sigjmp_buf = (Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32, Int32)
  */
 extension Int {
-    
     internal static let environmentSize = MemoryLayout<jmp_buf>.size
-    
 }
