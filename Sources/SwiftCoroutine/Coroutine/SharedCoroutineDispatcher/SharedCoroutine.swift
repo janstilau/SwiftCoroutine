@@ -10,7 +10,7 @@ internal final class SharedCoroutine {
     
     internal typealias CompletionState = SharedCoroutineQueue.CompletionState
     
-    private struct StackBuffer {
+    private struct CachedStackBuffer {
         let startPointer: UnsafeMutableRawPointer
         let stackSize: Int
     }
@@ -21,7 +21,7 @@ internal final class SharedCoroutine {
     
     private var state: Int = .running
     private var environment: UnsafeMutablePointer<CoroutineContext.SuspendData>!
-    private var stackBuffer: StackBuffer!
+    private var stackBuffer: CachedStackBuffer!
     private var isCanceled = 0
     private var awaitTag = 0
     
@@ -30,7 +30,7 @@ internal final class SharedCoroutine {
         self.queue = queue
         self.scheduler = scheduler
     }
-  
+    
     // MARK: - Actions
     
     internal func start() -> CompletionState {
@@ -77,7 +77,7 @@ internal final class SharedCoroutine {
     internal func saveStack() {
         let size = environment.pointee._stackTop.distance(to: queue.context.stackBottom)
         let stack = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-        // 不会吧所有的都存储下来, 只是把当前使用到的栈顶存储下来. 
+        // 不会吧所有的都存储下来, 只是把当前使用到的栈顶存储下来.
         stack.copyMemory(from: environment.pointee._stackTop, byteCount: size)
         stackBuffer = .init(startPointer: stack, stackSize: size)
     }
@@ -104,7 +104,7 @@ extension SharedCoroutine: CoroutineProtocol {
     
     /*
      { callback in
-         URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+     URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
      }
      */
     internal func await<T>(_ asyncTrigger: (@escaping (T) -> Void) -> Void)
@@ -131,7 +131,7 @@ extension SharedCoroutine: CoroutineProtocol {
             result = value
             
             // 这里有点类似于条件锁, 在 commit 线程, 进行 lock 处理, 然后在异步 callback 中, 进行 unlock 的操作.
-            // 这样, commit 线程才能继续进行. 
+            // 这样, commit 线程才能继续进行.
             // 在异步操作完成之后, 进行调度.
             self.resumeIfSuspended()
         }
@@ -152,7 +152,7 @@ extension SharedCoroutine: CoroutineProtocol {
         defer { setScheduler(currentScheduler) }
         if isCanceled == 1 { throw CoroutineError.canceled }
         return try task()
-
+        
     }
     
     private func setScheduler(_ scheduler: CoroutineScheduler) {
