@@ -31,6 +31,8 @@ class ViewControllerViewModel {
             self.movies = try self.dataManager.getPopularMovies().await()
         }
         
+        
+        /*
         var idGenerator: Int = 0
         
         DispatchQueue.global().startCoroutine {
@@ -245,6 +247,7 @@ class ViewControllerViewModel {
                 print("真正的任务不是一个线程!!!!")
             }
         }
+         */
         
 //        DispatchQueue.main.startCoroutine {
 //            self.movies = try self.dataManager.getPopularMovies().await()

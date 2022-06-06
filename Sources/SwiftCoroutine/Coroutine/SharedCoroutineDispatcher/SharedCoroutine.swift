@@ -73,10 +73,13 @@ internal final class SharedCoroutine {
      queue.context.resume
      queue.context.start
      
-     
+     actionWithReturnIsCoroutionEnded 如果返回是 true, 那就是协程的任务, 已经跑完了. 协程进入完结状态.
+     否则, 应该根据 routeState 来返回当前协程任务的完成状态.
      */
     private func perform(_ actionWithReturnIsCoroutionEnded: () -> Bool) -> CompletionState {
-        if actionWithReturnIsCoroutionEnded() { return .finished }
+        if actionWithReturnIsCoroutionEnded() {
+            return .finished
+        }
         
         // 如果, 上面的 Block 没有返回 true, 就是协程进入到暂停的状态了.
         while true {

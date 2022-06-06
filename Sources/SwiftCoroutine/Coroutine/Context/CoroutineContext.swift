@@ -56,13 +56,15 @@ internal final class CoroutineContext {
          1. 将开启协程的状态, 保存到 contextJumpBuffer 中.
          2. 然后通过 __longjmp(self.performBlock(),.finished)) 来执行协程的启动 task.
          如果这个 task 中没有异步函数, 那么 finished 的就是 __assemblyStart 这个函数的返回值. 最后和 .finished 判断为 true, 代表着这个协程执行完毕了.
+         
          如果这个 task 中有异步函数. 那么 performBlock 其实不能够顺利执行完毕的. 所以这个 __assemblyStart 还没有返回值.
          这个时候, 程序会通过下面的方法, 跳转回 contextJumpBuffer 中, __assemblyStart 的返回值是 suspended. 所以通过 start() 返回 false, 表示协程还没有结束.
          __assemblySuspend(data.pointee._jumpBuffer,
                    &data.pointee._stackTop,
                    contextJumpBuffer, .suspended)
          
-         当, resume 的时候,
+         当 Coroutine Resume 之后, performBlock 可以正常执行完毕, __longjmp 会被触发, .finished 参数被传递进去.
+         这是时候, __assemblyStart 
          */
        let coroutineResult =
         __assemblyStart(contextJumpBuffer,
@@ -121,7 +123,8 @@ internal final class CoroutineContext {
          */
         // 这里, __assemblyResume 只所以能够返回 finished, 是 performBlock 执行到最后了, 可以返回 __longjmp 的第二个参数了.
         // finish 的条件, 就是 start 中, performBlock 执行完了才可以.
-        __assemblyResume(jumpToEnv, contextJumpBuffer, .suspended) == .finished
+        let resumeResult = __assemblyResume(jumpToEnv, contextJumpBuffer, .suspended)
+        return  resumeResult == .finished
     }
     
     /*
@@ -154,6 +157,8 @@ internal final class CoroutineContext {
         contextJumpBuffer.deallocate()
         contextStack.deallocate()
     }
+    
+    
     
 }
 

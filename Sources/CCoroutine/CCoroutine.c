@@ -17,13 +17,17 @@
 
 // 在开始的时候, 是没有 JumpBuffer 用来跳转的.
 // 代码按照代码编写顺序继续执行, 在这里, 有着主动地函数调用栈的覆盖的动作.
-int __assemblyStart(void* jumpBufferAddress,
+int __assemblyStart(void* contextJumpBuffer,
             const void* stack,
             const void* param,
             const void (*block)(const void*)) {
     // 将, 当前的运行状态, 存放到了 jumpBufferAddress 中.
-    int n = _setjmp(jumpBufferAddress);
-    if (n) return n;
+    // 如果, Coroutine 的启动函数, 没有 wait, 那么这里会被触发, n 为 1, 代表 finished
+    // 如果, Coroutine 的启动函数, 中间有 wait, 那么这里会被触发, n 为 -1, 代表着 canceled.
+    int n = _setjmp(contextJumpBuffer);
+    if (n) {
+        return n;
+    }
     
     // __asm 关键字用于调用内联汇编程序，并且可在 C 或 C++ 语句合法时出现。
     #if defined(__x86_64__)
@@ -39,29 +43,38 @@ int __assemblyStart(void* jumpBufferAddress,
     "mov x0, %1\n"
     "blr %2" :: "r"(stack), "r"(param), "r"(block));
     #endif
+    
     return 0;
 }
 
 
 // Wait 操作的实现.
-void __assemblySuspend(void* toSaveEnv, void** stackTopAddress, void* jumpToEnv, int retVal) {
-    // 将, 当前协程的执行环境进行记录.
-    if (_setjmp(toSaveEnv)) return;
+void __assemblySuspend(void* coroutineJumpBuffer, void** stackTopAddress, void* contextJumpBuffer, int retVal) {
+    // 当, Coroution Resume 的时候, 这里会被触发.
+    // 这里统一都是会传递 .suspended, -1
+    int n = _setjmp(coroutineJumpBuffer);
+    if (n) {
+        return;
+    }
     // 将, 当前协程的调用堆栈进行记录.
     char x; *stackTopAddress = (void*)&x;
     // 切换回原有的环境
-    _longjmp(jumpToEnv, retVal);
+    _longjmp(contextJumpBuffer, retVal);
 }
 
-// Resume 操作的实现.
-int __assemblyResume(void* jumpToEnv, void* toSavedEnv, int retVal) {
-    // 存储当前的执行环境. 
-    int n = _setjmp(toSavedEnv);
-    if (n) return n;
+// __assemblyResume 的返回值, 是当程序, 切回到 contextJumpBuffer 的时候. 
+int __assemblyResume(void* cororoutineJumpBuffer, void* contextJumpBuffer, int retVal) {
+    // 当, 协程有一次被 Suspend 的时候, 这里会被触发, .suspended, -1
+    // 当, start 函数的 task 完成之后, 这里会被触发, .finished, 1, 所以 resume 会有返回 .finished 的情况存在.
+    // 当, _longjmp(contextJumpBuffer) 的时候, 会跳转到, 最近一次 _setjmp(contextJumpBuffer) 的地方.
+    int n = _setjmp(contextJumpBuffer);
+    if (n) {
+        return n;
+    }
     
     // 执行到这里, 这个函数算作是没有返回.
     // 只有再次跳转到 toSavedEnv 的时候, 才能算作是这个函数有了返回值.
-    _longjmp(jumpToEnv, retVal);
+    _longjmp(cororoutineJumpBuffer, retVal);
 }
 
 void __longjmp(void* jumpToEnv, int retVal) {
