@@ -41,9 +41,8 @@ internal final class SharedCoroutine {
     // MARK: - Actions
     
     internal func start() -> CompletionState {
-//        performAsCurrent { perform(queue.context.start) }
         performAsCurrent {
-            perform {
+            return perform {
                 print("id: \(self.id) 在 queue: \(queue.id) 上启动. 当前线程 \(Thread.current)")
                 return queue.context.start()
             }
@@ -51,16 +50,20 @@ internal final class SharedCoroutine {
     }
     
     internal func resume() -> CompletionState {
-//        performAsCurrent(resumeContext)
         performAsCurrent {
-            print("id: \(self.id) 在 queue: \(queue.id) 上恢复. 当前线程 \(Thread.current)")
-            return resumeContext()
+            return perform {
+                print("id: \(self.id) 在 queue: \(queue.id) 上恢复. 当前线程 \(Thread.current)")
+                return queue.context.resume(from: environment.pointee._jumpBuffer)
+            }
         }
     }
     
     // 真正的协程恢复的地方.
     private func resumeContext() -> CompletionState {
-        perform { queue.context.resume(from: environment.pointee._jumpBuffer) }
+        perform {
+            // __assemblySave(env, contextJumpBuffer, .suspended) == .finished
+            queue.context.resume(from: environment.pointee._jumpBuffer)
+        }
     }
     
     private func perform(_ block: () -> Bool) -> CompletionState {

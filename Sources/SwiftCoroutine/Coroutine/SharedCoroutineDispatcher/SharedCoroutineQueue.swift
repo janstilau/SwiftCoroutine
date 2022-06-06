@@ -60,6 +60,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
             }
         }.old
         
+        // 如果, 当前正在进行进行协程处理. 不会立马触发传入的新的协程对象. 
         state == .isFree ? resumeOnQueue(coroutine) : prepared.push(coroutine)
     }
     

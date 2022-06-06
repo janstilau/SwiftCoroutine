@@ -103,6 +103,19 @@ internal final class CoroutineContext {
     
     deinit {
         if haveGuardPage {
+            /*
+             mprotect()函数把自start开始的、长度为len的内存区的保护属性修改为prot指定的值。
+
+             prot可以取以下几个值，并且可以用“|”将几个属性合起来使用：
+
+             1）PROT_READ：表示内存段内的内容可写；
+
+             2）PROT_WRITE：表示内存段内的内容可读；
+
+             3）PROT_EXEC：表示内存段中的内容可执行；
+
+             4）PROT_NONE：表示内存段中的内容根本没法访问。
+             */
             mprotect(contextStack, .pageSize, PROT_READ | PROT_WRITE)
         }
         contextJumpBuffer.deallocate()

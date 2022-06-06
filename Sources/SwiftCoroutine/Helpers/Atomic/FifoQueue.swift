@@ -84,7 +84,11 @@ internal struct FifoQueue<T> {
     // MARK: - Pop
     
     @inlinable internal mutating func blockingPop() -> T {
-        while true { if let item = pop() { return item } }
+        while true {
+            if let item = pop() {
+                return item
+            }
+        }
     }
     
     internal mutating func pop() -> T? {
