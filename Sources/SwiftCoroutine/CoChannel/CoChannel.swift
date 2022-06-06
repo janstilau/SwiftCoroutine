@@ -1,10 +1,11 @@
 
-// 这可以认为是 AsyncSequence 的实现. 
+// 这可以认为是 AsyncSequence 的实现.
 /// Channel is a non-blocking primitive for communication between a sender and a receiver.
 /// Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty or on send if it is full.
 ///
 /// - Important: Always `close()` or `cancel()` a channel when you are done to resume all suspended coroutines by the channel.
 ///
+
 /// ```
 /// let channel = CoChannel<Int>(capacity: 1)
 ///
@@ -14,6 +15,8 @@
 ///    }
 ///    channel.close()
 /// }
+
+// 后面的在消耗, 但是, 只有前面的进行了添加之后, 后面的才能真正的进行获取.
 ///
 /// DispatchQueue.global().startCoroutine {
 ///     for i in channel.makeIterator() {
@@ -50,6 +53,7 @@ public final class CoChannel<Element> {
         case conflated
     }
     
+    // 一个抽象基类.
     @usableFromInline internal let channel: _Channel<Element>
     
     /// Initializes a channel.

@@ -18,6 +18,8 @@ internal final class CoFutureSubscription<S: Subscriber, T>: Subscription where 
     @inlinable internal init(subscriber: S, future: CoFuture<T>) {
         self.future = future
         self.subscriber = subscriber
+        // future 添加了一个回调, 在 Result 赋值之后, 进行后续节点的值的传送.
+        // 这里面, 没有 demand 的管理. 
         future.addCallback { result in
             guard let subscriber = self.subscriber else { return }
             switch result {

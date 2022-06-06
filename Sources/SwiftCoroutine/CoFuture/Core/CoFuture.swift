@@ -96,7 +96,6 @@ public class CoFuture<Value> {
         if nodes.isEmpty { return }
         nodes.finish(with: .failure(CoFutureError.canceled))
     }
-    
 }
 
 extension CoFuture: _CoFutureCancellable {
@@ -171,7 +170,7 @@ extension CoFuture: _CoFutureCancellable {
     /// Returns `true` when the current future is canceled.
     @inlinable public var isCanceled: Bool {
         // 特殊判断, 如果 result 是 failure, 并且是 cancel 的类型.
-        // 这种设计很常见. Result 中做 Bool 区分, failure 中专门定义一个 case, 代表着主动取消. 
+        // 这种设计很常见. Result 中做 Bool 区分, failure 中专门定义一个 case, 代表着主动取消.
         if case .failure(let error as CoFutureError)? = result {
             return error == .canceled
         }

@@ -18,6 +18,8 @@ internal struct CallbackStack<T> {
     // 大量的使用了 typealias
     private typealias Pointer = UnsafeMutablePointer<Node>
     
+    // 超级傻逼, 使用一个 Int 值做各种业务上的判断.
+    // 谁他妈和完全和你的想法一样. 
     private var rawValue = 0
     
     private init(rawValue: Int) {

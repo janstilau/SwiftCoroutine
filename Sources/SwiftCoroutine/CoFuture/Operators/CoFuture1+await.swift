@@ -25,6 +25,12 @@ extension CoFuture {
     /// - Throws: The failed result of the `CoFuture`.
     /// - Returns: The value of the `CoFuture` when it is completed.
     @inlinable public func await() throws -> Value {
+        /*
+         addCallback 当做 asyncAction, 会在 wait 中触发. 将 await 中取值并且 resume 的过程, 存储到了 Future 的 Result 回调里面.
+         在 Future 进行了赋值之后, 会进行逻辑的触发.
+         
+         而 Future Result 的值的赋值, 是 Future 返回之前, 就写好在异步回调里面的. 
+         */
         try (result ?? Coroutine.current().await(addCallback)).get()
     }
     

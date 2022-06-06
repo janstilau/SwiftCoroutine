@@ -37,6 +37,7 @@ extension CoFuture {
         if let result = result {
             return CoFuture<NewValue>(result: transform(result))
         }
+        // 新建一个对象, 在这个对象里面, 进行回调的挂钩. 
         let promise = CoPromise<NewValue>(parent: self)
         addCallback { promise.setResult(transform($0)) }
         return promise

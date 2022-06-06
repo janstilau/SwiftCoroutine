@@ -25,8 +25,10 @@ internal final class CoFuturePublisher<Output> {
 @available(OSX 10.15, iOS 13.0, *)
 extension CoFuturePublisher: Publisher {
     
+    // 这是一个头结点, 所有没有向前进行挂钩的逻辑. 
     @inlinable internal func receive<S: Subscriber>(subscriber: S) where Failure == S.Failure, Output == S.Input {
-        let subscription = CoFutureSubscription(subscriber: subscriber, future: future)
+        let subscription = CoFutureSubscription(subscriber: subscriber,
+                                                future: future)
         subscriber.receive(subscription: subscription)
     }
     

@@ -6,6 +6,9 @@
 //  Copyright © 2020 Alex Belozierov. All rights reserved.
 //
 
+
+// 提供, 特定条件的回调.
+// 最终, 还是使用了 addCallback. 只不过是带有条件判断了. 
 extension CoFuture {
     
     // MARK: - whenComplete
@@ -40,6 +43,8 @@ extension CoFuture {
     /// - Parameter callback: The callback that is called when the `CoFuture` is canceled.
     @inlinable public func whenCanceled(_ callback: @escaping () -> Void) {
         addCallback { result in
+            // 首先, 必须是失败了, 然后失败的类型, 必须是 cancel.
+            // 这是一个非常通用的设计, 一个专门的 Error 类型, 来代表失败. 
             if case .failure(let error as CoFutureError) = result,
                 error == .canceled {
                 callback()
