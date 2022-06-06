@@ -13,9 +13,9 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     
     // 一个 Queue 里面, 一个 Context.
     internal let context: CoroutineContext
-    private var coroutine: SharedCoroutine!
+    private var coroutine: SharedCoroutine! // 当前正在运行的协程对象.
     
-    internal var inQueue = false
+    internal var isInFreeQueue = false
     private(set) var started = 0
     private var atomic = AtomicTuple()
     private var prepared = FifoQueue<SharedCoroutine>()
@@ -98,7 +98,8 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         let isFinished = atomic.update { _, count in
             count > 0 ? (.running, count - 1) : (.isFree, 0)
         }.new.0 == .isFree
-        isFinished ? dispatcher.push(self) : resumeOnQueue(prepared.blockingPop())
+        // 判断一下, 当前 Queue 的剩余任务量. 进行任务的调度处理. 
+        isFinished ? dispatcher.pushFreeQueue(self) : resumeOnQueue(prepared.blockingPop())
     }
     
     deinit {

@@ -9,7 +9,8 @@
 internal struct AtomicTuple {
     
     internal typealias Tuple = (Int32, Int32)
-    // 一个值, 两处用. 
+    // 真正的存储, 是一个 64 位的 Int, 刚好可以作为一个 Tuple 使用.
+    // 这里, 直接使用一个 Tuple 有什么问题??
     private(set) var rawValue = 0
     
     @inline(__always) internal var value: Tuple {

@@ -28,7 +28,7 @@
         while let queue = queues.pop() {
             // QueueCount 没有直接维护在 quques 里面, 而是在外面使用一个成员变量进行的维护.
             atomicAdd(&queuesCount, value: -1)
-            queue.inQueue = false
+            queue.isInFreeQueue = false
             if queue.occupy() { return queue }
         }
         // 真正的, 进行 Queue 生成的地方.
@@ -36,10 +36,10 @@
     }
     
     // SharedCoroutineQueue 不会在调用方进行生成.  SharedCoroutineQueue 只会在上面的 getFreeQueue 中进行生成.
-    internal func push(_ queue: SharedCoroutineQueue) {
+    internal func pushFreeQueue(_ queue: SharedCoroutineQueue) {
         if queue.started != 0 {
-            if queue.inQueue { return }
-            queue.inQueue = true
+            if queue.isInFreeQueue { return }
+            queue.isInFreeQueue = true
             queues.push(queue)
             // QueueCount 没有直接维护在 quques 里面, 而是在外面使用一个成员变量进行的维护.
             atomicAdd(&queuesCount, value: 1)
