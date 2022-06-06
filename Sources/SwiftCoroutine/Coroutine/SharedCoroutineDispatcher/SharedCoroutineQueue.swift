@@ -72,7 +72,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
             self.coroutine = coroutine
         }
         coroutine.scheduler.scheduleTask {
-            // 真正的协程恢复, 是在 coroutine.resume 的调用中. 
+            // 在 resume 的时候, scheduleTask 进行了调度.
             self.complete(with: coroutine.resume())
         }
     }
@@ -88,6 +88,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
             performNext(for: coroutine.dispatcher)
         case .restarting:
             coroutine.scheduler.scheduleTask {
+                // 在 resume 的时候, scheduleTask 进行了调度.
                 self.complete(with: self.coroutine.resume())
             }
         }

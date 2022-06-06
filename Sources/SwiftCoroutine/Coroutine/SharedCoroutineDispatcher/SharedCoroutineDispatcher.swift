@@ -18,6 +18,7 @@
     @usableFromInline
     internal func executeCoroutionStart(on scheduler: CoroutineScheduler,
                           coroutionStartTask: @escaping () -> Void) {
+        // 在启动的时候, scheduleTask 进行了调度. 
         scheduler.scheduleTask {
             self.getFreeQueue().start(dispatcher: self, scheduler: scheduler, task: coroutionStartTask)
         }
