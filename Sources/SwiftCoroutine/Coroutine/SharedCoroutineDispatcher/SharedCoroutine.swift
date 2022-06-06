@@ -138,6 +138,12 @@ extension SharedCoroutine: CoroutineProtocol {
         var result: T!
         // 在这里, 使用异步 API 触发了异步函数.
         // 只有在异步 API 的回调里面, 才进行 resume 处理.
+        
+        /*
+         原本的 asyncTrigger 的回调, 是进行业务处理.
+         现在变为了, 进行值的赋值, 然后进行协程的唤醒.
+         可以使用信号量的同步取值逻辑来思考这一块.  asyncTrigger 的回调, 是用来进行取值的, 在异步函数取到值之后, 进行赋值的操作, 然后唤醒原来的流程.
+         */
         asyncTrigger { value in
             while true {
                 // 如果, id 已经改变了, 那么就没有必要进行 result 的赋值了.
