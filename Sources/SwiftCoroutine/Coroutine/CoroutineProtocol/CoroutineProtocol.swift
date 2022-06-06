@@ -30,6 +30,7 @@ extension CoroutineProtocol {
         pthread_setspecific(.coroutine, Unmanaged.passUnretained(self).toOpaque())
         // 在, block 调用之后, 会让出占位的.
         defer { pthread_setspecific(.coroutine, caller) }
+        
         return block()
     }
     

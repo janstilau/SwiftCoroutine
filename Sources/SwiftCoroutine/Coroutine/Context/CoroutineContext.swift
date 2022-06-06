@@ -52,9 +52,20 @@ internal final class CoroutineContext {
         */
         
         /*
-         __assemblyStart 的调用, 直到 performBlock() 运行结束之后, 才会结束. 
+         __assemblyStart 的流程.
+         1. 将开启协程的状态, 保存到 contextJumpBuffer 中.
+         2. 然后通过 __longjmp(self.performBlock(),.finished)) 来执行协程的启动 task.
+         如果这个 task 中没有异步函数, 那么 finished 的就是 __assemblyStart 这个函数的返回值. 最后和 .finished 判断为 true, 代表着这个协程执行完毕了.
+         如果这个 task 中有异步函数. 那么 performBlock 其实不能够顺利执行完毕的. 所以这个 __assemblyStart 还没有返回值.
+         这个时候, 程序会通过下面的方法, 跳转回 contextJumpBuffer 中, __assemblyStart 的返回值是 suspended. 所以通过 start() 返回 false, 表示协程还没有结束.
+         __assemblySuspend(data.pointee._jumpBuffer,
+                   &data.pointee._stackTop,
+                   contextJumpBuffer, .suspended)
+         
+         当, resume 的时候,
          */
-       __assemblyStart(contextJumpBuffer,
+       let coroutineResult =
+        __assemblyStart(contextJumpBuffer,
                stackBottom,
                Unmanaged.passUnretained(self).toOpaque()) {
            
@@ -65,7 +76,10 @@ internal final class CoroutineContext {
                .performBlock(),
             
                 .finished)
-       } == .finished
+       }
+        
+        
+       return coroutineResult == .finished
     }
     
     /*
@@ -95,7 +109,7 @@ internal final class CoroutineContext {
     /*
      进行协程的恢复, 要记录 Queue 的 JumpBuffer, 然后切换到协程的环境里面.
      */
-    @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
+    @inlinable internal func resume(from jumpToEnv: UnsafeMutableRawPointer) -> Bool {
         /*
          __longjmp(
           Unmanaged<CoroutineContext>
@@ -105,9 +119,9 @@ internal final class CoroutineContext {
           
               .finished)
          */
-        // 这里, __assemblySave 只所以能够返回 finished, 是 performBlock 执行到最后了, 可以返回 __longjmp 的第二个参数了.
+        // 这里, __assemblyResume 只所以能够返回 finished, 是 performBlock 执行到最后了, 可以返回 __longjmp 的第二个参数了.
         // finish 的条件, 就是 start 中, performBlock 执行完了才可以.
-        __assemblySave(env, contextJumpBuffer, .suspended) == .finished
+        __assemblyResume(jumpToEnv, contextJumpBuffer, .suspended) == .finished
     }
     
     /*
@@ -118,13 +132,6 @@ internal final class CoroutineContext {
         __assemblySuspend(data.pointee._jumpBuffer,
                   &data.pointee._stackTop,
                   contextJumpBuffer, .suspended)
-    }
-    
-    /*
-     进行协程的暂停, 要记录协程中的环境, 然后切换到 Queue 的 JumpBuffer 所记录的环境上.
-     */
-    @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        __assemblySave(contextJumpBuffer, env, .suspended)
     }
     
     deinit {

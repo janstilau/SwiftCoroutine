@@ -68,6 +68,13 @@ internal final class SharedCoroutine {
         }
     }
     
+    // 该函数, 返回当前协程的状态.
+    /*
+     queue.context.resume
+     queue.context.start
+     
+     
+     */
     private func perform(_ actionWithReturnIsCoroutionEnded: () -> Bool) -> CompletionState {
         if actionWithReturnIsCoroutionEnded() { return .finished }
         
@@ -161,7 +168,7 @@ extension SharedCoroutine: CoroutineProtocol {
          如果自己设计, 应该就是将 result 改为 Result<T> 的类型, 然后将 Result 的赋值动作封装到 续体 的内部.
          在  suspend() 后, 判断 Result 的 Type. 如果是 error 就 throw, 如果是正常值, 就 return .
          
-         协程, 这种保证了顺序一定是线性的, 和同步函数一样, 让代码逻辑变得简单明了. 
+         协程, 这种保证了顺序一定是线性的, 和同步函数一样, 让代码逻辑变得简单明了.
          */
         asyncTrigger { value in
             while true {

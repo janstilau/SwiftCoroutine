@@ -39,6 +39,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     
     // MARK: - Actions
     
+    // 外界调用, 进行协程开启的地方.
     internal func start(
         dispatcher: SharedCoroutineDispatcher,
         scheduler: CoroutineScheduler,
@@ -51,6 +52,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         self.complete(with: queueCurrentCoroutine.start())
     }
     
+    // 外部调用, 进行协程恢复的地方.
     internal func resume(coroutine: SharedCoroutine) {
         let (state, _) = atomic.update { state, count in
             if state == .isFree {

@@ -45,17 +45,22 @@ int __assemblyStart(void* jumpBufferAddress,
 
 // Wait 操作的实现.
 void __assemblySuspend(void* toSaveEnv, void** stackTopAddress, void* jumpToEnv, int retVal) {
+    // 将, 当前协程的执行环境进行记录.
     if (_setjmp(toSaveEnv)) return;
-    // 非常狗的一个做法, 使用一个临时变量, 来衡量出现在使用了多少栈空间. 
+    // 将, 当前协程的调用堆栈进行记录.
     char x; *stackTopAddress = (void*)&x;
     // 切换回原有的环境
     _longjmp(jumpToEnv, retVal);
 }
 
 // Resume 操作的实现.
-int __assemblySave(void* jumpToEnv, void* toSavedEnv, int retVal) {
+int __assemblyResume(void* jumpToEnv, void* toSavedEnv, int retVal) {
+    // 存储当前的执行环境. 
     int n = _setjmp(toSavedEnv);
     if (n) return n;
+    
+    // 执行到这里, 这个函数算作是没有返回.
+    // 只有再次跳转到 toSavedEnv 的时候, 才能算作是这个函数有了返回值.
     _longjmp(jumpToEnv, retVal);
 }
 
