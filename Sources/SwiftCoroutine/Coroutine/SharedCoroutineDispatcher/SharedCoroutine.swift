@@ -68,8 +68,8 @@ internal final class SharedCoroutine {
         }
     }
     
-    private func perform(_ block: () -> Bool) -> CompletionState {
-        if block() { return .finished }
+    private func perform(_ actionWithReturnIsCoroutionEnded: () -> Bool) -> CompletionState {
+        if actionWithReturnIsCoroutionEnded() { return .finished }
         
         // 如果, 上面的 Block 没有返回 true, 就是协程进入到暂停的状态了.
         while true {

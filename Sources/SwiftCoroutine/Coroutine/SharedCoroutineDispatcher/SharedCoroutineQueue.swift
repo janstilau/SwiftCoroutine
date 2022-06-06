@@ -47,10 +47,9 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
         context.startTask = task
-        complete(with: coroutine.start())
+        self.complete(with: coroutine.start())
     }
     
-    // 真正的, 进行协程恢复的地方.
     internal func resume(coroutine: SharedCoroutine) {
         let (state, _) = atomic.update { state, count in
             if state == .isFree {
@@ -61,6 +60,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         }.old
         
         // 如果, 当前正在进行进行协程处理. 不会立马触发传入的新的协程对象.
+        // prepared 会存储所有等待重新调用的协程对象.
         state == .isFree ? resumeOnQueue(coroutine) : prepared.push(coroutine)
     }
     
@@ -78,7 +78,13 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         }
     }
     
-    // 如果, CompletionState 是 Finished 了, 就是这个协程的任务已经做完了, 就可以进行重用了.
+    /*
+     self.complete(with: coroutine.start())
+     self.complete(with: coroutine.resume())
+     
+     complete(with 后面跟着的是 coroutine 重新被调用的代码.
+     state 表达的, 就是当前 coroutine 的状态值. 
+     */
     private func complete(with state: CompletionState) {
         switch state {
         case .finished:
@@ -90,7 +96,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
             performNext(for: coroutine.dispatcher)
         case .restarting:
             // 能够到这里, 是因为 coroutine 的 scheduler 刚刚修改了.
-            // 重新使用新的 scheduler 来完成重新进行开启的动作. 
+            // 重新使用新的 scheduler 来完成重新进行开启的动作.
             coroutine.scheduler.scheduleTask {
                 // 在 resume 的时候, scheduleTask 进行了调度.
                 self.complete(with: self.coroutine.resume())
@@ -102,6 +108,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         let isFinished = atomic.update { _, count in
             count > 0 ? (.running, count - 1) : (.isFree, 0)
         }.new.0 == .isFree
+        
         // 判断一下, 当前 Queue 的剩余任务量. 进行任务的调度处理. 
         isFinished ? dispatcher.pushFreeQueue(self) : resumeOnQueue(prepared.blockingPop())
     }

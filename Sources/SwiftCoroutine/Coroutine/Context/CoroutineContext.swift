@@ -57,8 +57,8 @@ internal final class CoroutineContext {
        __assemblyStart(contextJumpBuffer,
                stackBottom,
                Unmanaged.passUnretained(self).toOpaque()) {
+           
            __longjmp(
-            // $0 就是 self 了.
             Unmanaged<CoroutineContext>
                .fromOpaque($0!)
                .takeUnretainedValue()
@@ -96,7 +96,17 @@ internal final class CoroutineContext {
      进行协程的恢复, 要记录 Queue 的 JumpBuffer, 然后切换到协程的环境里面.
      */
     @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
-        // __assemblySave 可以正常返回, 是协程里面的任务完成的时候. 
+        /*
+         __longjmp(
+          Unmanaged<CoroutineContext>
+             .fromOpaque($0!)
+             .takeUnretainedValue()
+             .performBlock(),
+          
+              .finished)
+         */
+        // 这里, __assemblySave 只所以能够返回 finished, 是 performBlock 执行到最后了, 可以返回 __longjmp 的第二个参数了.
+        // finish 的条件, 就是 start 中, performBlock 执行完了才可以.
         __assemblySave(env, contextJumpBuffer, .suspended) == .finished
     }
     
