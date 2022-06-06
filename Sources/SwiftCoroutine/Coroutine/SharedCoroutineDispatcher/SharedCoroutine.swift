@@ -6,6 +6,8 @@
 //  Copyright © 2020 Alex Belozierov. All rights reserved.
 //
 
+private var idGenerator: Int = 0
+
 internal final class SharedCoroutine {
     
     internal typealias CompletionState = SharedCoroutineQueue.CompletionState
@@ -26,20 +28,34 @@ internal final class SharedCoroutine {
     private var isCanceled = 0
     private var awaitTag = 0
     
+    private var id: Int = 0
+    
     internal init(dispatcher: SharedCoroutineDispatcher, queue: SharedCoroutineQueue, scheduler: CoroutineScheduler) {
         self.dispatcher = dispatcher
         self.queue = queue
         self.scheduler = scheduler
+        id = idGenerator
+        idGenerator += 1
     }
     
     // MARK: - Actions
     
     internal func start() -> CompletionState {
-        performAsCurrent { perform(queue.context.start) }
+//        performAsCurrent { perform(queue.context.start) }
+        performAsCurrent {
+            perform {
+                print("id: \(self.id) 在 queue: \(queue.id) 上启动. 当前线程 \(Thread.current)")
+                return queue.context.start()
+            }
+        }
     }
     
     internal func resume() -> CompletionState {
-        performAsCurrent(resumeContext)
+//        performAsCurrent(resumeContext)
+        performAsCurrent {
+            print("id: \(self.id) 在 queue: \(queue.id) 上恢复. 当前线程 \(Thread.current)")
+            return resumeContext()
+        }
     }
     
     // 真正的协程恢复的地方.
@@ -70,6 +86,7 @@ internal final class SharedCoroutine {
             environment = .allocate(capacity: 1)
             environment.initialize(to: .init())
         }
+        print("id: \(self.id) 在 queue: \(queue.id) 上暂停. 当前线程 \(Thread.current)")
         queue.context.suspend(to: environment)
     }
     
@@ -92,6 +109,10 @@ internal final class SharedCoroutine {
     deinit {
         environment?.pointee._jumpBuffer.deallocate()
         environment?.deallocate()
+    }
+    
+    func dump() {
+        print("Id: \(self.id), queue: \(self.queue), thread: \(Thread.current)")
     }
     
 }
@@ -177,7 +198,6 @@ extension SharedCoroutine: CoroutineProtocol {
                 if atomicCAS(&state, expected: .suspending, desired: .running) { return }
             case .suspended:
                 if atomicCAS(&state, expected: .suspended, desired: .running) {
-                    // 真正的进行调度, 是在 queue 里面.
                     return queue.resume(coroutine: self)
                 }
             default:

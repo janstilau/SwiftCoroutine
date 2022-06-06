@@ -19,12 +19,99 @@ class ViewControllerViewModel {
             }
         }
     }
+    var temp_1: Movies? = nil
+    var temp_2: Movies? = nil
+    var temp_3: Movies? = nil
+    var temp_4: Movies? = nil
     func getPopularMovies(){
         // DispatchQueue.main.startCoroutine
         // 这应该就是 await 所做的事情了. 
         DispatchQueue.main.startCoroutine {
             self.movies = try self.dataManager.getPopularMovies().await()
         }
+        DispatchQueue.global().startCoroutine {
+            self.temp_1 = try self.dataManager.getPopularMovies().await()
+        }
+        DispatchQueue.global().startCoroutine {
+            self.temp_2 = try self.dataManager.getPopularMovies().await()
+        }
+        DispatchQueue.main.startCoroutine {
+            self.temp_3 = try self.dataManager.getPopularMovies().await()
+        }
+        DispatchQueue.global().startCoroutine {
+            self.temp_4 = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            let _ = try self.dataManager.getPopularMovies().await()
+        }
+        
+        
+//        DispatchQueue.main.startCoroutine {
+//            self.movies = try self.dataManager.getPopularMovies().await()
+//        }
+//        DispatchQueue.main.startCoroutine {
+//            self.temp_1 = try self.dataManager.getPopularMovies().await()
+//        }
+//        DispatchQueue.main.startCoroutine {
+//            self.temp_2 = try self.dataManager.getPopularMovies().await()
+//        }
+//        DispatchQueue.main.startCoroutine {
+//            self.temp_3 = try self.dataManager.getPopularMovies().await()
+//        }
+//        DispatchQueue.main.startCoroutine {
+//            self.temp_4 = try self.dataManager.getPopularMovies().await()
+//        }
+        
+        print("ViewDidLoad End")
     }
     
     @IBOutlet weak var imageView: UIImageView!

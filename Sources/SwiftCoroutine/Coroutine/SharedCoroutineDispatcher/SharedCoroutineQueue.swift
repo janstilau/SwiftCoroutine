@@ -1,4 +1,7 @@
-internal final class SharedCoroutineQueue {
+
+private var idGenerator: Int = 0
+
+internal final class SharedCoroutineQueue: CustomStringConvertible {
     
     private struct Task {
         let scheduler: CoroutineScheduler, task: () -> Void
@@ -17,12 +20,20 @@ internal final class SharedCoroutineQueue {
     private var atomic = AtomicTuple()
     private var prepared = FifoQueue<SharedCoroutine>()
     
+    public var id: Int = 0
+    
     internal init(stackSize size: Int) {
         context = CoroutineContext(stackSize: size)
+        id = idGenerator
+        idGenerator += 1
     }
     
     internal func occupy() -> Bool {
         atomic.update(keyPath: \.0, with: .running) == .isFree
+    }
+    
+    var description: String {
+        return "SharedCoroutineQueue, QueueId: \(id)"
     }
     
     // MARK: - Actions

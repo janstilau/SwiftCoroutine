@@ -45,10 +45,11 @@ public protocol CoroutineScheduler {
     
 }
 
+// CoroutineScheduler 只有这里的一个分类.
 extension CoroutineScheduler {
     
     @inlinable internal func _startCoroutine(_ task: @escaping () -> Void) {
-        SharedCoroutineDispatcher.default.execute(on: self, task: task)
+        SharedCoroutineDispatcher.default.executeCoroutionStart(on: self, coroutionStartTask: task)
     }
     
     /// Start a new coroutine on the current scheduler.

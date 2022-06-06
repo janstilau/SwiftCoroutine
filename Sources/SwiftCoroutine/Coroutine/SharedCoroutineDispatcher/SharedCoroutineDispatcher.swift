@@ -1,10 +1,3 @@
-//
-//  SharedCoroutineDispatcher.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 12.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 @usableFromInline internal final class SharedCoroutineDispatcher {
     
@@ -23,14 +16,16 @@
     }
     
     @usableFromInline
-    internal func execute(on scheduler: CoroutineScheduler, task: @escaping () -> Void) {
+    internal func executeCoroutionStart(on scheduler: CoroutineScheduler,
+                          coroutionStartTask: @escaping () -> Void) {
         scheduler.scheduleTask {
-            self.getFreeQueue().start(dispatcher: self, scheduler: scheduler, task: task)
+            self.getFreeQueue().start(dispatcher: self, scheduler: scheduler, task: coroutionStartTask)
         }
     }
     
     private func getFreeQueue() -> SharedCoroutineQueue {
         while let queue = queues.pop() {
+            // QueueCount 没有直接维护在 quques 里面, 而是在外面使用一个成员变量进行的维护.
             atomicAdd(&queuesCount, value: -1)
             queue.inQueue = false
             if queue.occupy() { return queue }
@@ -45,9 +40,11 @@
             if queue.inQueue { return }
             queue.inQueue = true
             queues.push(queue)
+            // QueueCount 没有直接维护在 quques 里面, 而是在外面使用一个成员变量进行的维护.
             atomicAdd(&queuesCount, value: 1)
         } else if queuesCount < capacity {
             queues.insertAtStart(queue)
+            // QueueCount 没有直接维护在 quques 里面, 而是在外面使用一个成员变量进行的维护.
             atomicAdd(&queuesCount, value: 1)
         }
     }

@@ -17,6 +17,9 @@ fileprivate struct movieApiConstant {
         return "https://api.themoviedb.org/3/movie/popular\(movieApiConstant.api_key)&language=en-US"
     }
 }
+
+var taskId: Int = 0
+
 //MARK:-> DataManager
 class DataManager {
     //:-> Get Popular Movie
@@ -26,9 +29,13 @@ class DataManager {
         
         DispatchQueue.main.startCoroutine {
             // callback 从哪里来的啊.
+            taskId += 1
+            let recordId = taskId
+            print("真正的任务: \(recordId) 启动线程 \(Thread.current)")
             let (data , response , error) = try Coroutine.await { callback in
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
+            print("真正的任务: \(recordId) 恢复线程 \(Thread.current)")
             
             if let response = response {
                 let httpResponse = response as! HTTPURLResponse
