@@ -25,75 +25,226 @@ class ViewControllerViewModel {
     var temp_4: Movies? = nil
     func getPopularMovies(){
         // DispatchQueue.main.startCoroutine
-        // 这应该就是 await 所做的事情了. 
+        // 这应该就是 await 所做的事情了.
+        
         DispatchQueue.main.startCoroutine {
             self.movies = try self.dataManager.getPopularMovies().await()
         }
+        
+        var idGenerator: Int = 0
+        
         DispatchQueue.global().startCoroutine {
-            self.temp_1 = try self.dataManager.getPopularMovies().await()
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         DispatchQueue.global().startCoroutine {
-            self.temp_2 = try self.dataManager.getPopularMovies().await()
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         DispatchQueue.main.startCoroutine {
-            self.temp_3 = try self.dataManager.getPopularMovies().await()
-        }
-        DispatchQueue.global().startCoroutine {
-            self.temp_4 = try self.dataManager.getPopularMovies().await()
-        }
-        
-        DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+        }
+        DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            print("真正的任务 \(taskId) 启动线程 \(Thread.current)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
         }
         
         DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
             let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
         }
         
+        DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
+        }
+        
+        DispatchQueue.global().startCoroutine {
+            idGenerator += 1
+            let taskId = idGenerator
+            let startThread = Thread.current
+            print("真正的任务 \(taskId) 启动线程 \(startThread)")
+            let _ = try self.dataManager.getPopularMovies().await()
+            print("真正的任务 \(taskId) 回复线程 \(Thread.current)")
+            if Thread.current != startThread {
+                print("真正的任务不是一个线程!!!!")
+            }
+        }
         
 //        DispatchQueue.main.startCoroutine {
 //            self.movies = try self.dataManager.getPopularMovies().await()

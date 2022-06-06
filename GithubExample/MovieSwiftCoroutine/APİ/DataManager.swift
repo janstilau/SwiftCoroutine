@@ -27,15 +27,20 @@ class DataManager {
         guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
         let movies = CoPromise<Movies>()
         
+        // 在这里, 又进行了一次协程的创建
         DispatchQueue.main.startCoroutine {
             // callback 从哪里来的啊.
             taskId += 1
             let recordId = taskId
-            print("真正的任务: \(recordId) 启动线程 \(Thread.current)")
+            let currentThread = Thread.current
+            print("网络任务: \(recordId) 启动线程 \(Thread.current)")
             let (data , response , error) = try Coroutine.await { callback in
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
-            print("真正的任务: \(recordId) 恢复线程 \(Thread.current)")
+            print("网络任务: \(recordId) 恢复线程 \(Thread.current)")
+            if currentThread != Thread.current {
+                print("网络任务不是一个线程")
+            }
             
             if let response = response {
                 let httpResponse = response as! HTTPURLResponse
