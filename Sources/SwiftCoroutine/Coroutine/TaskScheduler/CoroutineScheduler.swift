@@ -41,6 +41,31 @@
 public protocol CoroutineScheduler {
     
     /// Performs the task at the next possible opportunity.
+    /*
+     scheduler.scheduleTask {
+         self.getFreeQueue().start(dispatcher: self,
+                                   scheduler: scheduler,
+                                   task: coroutionStartTask)
+     }
+     coroutine.scheduler.scheduleTask {
+         // 在 resume 的时候, scheduleTask 进行了调度.
+         self.complete(with: coroutine.resume())
+     }
+     coroutine.scheduler.scheduleTask {
+         // 在 resume 的时候, scheduleTask 进行了调度.
+         self.complete(with: self.coroutine.resume())
+     }
+     
+     就和 Combine 中的 Scheduler 的概念一样的, Scheduler 起到的作用是, 将后续的操作, 置身到对应的环境中.
+     在 Combine 里面, 这会是在创建响应链条的时候的环境, 以及节点之间传递数据的环境.
+     
+     而在 Coroutine 中, 则是, coroution 启动的环境, 以及 coroution 进行 resume 的环境.
+     如果, 这个 CoroutineScheduler 是一个 DispatchQueue, 那么真正的 Resume, Start 的线程环境, 其实是不能够确定的.
+     
+     Coroution 中, 保存了完成的执行环境, 也就是 PC 寄存器的值以及其他的寄存器的值, 以及完整的调用堆栈, 所以其实 Coroutine 其实是不强依赖于线程的.
+     
+     这和 Swfit Async,Await 的概念是一致的, await 的前后环境, 有可能不在一个线程环境呢了, 这一定要谨记.
+     */
     func scheduleTask(_ task: @escaping () -> Void)
     
 }
@@ -48,14 +73,20 @@ public protocol CoroutineScheduler {
 // CoroutineScheduler 只有这里的一个分类.
 extension CoroutineScheduler {
     
+    /*
+     _startCoroutine 就是一个标识. 标明, task 内的执行, 是在一个协程环境下.
+     */
     @inlinable internal func _startCoroutine(_ task: @escaping () -> Void) {
-        SharedCoroutineDispatcher.default.executeCoroutionStart(on: self, coroutionStartTask: task)
+        SharedCoroutineDispatcher.default.executeCoroutionStart(on: self,
+                                                                coroutionStartTask: task)
     }
     
     /// Start a new coroutine on the current scheduler.
     ///
     /// As an example, with `Coroutine.await(_:)` you can wrap asynchronous functions with callbacks
     /// to synchronously receive its result without blocking the thread.
+    
+    //
     /// ```
     /// //start new coroutine on the main thread
     /// DispatchQueue.main.startCoroutine {
@@ -89,6 +120,8 @@ extension CoroutineScheduler {
     /// - Parameter task: The closure that will be executed inside coroutine.
     /// - Throws: Rethrows an error from the task or throws `CoroutineError`.
     /// - Returns: Returns the result of the task.
+    
+    // 这一定要在一个协程环境下调用, 这样, Coroutine.current() 才能够获取到这个协程对象.
     @inlinable public func await<T>(_ task: () throws -> T) throws -> T {
         try Coroutine.current().await(on: self, task: task)
     }

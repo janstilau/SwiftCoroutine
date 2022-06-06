@@ -13,7 +13,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     
     // 一个 Queue 里面, 一个 Context.
     internal let context: CoroutineContext
-    private var coroutine: SharedCoroutine! // 当前正在运行的协程对象.
+    private var queueCurrentCoroutine: SharedCoroutine! // 当前正在运行的协程对象.
     
     internal var isInFreeQueue = false
     private(set) var started = 0
@@ -29,6 +29,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     }
     
     internal func occupy() -> Bool {
+        // update, 将对应的值, 改变成为参数中的值, 然后返回原来的值. 
         atomic.update(keyPath: \.0, with: .running) == .isFree
     }
     
@@ -43,11 +44,11 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         scheduler: CoroutineScheduler,
         task: @escaping () -> Void
     ) {
-        coroutine?.saveStack()
-        coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
+        queueCurrentCoroutine?.saveStack()
+        queueCurrentCoroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
         context.startTask = task
-        self.complete(with: coroutine.start())
+        self.complete(with: queueCurrentCoroutine.start())
     }
     
     internal func resume(coroutine: SharedCoroutine) {
@@ -65,12 +66,12 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     }
     
     private func resumeOnQueue(_ coroutine: SharedCoroutine) {
-        if self.coroutine !== coroutine {
+        if self.queueCurrentCoroutine !== coroutine {
             // 原有协程的状态存储.
-            self.coroutine?.saveStack()
+            self.queueCurrentCoroutine?.saveStack()
             // 新来的协程的恢复.
             coroutine.restoreStack()
-            self.coroutine = coroutine
+            self.queueCurrentCoroutine = coroutine
         }
         coroutine.scheduler.scheduleTask {
             // 在 resume 的时候, scheduleTask 进行了调度.
@@ -83,23 +84,23 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
      self.complete(with: coroutine.resume())
      
      complete(with 后面跟着的是 coroutine 重新被调用的代码.
-     state 表达的, 就是当前 coroutine 的状态值. 
+     state 表达的, 就是当前 coroutine 的状态值.
      */
     private func complete(with state: CompletionState) {
         switch state {
         case .finished:
             started -= 1
-            let dispatcher = coroutine.dispatcher
-            coroutine = nil
+            let dispatcher = queueCurrentCoroutine.dispatcher
+            queueCurrentCoroutine = nil
             performNext(for: dispatcher)
         case .suspended:
-            performNext(for: coroutine.dispatcher)
+            performNext(for: queueCurrentCoroutine.dispatcher)
         case .restarting:
             // 能够到这里, 是因为 coroutine 的 scheduler 刚刚修改了.
             // 重新使用新的 scheduler 来完成重新进行开启的动作.
-            coroutine.scheduler.scheduleTask {
+            queueCurrentCoroutine.scheduler.scheduleTask {
                 // 在 resume 的时候, scheduleTask 进行了调度.
-                self.complete(with: self.coroutine.resume())
+                self.complete(with: self.queueCurrentCoroutine.resume())
             }
         }
     }

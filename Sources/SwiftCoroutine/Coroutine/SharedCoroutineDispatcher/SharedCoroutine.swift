@@ -153,6 +153,16 @@ extension SharedCoroutine: CoroutineProtocol {
          现在变为了, 进行值的赋值, 然后进行协程的唤醒.
          可以使用信号量的同步取值逻辑来思考这一块.  asyncTrigger 的回调, 是用来进行取值的, 在异步函数取到值之后, 进行赋值的操作, 然后唤醒原来的流程.
          */
+        
+        /*
+         Swift 的续体, 应该就是在 asyncTrigger 的回调中做文章.
+         将, resumeIfSuspended 的逻辑, 封装到了续体的 resume 方法的内部.
+         
+         如果自己设计, 应该就是将 result 改为 Result<T> 的类型, 然后将 Result 的赋值动作封装到 续体 的内部.
+         在  suspend() 后, 判断 Result 的 Type. 如果是 error 就 throw, 如果是正常值, 就 return .
+         
+         协程, 这种保证了顺序一定是线性的, 和同步函数一样, 让代码逻辑变得简单明了. 
+         */
         asyncTrigger { value in
             while true {
                 // 如果, id 已经改变了, 那么就没有必要进行 result 的赋值了.
@@ -172,6 +182,7 @@ extension SharedCoroutine: CoroutineProtocol {
             // 在异步操作完成之后, 进行调度.
             self.resumeIfSuspended()
         }
+        
         if routeState == .suspending {
             // 在异步函数, 触发之后, 进行调度.
             suspend()

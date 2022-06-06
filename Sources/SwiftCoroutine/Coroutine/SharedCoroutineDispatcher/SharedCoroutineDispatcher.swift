@@ -5,7 +5,7 @@
     static let `default` = SharedCoroutineDispatcher(capacity: .processorsNumber * 2,
                                                      stackSize: .recommended)
     
-    private let stackSize: Int
+    private let stackSize: Int // 这个值, 唯一的作用, 就是在创建 SharedCoroutineQueue 的时候.
     private let capacity: Int
     private var queues = FifoQueue<SharedCoroutineQueue>()
     private var queuesCount = 0
@@ -16,9 +16,9 @@
     }
     
     @usableFromInline
-    internal func executeCoroutionStart(on scheduler: CoroutineScheduler,
-                          coroutionStartTask: @escaping () -> Void) {
-        // 在启动的时候, scheduleTask 进行了调度. 
+    internal func executeCoroutionStart(on scheduler: CoroutineScheduler, // 调度器.
+                                        coroutionStartTask: @escaping () -> Void // 真正的协程任务.
+    ) {
         scheduler.scheduleTask {
             self.getFreeQueue().start(dispatcher: self,
                                       scheduler: scheduler,
@@ -34,6 +34,7 @@
             if queue.occupy() { return queue }
         }
         // 真正的, 进行 Queue 生成的地方.
+        // 当, queue 中没有 Coroutine 等待执行的时候, 会将 queue 添加到 dispatcher 的 freeQueues 中. 
         return SharedCoroutineQueue(stackSize: stackSize)
     }
     
