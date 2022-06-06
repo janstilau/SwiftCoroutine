@@ -22,7 +22,7 @@ internal final class SharedCoroutine {
     internal let queue: SharedCoroutineQueue
     private(set) var scheduler: CoroutineScheduler
     
-    private var state: Int = .running
+    private var routeState: Int = .running
     private var environment: UnsafeMutablePointer<CoroutineContext.SuspendData>!
     private var stackBuffer: CachedStackBuffer!
     private var isCanceled = 0
@@ -73,9 +73,10 @@ internal final class SharedCoroutine {
         
         // 如果, 上面的 Block 没有返回 true, 就是协程进入到暂停的状态了.
         while true {
-            switch state {
+            switch routeState {
+                // 在这里, 才真正的将自己的状态, 修改为 suspended.
             case .suspending:
-                if atomicCAS(&state, expected: .suspending, desired: .suspended) {
+                if atomicCAS(&routeState, expected: .suspending, desired: .suspended) {
                     return .suspended
                 }
             case .running:
@@ -136,10 +137,11 @@ extension SharedCoroutine: CoroutineProtocol {
      URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
      }
      */
+    // 最最核心的方法, Future 里面的 await, 也是通过该方法来实现的.
     internal func await<T>(_ asyncTrigger: (@escaping (T) -> Void) -> Void)
     throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
-        state = .suspending
+        routeState = .suspending
         
         let tagWhenTrigger = awaitTag
         var result: T!
@@ -170,7 +172,7 @@ extension SharedCoroutine: CoroutineProtocol {
             // 在异步操作完成之后, 进行调度.
             self.resumeIfSuspended()
         }
-        if state == .suspending {
+        if routeState == .suspending {
             // 在异步函数, 触发之后, 进行调度.
             suspend()
         }
@@ -193,7 +195,7 @@ extension SharedCoroutine: CoroutineProtocol {
     
     private func setScheduler(_ scheduler: CoroutineScheduler) {
         self.scheduler = scheduler
-        state = .restarting
+        routeState = .restarting
         suspend()
     }
     
@@ -207,11 +209,11 @@ extension SharedCoroutine: CoroutineProtocol {
             // 使用, atomicCAS 进行值的替换.
             // 不太明白, atomic_compare_exchange_strong 这样的意义在哪里.
             // 不过, 在协程的概念里面, 确实是听到了, 不要进行上锁, 而是进行原子操作的这样的语句.
-            switch state {
+            switch routeState {
             case .suspending:
-                if atomicCAS(&state, expected: .suspending, desired: .running) { return }
+                if atomicCAS(&routeState, expected: .suspending, desired: .running) { return }
             case .suspended:
-                if atomicCAS(&state, expected: .suspended, desired: .running) {
+                if atomicCAS(&routeState, expected: .suspended, desired: .running) {
                     return queue.resume(coroutine: self)
                 }
             default:
@@ -219,7 +221,6 @@ extension SharedCoroutine: CoroutineProtocol {
             }
         }
     }
-    
 }
 
 // 可以使用 Int 来当做状态值, 只是, 需要显式的进行特殊值的预先构建.

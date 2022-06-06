@@ -89,6 +89,8 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         case .suspended:
             performNext(for: coroutine.dispatcher)
         case .restarting:
+            // 能够到这里, 是因为 coroutine 的 scheduler 刚刚修改了.
+            // 重新使用新的 scheduler 来完成重新进行开启的动作. 
             coroutine.scheduler.scheduleTask {
                 // 在 resume 的时候, scheduleTask 进行了调度.
                 self.complete(with: self.coroutine.resume())
