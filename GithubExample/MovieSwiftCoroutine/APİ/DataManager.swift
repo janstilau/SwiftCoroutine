@@ -49,6 +49,12 @@ class DataManager {
             if let error = error {
                 print(error.localizedDescription)
             }
+             
+            // 主动添加第二个异步任务, 查看协程的状态.
+            let (_ , _ , _) = try Coroutine.await { callback in
+                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+            }
+            
             if let data = data {
                 if let dataMovies = self.parse(data: data)  {
                     // 在异步函数的最终位置, 进行 Promise 的状态的改变. 

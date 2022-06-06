@@ -1,11 +1,5 @@
-//
-//  CoChannel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 02.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
+// 这可以认为是 AsyncSequence 的实现. 
 /// Channel is a non-blocking primitive for communication between a sender and a receiver.
 /// Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty or on send if it is full.
 ///

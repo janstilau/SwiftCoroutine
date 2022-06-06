@@ -46,6 +46,10 @@ public struct Coroutine {
     
     // MARK: - await
     
+    /*
+     使用, current() 找到当前的协程对象, 让他进行 suspend.
+     在 callback 中, 
+     */
     /// Suspends a coroutine and resumes it on callback. Must be called inside a coroutine.
     /// ```
     /// queue.startCoroutine {
@@ -83,7 +87,7 @@ public struct Coroutine {
     ///     }
     /// }
     /// ```
-    /// - Parameter callback: The callback для resume coroutine.
+    /// - Parameter callback: The callback resume coroutine.
     /// - Returns: The result which is passed to callback.
     /// - Throws: `CoroutineError`.
     @inlinable public static func await<T, N>(_ callback: (@escaping (T, N) -> Void) -> Void) throws -> (T, N) {
@@ -101,8 +105,15 @@ public struct Coroutine {
     /// - Parameter callback: The callback  resume coroutine. Must be called inside a coroutine.
     /// - Returns: The result which is passed to callback.
     /// - Throws: `CoroutineError`.
-    @inlinable public static func await<T, N, M>(_ callback: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {
-        try current().await { completion in callback { a, b, c in completion((a, b, c)) } }
+    /*
+     let (data , response , error) = try Coroutine.await { callback in
+         URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+     }
+     经过了这一层的包装, 使得各种 asyncTrigger, 变为了只需要 callback 的函数了. 
+     */
+    @inlinable public static func await<T, N, M>(_ asyncTask: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {
+        // completion 是在 await 方法内已经写好的. 目的就是, 作为 asyncTask 的 completion 方法, 将 completion 的参数, 提取出来.
+        try current().await { completion in asyncTask { a, b, c in completion((a, b, c)) } }
     }
     
     // MARK: - delay
@@ -122,8 +133,13 @@ public struct Coroutine {
         timer.schedule(deadline: .now() + time)
         defer { timer.cancel() }
         do {
-            try self.await {
-                timer.setEventHandler(handler: $0)
+            // await 的返回值, 是根据异步函数的 completion 闭包的参数来决定的.
+            // 这里, 是根据 setEventHandler 来决定
+//            let value = try Coroutine.await { asyncActionCallBack in
+//                URLSession.shared.dataTask(with: URL.init(fileURLWithPath: ""), completionHandler: asyncActionCallBack).resume()
+//            }
+            try self.await { asyncActionCallBack in
+                timer.setEventHandler(handler: asyncActionCallBack)
                 timer.start()
             }
         } catch {

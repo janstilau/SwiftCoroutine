@@ -1,10 +1,3 @@
-//
-//  SharedCoroutine.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.04.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 private var idGenerator: Int = 0
 
@@ -23,6 +16,7 @@ internal final class SharedCoroutine {
     private(set) var scheduler: CoroutineScheduler
     
     private var routeState: Int = .running
+    // 在每次 suspend 的时候, 将当前协程的状态, 存储到了 environment 里面.
     private var environment: UnsafeMutablePointer<CoroutineContext.SuspendData>!
     private var stackBuffer: CachedStackBuffer!
     private var isCanceled = 0
@@ -110,6 +104,7 @@ internal final class SharedCoroutine {
     
     // MARK: - Stack
     
+    // 通过在每一个协程里面, 存储 stackBuffer 达到了调用堆栈保存的功能.
     internal func saveStack() {
         let size = environment.pointee._stackTop.distance(to: queue.context.stackBottom)
         let stack = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
@@ -173,6 +168,11 @@ extension SharedCoroutine: CoroutineProtocol {
          
          协程, 这种保证了顺序一定是线性的, 和同步函数一样, 让代码逻辑变得简单明了.
          */
+        
+        
+        /*
+         asyncTrigger 
+         */
         asyncTrigger { value in
             while true {
                 // 如果, id 已经改变了, 那么就没有必要进行 result 的赋值了.
@@ -190,6 +190,9 @@ extension SharedCoroutine: CoroutineProtocol {
             // 这里有点类似于条件锁, 在 commit 线程, 进行 lock 处理, 然后在异步 callback 中, 进行 unlock 的操作.
             // 这样, commit 线程才能继续进行.
             // 在异步操作完成之后, 进行调度.
+            
+            
+            // asyncTrigger 的回调, 除了进行值的读取外, 最最重要的, 就是这里开启了协程的重新调度. 
             self.resumeIfSuspended()
         }
         

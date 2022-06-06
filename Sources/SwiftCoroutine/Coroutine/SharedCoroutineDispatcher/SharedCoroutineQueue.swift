@@ -85,8 +85,8 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
      self.complete(with: coroutine.start())
      self.complete(with: coroutine.resume())
      
-     complete(with 后面跟着的是 coroutine 重新被调用的代码.
-     state 表达的, 就是当前 coroutine 的状态值.
+     complete(with 后面跟着的是 coroutine 重新被调用之后, 所处的状态.
+     根据该状态, 进行协程的调度. 
      */
     private func complete(with state: CompletionState) {
         switch state {
