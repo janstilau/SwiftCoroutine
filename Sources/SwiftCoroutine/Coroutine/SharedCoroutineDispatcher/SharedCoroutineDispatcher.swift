@@ -35,9 +35,11 @@
             queue.inQueue = false
             if queue.occupy() { return queue }
         }
+        // 真正的, 进行 Queue 生成的地方.
         return SharedCoroutineQueue(stackSize: stackSize)
     }
     
+    // SharedCoroutineQueue 不会在调用方进行生成.  SharedCoroutineQueue 只会在上面的 getFreeQueue 中进行生成.
     internal func push(_ queue: SharedCoroutineQueue) {
         if queue.started != 0 {
             if queue.inQueue { return }

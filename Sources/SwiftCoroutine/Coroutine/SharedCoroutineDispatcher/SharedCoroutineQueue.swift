@@ -8,6 +8,7 @@ internal final class SharedCoroutineQueue {
         case finished, suspended, restarting
     }
     
+    // 一个 Queue 里面, 一个 Context.
     internal let context: CoroutineContext
     private var coroutine: SharedCoroutine!
     
@@ -26,7 +27,11 @@ internal final class SharedCoroutineQueue {
     
     // MARK: - Actions
     
-    internal func start(dispatcher: SharedCoroutineDispatcher, scheduler: CoroutineScheduler, task: @escaping () -> Void) {
+    internal func start(
+        dispatcher: SharedCoroutineDispatcher,
+        scheduler: CoroutineScheduler,
+        task: @escaping () -> Void
+    ) {
         coroutine?.saveStack()
         coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1

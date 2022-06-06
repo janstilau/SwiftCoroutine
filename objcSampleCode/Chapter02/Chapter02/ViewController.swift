@@ -24,7 +24,7 @@ actor MyActor {
 }
 
 class ViewController: UIViewController {
-
+    
     var holder = Holder()
     
     override func viewDidLoad() {
@@ -51,15 +51,17 @@ class ViewController: UIViewController {
     
     func loadResultRemotely() async throws {
         await Task.sleep(NSEC_PER_SEC + NSEC_PER_SEC / 80)
+        // 根据网络请求的结构, 一次性的给 holder 进行赋值处理.
         await holder.setResults(["data1^sig", "data2^sig", "data3^sig"])
     }
-
+    
     func processFromScratch() async throws {
         async let loadStrings = loadFromDatabase()
         async let loadSignature = loadSignature()
         
         let strings = try await loadStrings
         if let signature = try await loadSignature {
+            // 根据, 本地运行的结果, 给 hodler 进行赋值处理.
             await holder.setResults([])
             for data in strings {
                 await holder.append(data.appending(signature))
@@ -68,16 +70,15 @@ class ViewController: UIViewController {
             throw NoSignatureError()
         }
     }
-
-    
-    func loadSignature() async throws -> String? {
-        await Task.sleep(NSEC_PER_SEC)
-        return "^sig"
-    }
     
     func loadFromDatabase() async throws -> [String] {
         await Task.sleep(NSEC_PER_SEC)
         return ["data1", "data2", "data3"]
+    }
+    
+    func loadSignature() async throws -> String? {
+        await Task.sleep(NSEC_PER_SEC)
+        return "^sig"
     }
 }
 

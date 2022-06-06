@@ -15,6 +15,7 @@ internal final class SharedCoroutine {
         let stackSize: Int
     }
     
+    // 这三项, 仅仅在这里进行一个索引. 并不是在 SharedCoroutine 进行的生成. 
     internal let dispatcher: SharedCoroutineDispatcher
     internal let queue: SharedCoroutineQueue
     private(set) var scheduler: CoroutineScheduler

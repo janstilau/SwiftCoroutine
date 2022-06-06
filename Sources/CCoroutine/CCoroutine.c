@@ -15,6 +15,8 @@
  */
 // MARK: - context
 
+// 在开始的时候, 是没有 JumpBuffer 用来跳转的.
+// 代码按照代码编写顺序继续执行, 在这里, 有着主动地函数调用栈的覆盖的动作.
 int __assemblyStart(void* jumpBufferAddress,
             const void* stack,
             const void* param,

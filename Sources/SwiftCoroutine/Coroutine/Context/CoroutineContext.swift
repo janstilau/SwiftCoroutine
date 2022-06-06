@@ -21,13 +21,13 @@ internal final class CoroutineContext {
     internal let haveGuardPage: Bool
     internal let stackSize: Int
     private let contextStack: UnsafeMutableRawPointer
-    private let jumpBufferAddress: UnsafeMutableRawPointer
+    private let contextJumpBuffer: UnsafeMutableRawPointer
     internal var startTask: (() -> Void)?
     
     internal init(stackSize: Int, guardPage: Bool = true) {
         self.stackSize = stackSize
         // returnEnv 中存储的是, 寄存器的值.
-        jumpBufferAddress = .allocate(byteCount: .environmentSize, alignment: 16)
+        contextJumpBuffer = .allocate(byteCount: .environmentSize, alignment: 16)
         haveGuardPage = guardPage
         if guardPage {
             contextStack = .allocate(byteCount: stackSize + .pageSize, alignment: .pageSize)
@@ -46,7 +46,11 @@ internal final class CoroutineContext {
     // MARK: - Start
     
     @inlinable internal func start() -> Bool {
-       __assemblyStart(jumpBufferAddress,
+        /*
+         开启一个新的协程.
+         在开启一个新的协程的时候, 是将当前 Queue 中的 JumpBuffer 环境进行了保存.
+        */
+       __assemblyStart(contextJumpBuffer,
                stackBottom,
                Unmanaged.passUnretained(self).toOpaque()) {
            __longjmp(
@@ -63,7 +67,7 @@ internal final class CoroutineContext {
     private func performBlock() -> UnsafeMutableRawPointer {
         startTask?()
         startTask = nil
-        return jumpBufferAddress
+        return contextJumpBuffer
     }
     
     // MARK: - Operations
@@ -73,27 +77,35 @@ internal final class CoroutineContext {
         var _stackTop: UnsafeMutableRawPointer!
     }
     
-    // 真正的进行协程的恢复.
+    /*
+     进行协程的恢复, 要记录 Queue 的 JumpBuffer, 然后切换到协程的环境里面.
+     */
     @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
-        __assemblySave(env, jumpBufferAddress, .suspended) == .finished
+        __assemblySave(env, contextJumpBuffer, .suspended) == .finished
     }
     
+    /*
+     进行协程的暂停, 要记录协程中的环境, 然后切换到 Queue 的 JumpBuffer 所记录的环境上.
+     */
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
         // data.pointee._stackTop 唯一会修改的地方. 
         __assemblySuspend(data.pointee._jumpBuffer,
                   &data.pointee._stackTop,
-                  jumpBufferAddress, .suspended)
+                  contextJumpBuffer, .suspended)
     }
     
+    /*
+     进行协程的暂停, 要记录协程中的环境, 然后切换到 Queue 的 JumpBuffer 所记录的环境上.
+     */
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        __assemblySave(jumpBufferAddress, env, .suspended)
+        __assemblySave(contextJumpBuffer, env, .suspended)
     }
     
     deinit {
         if haveGuardPage {
             mprotect(contextStack, .pageSize, PROT_READ | PROT_WRITE)
         }
-        jumpBufferAddress.deallocate()
+        contextJumpBuffer.deallocate()
         contextStack.deallocate()
     }
     
