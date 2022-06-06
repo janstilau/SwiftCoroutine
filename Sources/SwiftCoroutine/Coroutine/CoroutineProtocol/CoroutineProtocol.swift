@@ -23,7 +23,8 @@ import Darwin
 
 extension CoroutineProtocol {
     
-    // 将, 当前的协程, 设置到线程里面. 
+    // 将, 当前的协程, 设置到线程里面.
+    // performAsCurrent 传入的 Block, 会是一个异步函数.
     @inlinable internal func performAsCurrent<T>(_ block: () -> T) -> T {
         let caller = pthread_getspecific(.coroutine)
         pthread_setspecific(.coroutine, Unmanaged.passUnretained(self).toOpaque())

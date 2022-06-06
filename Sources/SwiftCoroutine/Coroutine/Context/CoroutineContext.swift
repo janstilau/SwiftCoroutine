@@ -50,6 +50,10 @@ internal final class CoroutineContext {
          开启一个新的协程.
          在开启一个新的协程的时候, 是将当前 Queue 中的 JumpBuffer 环境进行了保存.
         */
+        
+        /*
+         __assemblyStart 的调用, 直到 performBlock() 运行结束之后, 才会结束. 
+         */
        __assemblyStart(contextJumpBuffer,
                stackBottom,
                Unmanaged.passUnretained(self).toOpaque()) {
@@ -64,7 +68,18 @@ internal final class CoroutineContext {
        } == .finished
     }
     
+    /*
+     startTask 就是这里的闭包对象.
+     DispatchQueue.main.startCoroutine {
+         self.movies = try self.dataManager.getPopularMovies().await()
+     }
+     */
     private func performBlock() -> UnsafeMutableRawPointer {
+        /*
+         在执行, startTask 的时候, 就可能发生了协程的切换了.
+         在执行, startTask 的过程中, 有可能会进入到 suspend 的状态. 这个时候, 还是会进入到 contextJumpBuffer 存储的原有环境的.
+         这个时候, __assemblyStart 的返回值, 就是 suspended
+         */
         startTask?()
         startTask = nil
         return contextJumpBuffer
@@ -81,6 +96,7 @@ internal final class CoroutineContext {
      进行协程的恢复, 要记录 Queue 的 JumpBuffer, 然后切换到协程的环境里面.
      */
     @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
+        // __assemblySave 可以正常返回, 是协程里面的任务完成的时候. 
         __assemblySave(env, contextJumpBuffer, .suspended) == .finished
     }
     

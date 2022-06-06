@@ -17,7 +17,7 @@ internal final class SharedCoroutine {
         let stackSize: Int
     }
     
-    // 这三项, 仅仅在这里进行一个索引. 并不是在 SharedCoroutine 进行的生成. 
+    // 这三项, 仅仅在这里进行一个索引. 并不是在 SharedCoroutine 进行的生成.
     internal let dispatcher: SharedCoroutineDispatcher
     internal let queue: SharedCoroutineQueue
     private(set) var scheduler: CoroutineScheduler
@@ -30,7 +30,9 @@ internal final class SharedCoroutine {
     
     private var id: Int = 0
     
-    internal init(dispatcher: SharedCoroutineDispatcher, queue: SharedCoroutineQueue, scheduler: CoroutineScheduler) {
+    internal init(dispatcher: SharedCoroutineDispatcher,
+                  queue: SharedCoroutineQueue,
+                  scheduler: CoroutineScheduler) {
         self.dispatcher = dispatcher
         self.queue = queue
         self.scheduler = scheduler
@@ -68,6 +70,8 @@ internal final class SharedCoroutine {
     
     private func perform(_ block: () -> Bool) -> CompletionState {
         if block() { return .finished }
+        
+        // 如果, 上面的 Block 没有返回 true, 就是协程进入到暂停的状态了.
         while true {
             switch state {
             case .suspending:
@@ -175,7 +179,8 @@ extension SharedCoroutine: CoroutineProtocol {
         return result
     }
     
-    internal func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T)
+    internal func await<T>(on scheduler: CoroutineScheduler,
+                           task: () throws -> T)
     throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
         let currentScheduler = self.scheduler

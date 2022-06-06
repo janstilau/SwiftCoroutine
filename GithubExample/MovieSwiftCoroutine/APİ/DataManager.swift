@@ -25,7 +25,7 @@ class DataManager {
     //:-> Get Popular Movie
     func getPopularMovies()->CoFuture<Movies>{
         guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
-        let movies = CoPromise<Movies>()
+        let moviedPromise = CoPromise<Movies>()
         
         // 在这里, 又进行了一次协程的创建
         DispatchQueue.main.startCoroutine {
@@ -51,11 +51,12 @@ class DataManager {
             }
             if let data = data {
                 if let dataMovies = self.parse(data: data)  {
-                    movies.success(dataMovies)
+                    // 在异步函数的最终位置, 进行 Promise 的状态的改变. 
+                    moviedPromise.success(dataMovies)
                 }
             }
         }
-        return movies
+        return moviedPromise
     }
     
     //:-> Parsing

@@ -60,7 +60,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
             }
         }.old
         
-        // 如果, 当前正在进行进行协程处理. 不会立马触发传入的新的协程对象. 
+        // 如果, 当前正在进行进行协程处理. 不会立马触发传入的新的协程对象.
         state == .isFree ? resumeOnQueue(coroutine) : prepared.push(coroutine)
     }
     
@@ -78,6 +78,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         }
     }
     
+    // 如果, CompletionState 是 Finished 了, 就是这个协程的任务已经做完了, 就可以进行重用了.
     private func complete(with state: CompletionState) {
         switch state {
         case .finished:
