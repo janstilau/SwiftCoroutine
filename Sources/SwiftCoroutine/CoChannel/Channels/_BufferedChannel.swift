@@ -47,12 +47,21 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         case (_, 2):
             throw CoChannelError.canceled
         case (let count, _) where count < 0:
+            // 当 Channel 接受到数据之后, 如果 count 小于 0, 则是 consumeCallbacks 已经存储了消费逻辑.
+            // 弹出最顶的消费逻辑, 消耗刚刚添加进来的数据.
             consumeCallbacks.blockingPop()(.success(element))
         case (let count, _) where count < capacity:
+            // 如果, 还能存储, 就缓存生成策略. 这里使用的是缓存生成方法的方式.
             generatorCallbacks.push(.init(element: element, resumeBlock: nil))
         default:
-            try Coroutine.await {
-                generatorCallbacks.push(.init(element: element, resumeBlock: $0))
+            // 非常糟糕的代码.
+            /*
+             SendBlock 在进行 getValue 的时候, 会调用自己的 resumeBlock
+             而这个值, 是在这里填入的. 这个值是 await 的内部逻辑, 目的就是在于进行协程的唤醒.
+             当, 容量不够的时候, 就进行协程的暂停, 直到 getValue 的时候, 消耗掉队列中的数据, 触发唤醒的操作.
+             */
+            try Coroutine.await { resumeCallBack in
+                generatorCallbacks.push(.init(element: element, resumeBlock: resumeCallBack))
             }.map { throw $0 }
         }
     }
@@ -65,9 +74,12 @@ internal final class _BufferedChannel<T>: _Channel<T> {
                 return (count + 1, 0)
             }.old
             guard state == 0 else { return }
-            count < 0
-            ? self.consumeCallbacks.blockingPop()(.success($0))
-            : self.generatorCallbacks.push(.init(element: $0, resumeBlock: nil))
+            
+            if count < 0 {
+                self.consumeCallbacks.blockingPop()(.success($0))
+            } else {
+                self.generatorCallbacks.push(.init(element: $0, resumeBlock: nil))
+            }
         }
     }
     
@@ -99,7 +111,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         }).old {
         case (let count, let state) where count > 0:
             defer { if count == 1, state == 1 { finish() } }
-            return getValue()
+            return getCachedValue()
         case (_, 0):
             /*
              @inlinable public static func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T {
@@ -126,7 +138,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         }.old
         guard count > 0 else { return nil }
         defer { if count == 1, state == 1 { finish() } }
-        return getValue()
+        return getCachedValue()
     }
     
     internal override func whenReceive(_ callback: @escaping (Result<T, CoChannelError>) -> Void) {
@@ -135,12 +147,11 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             return (Swift.max(0, count - 1), state)
         }).old {
         case (let count, let state) where count > 0:
-            callback(.success(getValue()))
+            callback(.success(getCachedValue()))
             if count == 1, state == 1 { finish() }
         case (_, 0):
             // 如果, 当前没有值了, 那么存储 callback, 在得到新的值之后, 触发传递进来的 callback.
             consumeCallbacks.push(callback)
-            
         case (_, 1):
             callback(.failure(.closed))
         default:
@@ -156,7 +167,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         atomic.value.0 <= 0
     }
     
-    private func getValue() -> T {
+    private func getCachedValue() -> T {
         let block = generatorCallbacks.blockingPop()
         block.resumeBlock?(nil)
         return block.element
