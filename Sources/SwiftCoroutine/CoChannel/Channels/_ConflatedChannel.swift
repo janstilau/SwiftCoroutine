@@ -1,11 +1,5 @@
-//
-//  _ConflatedChannel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
+// OptionSet 的用户, 就是提前进行这些特殊值的设置.
 fileprivate struct Tag: OptionSet {
     let rawValue: Int
     

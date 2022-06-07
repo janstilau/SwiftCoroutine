@@ -45,6 +45,7 @@ extension CoChannel {
         /// - Parameter transform: A mapping closure.
         /// - returns: A `Receiver` with transformed values.
         public final func map<T>(_ transform: @escaping (Element) -> T) -> CoChannel<T>.Receiver {
+            // Receiver 调用 Map, 就是把 Map 的 Transform 的逻辑, 存储在 _CoChannelMap 的内部.
             _CoChannelMap(receiver: self, transform: transform)
         }
         
@@ -76,9 +77,7 @@ extension CoChannel {
         }
         
         internal func whenFinished(_ callback: @escaping (CoChannelError?) -> Void) {}
-        
     }
-    
 }
 
 extension CoChannel.Receiver {

@@ -1,10 +1,3 @@
-//
-//  _CoChannelMap.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 07.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 internal final class _CoChannelMap<Input, Output>: CoChannel<Output>.Receiver {
     
@@ -31,6 +24,9 @@ internal final class _CoChannelMap<Input, Output>: CoChannel<Output>.Receiver {
 
     // MARK: - receive
     
+    /*
+     各种, Receiver 的实现, 都需要考虑是否要使用 transform 来进行变形. 
+     */
     internal override func awaitReceive() throws -> Output {
         try transform(receiver.awaitReceive())
     }
