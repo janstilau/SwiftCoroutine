@@ -91,7 +91,8 @@ extension CoChannel.Receiver {
     /// - Returns: Iterator for the channel elements.
     @inlinable public func makeIterator() -> AnyIterator<Element> {
         /*
-         如果, 当前在协程环境, 就调用 awaitReceive 来获取数据. 
+         AnyIterator 中, 是如何取值的操作.
+         通过封装一个 Block, 使得 Iterator 这个概念, 和数据结构没有太大的关系. 而直接是和逻辑绑定到了一起.
          */
         AnyIterator { Coroutine.isInsideCoroutine ? try? self.awaitReceive() : self.poll() }
     }

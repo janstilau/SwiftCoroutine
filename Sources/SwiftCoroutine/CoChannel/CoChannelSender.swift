@@ -91,5 +91,4 @@ extension CoChannel.Sender {
     @inlinable public func whenComplete(_ callback: @escaping () -> Void) {
         channel.whenComplete(callback)
     }
-    
 }

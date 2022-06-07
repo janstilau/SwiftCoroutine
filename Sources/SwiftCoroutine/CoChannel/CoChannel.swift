@@ -2,8 +2,12 @@
 // 这可以认为是 AsyncSequence 的实现.
 
 /// Channel is a non-blocking primitive for communication between a sender and a receiver.
-/// Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty or on send if it is full.
-///
+// 这里说的很清楚, 会有一个缓存区的概念. 作为 Sender, 当缓存区满的时候 await.
+// 作为 Receiver, 当缓存区空的时候, await.
+
+/// Conceptually, a channel is similar to a queue that allows to
+/// suspend  on receive if it is empty
+/// suspend  on send if it is full.
 /// - Important: Always `close()` or `cancel()` a channel when you are done to resume all suspended coroutines by the channel.
 ///
 
@@ -32,9 +36,10 @@ public final class CoChannel<Element> {
     /// `CoChannel` buffer type.
     public enum BufferType: Equatable {
         /// This channel does not have any buffer.
-        ///
         /// An element is transferred from the sender to the receiver only when send and receive invocations meet in time,
         /// so `awaitSend(_:)` suspends until invokes receive, and `awaitReceive()` suspends until invokes send.
+        // 使用这种方式, 就是没有缓存的概念.
+        // 只要生产了, 就
         case none
         /// This channel have a buffer with the specified capacity.
         ///
@@ -45,6 +50,7 @@ public final class CoChannel<Element> {
         ///
         /// `awaitSend(_:)` to this channel never suspends, and offer always returns true.
         /// `awaitReceive()` suspends only when the buffer is empty.
+        // 可以想象, 这种方式, 会耗费掉多少内存
         case unlimited
         /// This channel buffers at most one element and offer invocations,
         /// so that the receiver always gets the last element sent.

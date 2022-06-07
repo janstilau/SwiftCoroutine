@@ -68,5 +68,4 @@ internal final class _CoChannelMap<Input, Output>: CoChannel<Output>.Receiver {
     internal override func whenFinished(_ callback: @escaping (CoChannelError?) -> Void) {
         receiver.whenFinished(callback)
     }
-    
 }

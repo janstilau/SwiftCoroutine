@@ -20,10 +20,12 @@
         if !completeBlocks.append(callback) { callback(channelError) }
     }
     
+    // finish 的主要作用, 就是进行存储的 completeBlocks 的统一调用. 
     internal final func finish() {
         completeBlocks.close()?.finish(with: channelError)
     }
     
+    // isClosed 和 isCanceled 会在子类中, 进行重写.
     private var channelError: CoChannelError? {
         if isClosed { return .closed }
         if isCanceled { return .canceled }
