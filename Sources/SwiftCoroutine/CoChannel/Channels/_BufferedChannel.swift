@@ -115,7 +115,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         case (_, 0):
             /*
              @inlinable public static func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T {
-                 try current().await(callback)
+             try current().await(callback)
              }
              */
             /*
@@ -138,6 +138,8 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         }.old
         guard count > 0 else { return nil }
         defer { if count == 1, state == 1 { finish() } }
+        
+        // Poll 和 await Recevice 相比, 少了等待的机制. 所以, 这个函数也就不是异步函数了.
         return getCachedValue()
     }
     
