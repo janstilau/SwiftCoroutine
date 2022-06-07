@@ -23,6 +23,9 @@
  
  setjmp
  建立本地的jmp_buf缓冲区并且初始化，用于将来跳转回此处。这个子程序[1] 保存程序的调用环境于env参数所指的缓冲区，env将被longjmp使用。如果是从setjmp直接调用返回，setjmp返回值为0。如果是从longjmp恢复的程序调用环境返回，setjmp返回非零值。
+ setjmp 的返回值, 是一个非常重要的标志. 一般来说, setjmp 后面, 就是跳转逻辑了. 所以, 需要根据返回值来判断, 这是通过 longjmp 跳转回来的. 不然, 代码就永远在这循环下去了.
+ 
+ 
  _longjmp
  恢复env所指的缓冲区中的程序调用环境上下文，env所指缓冲区的内容是由setjmp子程序调用所保存。value的值从longjmp传递给setjmp。longjmp完成后，程序从对应的setjmp调用处继续执行，如同setjmp调用刚刚完成。如果value传递给longjmp为0，setjmp的返回值为1；否则，setjmp的返回值为value。
  
@@ -78,7 +81,7 @@ void __assemblySuspend(void* coroutineJumpBuffer, void** stackTopAddress, void* 
     int n = _setjmp(coroutineJumpBuffer);
     if (n) {
         /*
-         suspend 并不需要根据返回值来判断, 协程是否已经结束了. return 之后, 就是继续后续的逻辑处理.
+         suspend 并不需要根据返回值来判断, 协程是否已经结束了. 这是必然的, suspend 被调用, 就是协程在等待耗时任务完成, 然后执行后面的逻辑.
          
          let (data, _, _) = try Coroutine.await { callback in
              URLSession.shared.dataTask(with: self.imageURL, completionHandler: callback).resume()
@@ -91,9 +94,9 @@ void __assemblySuspend(void* coroutineJumpBuffer, void** stackTopAddress, void* 
         
         return;
     }
-    // 将, 当前协程的调用堆栈进行记录.
+    // 使用了这种诡异的方式, 记录了当前的调用栈的栈顶地址.
     char x; *stackTopAddress = (void*)&x;
-    // 切换回原有的环境
+    // 切回到了线程原有的环境. 从这里可以看出, 一定是 协程 -> 线程主逻辑 -> 协程. 不会存在协程切协程. 
     _longjmp(contextJumpBuffer, retVal);
 }
 

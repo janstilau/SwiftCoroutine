@@ -102,7 +102,7 @@ extension CoChannel {
     // MARK: - send
     
     /// A `CoChannel` wrapper that provides send-only functionality.
-    // 每次都是一个新的对象, 但是操作的是同样的一个 Channel 对象. 
+    // 每次都是一个新的对象, 但是操作的是同样的一个 Channel 对象.
     @inlinable public var sender: Sender {
         Sender(channel: _innerChannel)
     }

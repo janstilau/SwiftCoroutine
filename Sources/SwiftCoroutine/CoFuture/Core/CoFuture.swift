@@ -85,6 +85,7 @@ public class CoFuture<Value> {
     private var resultState: Int
     private var nodes: CallbackStack<_Result>
     private var _result: _Result?
+    // 没太理解, 这个 Parent 究竟有什么作用. 目前来看, 是任何作用都没有. 
     private unowned(unsafe) var parent: _CoFutureCancellable?
     
     /*
