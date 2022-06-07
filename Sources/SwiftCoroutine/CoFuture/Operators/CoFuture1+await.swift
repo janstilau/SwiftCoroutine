@@ -31,6 +31,8 @@ extension CoFuture {
          
          而 Future Result 的值的赋值, 是 Future 返回之前, 就写好在异步回调里面的. 
          */
+        // 对于 Result 来说, get 时如果是 failure 的状态, 会触发 throw 的逻辑 .
+        // Result 一般用作是异步结果, 如果想要重新变为同步处理逻辑, get 是一个很好的选择. 
         try (result ?? Coroutine.current().await(addCallback)).get()
     }
     

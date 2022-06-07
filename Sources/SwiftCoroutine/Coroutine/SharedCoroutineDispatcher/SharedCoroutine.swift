@@ -229,6 +229,9 @@ extension SharedCoroutine: CoroutineProtocol {
     }
     
     internal func cancel() {
+        // 将, 标志位设置为 isCanceled = true. 然后重新调度自己.
+        // 在上面 await 的  suspend() 之后, 第一条就是判断自己是不是已经取消了. 如果是, 则直接抛出错误.
+        // 所以, 实际上, 取消操作, 一定会引起协程的重新调度的. 
         atomicStore(&isCanceled, value: 1)
         resumeIfSuspended()
     }

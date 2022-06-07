@@ -27,7 +27,7 @@ class ViewControllerViewModel {
         // DispatchQueue.main.startCoroutine
         // 这应该就是 await 所做的事情了.
         
-        DispatchQueue.global().startCoroutine {
+        DispatchQueue.main.startCoroutine {
             self.movies = try self.dataManager.getPopularMovies().await()
         }
         

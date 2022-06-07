@@ -4,12 +4,15 @@ private protocol _CoFutureCancellable: AnyObject {
 
 /// Holder for a result that will be provided later.
 
+// 类似于, Combine 中的 Promise, 将值的确定逻辑, 放到了异步函数的回调里面.
+// 使用者直接使用 Future 对象. 可以通过添加 SetResult 回调的方式, 来监听. 也可以通过 await 的方式, 进行协程的 suspend 操作.
 /// `CoFuture` and its subclass `CoPromise` are the implementation of the Future/Promise approach.
 /// They allow to launch asynchronous tasks and immediately return` CoFuture` with its future results.
 /// The available result can be observed by the `whenComplete()` callback
 /// or by `await()` inside a coroutine without blocking a thread.
 
-///
+
+
 /// ```
 /// func makeFutureOne(args) -> CoFuture<Response> {
 ///     let promise = CoPromise<Response>()
@@ -19,17 +22,19 @@ private protocol _CoFutureCancellable: AnyObject {
 ///     }
 ///     return promise
 /// }
-///
+
 /// func makeFutureTwo(args) -> CoFuture<Response> {
 ///     queue.coroutineFuture {
 ///         let future = makeFutureOne(args)
 ///         . . . do some work . . .
+///         使用 Await, 会触发协程的 suspend 操作.
 ///         let response = try future.await()
 ///         . . . create result using response . . .
 ///         return result
 ///     }
 ///  }
-///
+
+
 /// func performSomeWork(args) {
 ///     let future = makeFutureTwo(args)
 ///     mainQueue.startCoroutine {
@@ -44,6 +49,8 @@ private protocol _CoFutureCancellable: AnyObject {
 ///
 /// ```
 /// //execute coroutine and return CoFuture<Void> that we will use for error handling
+
+// 可以通过, 添加闭包回调的方式. 也可以使用 await, 判断 Result 的 Enum 值. 
 /// DispatchQueue.main.coroutineFuture {
 ///     let result = try makeSomeFuture().await()
 ///     . . . use result . . .
@@ -80,6 +87,9 @@ public class CoFuture<Value> {
     private var _result: _Result?
     private unowned(unsafe) var parent: _CoFutureCancellable?
     
+    /*
+     根据 _result 是否有值, 来决定当前自己的状态.
+     */
     @usableFromInline internal init(_result: _Result?) {
         if let result = _result {
             self._result = result
@@ -112,6 +122,8 @@ extension CoFuture: _CoFutureCancellable {
     /// let future = CoFuture(promise: someAsyncFunc)
     /// ```
     /// - Parameter promise: A closure to fulfill this future.
+    
+    //
     @inlinable public convenience init(promise: (@escaping (Result<Value, Error>) -> Void) -> Void) {
         self.init(_result: nil)
         promise(setResult)
@@ -133,6 +145,8 @@ extension CoFuture: _CoFutureCancellable {
             if let current = try? Coroutine.current() {
                 self.whenCanceled(current.cancel)
             }
+            // Result(catching: task) 这是, Result 这个类型的一个内置的构造函数.
+            // 在 Result 的构造函数内部, 就会调用这个 task.
             self.setResult(Result(catching: task))
         }
     }
@@ -146,6 +160,7 @@ extension CoFuture: _CoFutureCancellable {
     // MARK: - result
     
     /// Returns completed result or nil if this future has not been completed yet.
+    // 在, setResult 中, 会触发所有的回调节点的触发. 所以, 可以根据 nodes 的状态, 来判断当前的状态.
     public var result: Result<Value, Error>? {
         nodes.isClosed ? _result : nil
     }
@@ -153,6 +168,7 @@ extension CoFuture: _CoFutureCancellable {
     @usableFromInline internal func setResult(_ result: _Result) {
         // 如果, 已经赋值过了 Result, 直接返回.
         if atomicExchange(&resultState, with: 1) == 1 { return }
+        
         _result = result
         parent = nil
         // 触发所有的回调函数.
@@ -161,6 +177,9 @@ extension CoFuture: _CoFutureCancellable {
     
     // MARK: - Callback
     
+    /*
+     用, 响应链条的方式, 去思考 Future. 这就是一个 Promise 对象, 然后将 Promise 的值确定的回调, 进行存储. 
+     */
     @usableFromInline internal func addCallback(_ callback: @escaping (_Result) -> Void) -> Void {
         if !nodes.append(callback) { _result.map(callback) }
     }
@@ -179,6 +198,8 @@ extension CoFuture: _CoFutureCancellable {
     
     /// Cancels the current future.
     public func cancel() {
+        // 如果, 有 Parent, 就是 Parent 的 cancel
+        // 否则, 就是进行 SetResult 的调用.
         parent?.cancel() ?? setResult(.failure(CoFutureError.canceled))
     }
     

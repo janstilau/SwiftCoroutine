@@ -7,7 +7,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         let scheduler: CoroutineScheduler, task: () -> Void
     }
     
-    internal enum CompletionState {
+    internal enum CompletionState: String {
         case finished, suspended, restarting
     }
     
@@ -76,7 +76,14 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
             self.queueCurrentCoroutine = coroutine
         }
         coroutine.scheduler.scheduleTask {
-            // 在 resume 的时候, scheduleTask 进行了调度.
+            /*
+             调度之后, 可能会出现线程的切换.
+             resume 会记录, 切换之后的线程的当前状态, 所以跳转会线程主环境的时候, 也是调用 resume 的线程.
+             协程的执行, 是不和线程依赖的. 它有着自己独立的执行环境的记录.
+             但是它一定是切换回调度它的线程环境上.
+             线程 -> 协程 -> 线程. 这个逻辑单元, 是不可能打破的.
+             但是 线程 -> 协程, 这个调度, 线程环境并不绑定.
+             */
             self.complete(with: coroutine.resume())
         }
     }
@@ -84,11 +91,9 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     /*
      self.complete(with: coroutine.start())
      self.complete(with: coroutine.resume())
-     
-     complete(with 后面跟着的是 coroutine 重新被调用之后, 所处的状态.
-     根据该状态, 进行协程的调度. 
      */
     private func complete(with state: CompletionState) {
+        print("Complete With \(state), \(Thread.current)")
         switch state {
         case .finished:
             started -= 1

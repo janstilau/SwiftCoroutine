@@ -1,10 +1,3 @@
-//
-//  CoFuture1+map.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 26.01.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 extension CoFuture {
     
@@ -30,6 +23,7 @@ extension CoFuture {
         }
     }
     
+    // 实际上, 这里是一个类似于 Promise 的链路搭建的结果. 
     /// When future is fulfilled, run the provided callback, which performs a synchronous computation and return transformed result.
     /// - Parameter transform: Function that will receive the result and return a new transformed result.
     /// - returns: A future that will receive the eventual result.
@@ -37,7 +31,8 @@ extension CoFuture {
         if let result = result {
             return CoFuture<NewValue>(result: transform(result))
         }
-        // 新建一个对象, 在这个对象里面, 进行回调的挂钩. 
+        
+        // 新建一个对象, 在这个对象里面, 进行回调的挂钩.
         let promise = CoPromise<NewValue>(parent: self)
         addCallback { promise.setResult(transform($0)) }
         return promise

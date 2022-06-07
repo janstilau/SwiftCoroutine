@@ -54,6 +54,8 @@ internal struct CallbackStack<T> {
         }
     }
     
+    // Close 返回的值, 都会紧接着一个 Finish 的调用. 也即是下面的方法.
+    // 在里面, 会有内存的管理. 所以这里不会有内存泄漏的问题.
     @inlinable internal mutating func close() -> Self? {
         let old = atomicExchange(&rawValue, with: -1)
         return old > 0 ? CallbackStack(rawValue: old) : nil
@@ -63,6 +65,7 @@ internal struct CallbackStack<T> {
         var address = rawValue
         while address > 0, let pointer = Pointer(bitPattern: address) {
             address = pointer.pointee.next
+            // 真正的所有回调的触发, 是在这里.
             pointer.pointee.callback(result)
             pointer.deinitialize(count: 1).deallocate()
         }
