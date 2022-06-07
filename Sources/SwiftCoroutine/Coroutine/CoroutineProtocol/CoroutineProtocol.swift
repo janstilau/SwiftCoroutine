@@ -36,6 +36,8 @@ extension CoroutineProtocol {
     
 }
 
+
+// 为什么要定义在这里, 一点关系都没有. 
 extension Coroutine {
     
     @inlinable internal static var currentPointer: UnsafeMutableRawPointer? {

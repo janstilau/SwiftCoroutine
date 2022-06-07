@@ -11,9 +11,14 @@ internal final class SharedCoroutine {
     }
     
     // 这三项, 仅仅在这里进行一个索引. 并不是在 SharedCoroutine 进行的生成.
-    internal let dispatcher: SharedCoroutineDispatcher
-    internal let queue: SharedCoroutineQueue
+    internal let dispatcher: SharedCoroutineDispatcher // 这是一个定值, 就是一个单例对象.
+    /*
+     将协程 start, resume 的动作进行调度.
+     可以看做是协程运行环境的管理. 协程和线程, 没有必然的关系.
+    */
     private(set) var scheduler: CoroutineScheduler
+    
+    internal let queue: SharedCoroutineQueue
     
     private var routeState: Int = .running
     // 在每次 suspend 的时候, 将当前协程的状态, 存储到了 environment 里面.

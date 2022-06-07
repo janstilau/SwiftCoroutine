@@ -10,7 +10,6 @@ import Dispatch
 
 // 直接调用, 没有调度的含义在里面. 
 @usableFromInline internal struct ImmediateScheduler: CoroutineScheduler {
-    
     @usableFromInline init() {}
     @inlinable func scheduleTask(_ task: @escaping () -> Void) { task() }
 }
@@ -23,7 +22,8 @@ import Dispatch
 /// If you call `await()` outside the coroutine, the precondition inside these methods will fail, and you'ill get an error.
 /// In -Ounchecked builds, where preconditions are not evaluated to avoid any crashes,
 /// a thread-blocking mechanism is used for waiting the result.
-///
+
+// 这不是协程的环境对象, 只是一个命名空间, 里面都是 static 方法, 为了能够快速的进行协程的开启和暂停. 
 public struct Coroutine {
     
     /// Returns `true` if this property is called inside a coroutine.

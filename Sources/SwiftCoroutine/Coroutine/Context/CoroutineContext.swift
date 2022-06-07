@@ -15,18 +15,21 @@ import Glibc
 #else
 import Darwin
 #endif
-
+/*
+ CoroutineContext 会在一个 CoroutioneQueue 中存在.
+ 也就是说, CoroutioneQueue 所管理的所有协程, 都是重用了同样的一个调用栈.
+ 每个协程被调度的时候, 将自己记录的调用栈信息, 覆盖到 contextStack 上面去.
+ */
 internal final class CoroutineContext {
     
     internal let haveGuardPage: Bool
     internal let stackSize: Int
     private let contextStack: UnsafeMutableRawPointer
     private let contextJumpBuffer: UnsafeMutableRawPointer
-    internal var startTask: (() -> Void)?
+    internal var coroutineMainTask: (() -> Void)?
     
     internal init(stackSize: Int, guardPage: Bool = true) {
         self.stackSize = stackSize
-        // returnEnv 中存储的是, 寄存器的值.
         contextJumpBuffer = .allocate(byteCount: .environmentSize, alignment: 16)
         haveGuardPage = guardPage
         if guardPage {
@@ -38,7 +41,7 @@ internal final class CoroutineContext {
     }
     
     // 栈空间, 是从高到低的.
-    // 所以加过去, 高的地方是栈底空间. 
+    // 所以加过去, 高的地方是栈底空间.
     @inlinable internal var stackBottom: UnsafeMutableRawPointer {
         .init(contextStack + stackSize)
     }
@@ -47,48 +50,36 @@ internal final class CoroutineContext {
     
     @inlinable internal func start() -> Bool {
         /*
-         开启一个新的协程.
-         在开启一个新的协程的时候, 是将当前 Queue 中的 JumpBuffer 环境进行了保存.
-        */
-        
-        /*
-         __assemblyStart 的流程.
-         1. 将开启协程的状态, 保存到 contextJumpBuffer 中.
-         2. 然后通过 __longjmp(self.performBlock(),.finished)) 来执行协程的启动 task.
-         如果这个 task 中没有异步函数, 那么 finished 的就是 __assemblyStart 这个函数的返回值. 最后和 .finished 判断为 true, 代表着这个协程执行完毕了.
-         
-         如果这个 task 中有异步函数. 那么 performBlock 其实不能够顺利执行完毕的. 所以这个 __assemblyStart 还没有返回值.
-         这个时候, 程序会通过下面的方法, 跳转回 contextJumpBuffer 中, __assemblyStart 的返回值是 suspended. 所以通过 start() 返回 false, 表示协程还没有结束.
-         __assemblySuspend(data.pointee._jumpBuffer,
-                   &data.pointee._stackTop,
-                   contextJumpBuffer, .suspended)
-         
-         当 Coroutine Resume 之后, performBlock 可以正常执行完毕, __longjmp 会被触发, .finished 参数被传递进去.
-         这是时候, __assemblyStart 
+         这里很绕.
+         __assemblyStart 中记录了当前的运行状态, 然后在里面, 调用了 __longjmp, __longjmp 中调用了协程的主任务.
+         然后协程的启动任务如果 wait, 会导致 __assemblyStart 返回, -1, 而这个时候, 协程的启动任务还没有运行结束, 这是因为, 协程的主任务, 是运行在协程环境里面.
+         当协程的主任务主任务执行完毕后, __longjmp 可以继续执行, 切换会线程主环境中. 这就是协程执行完毕之后, 可以自动切换到正常环境的原因所在.
          */
-       let coroutineResult =
+        let coroutineResult =
         __assemblyStart(contextJumpBuffer,
-               stackBottom,
-               Unmanaged.passUnretained(self).toOpaque()) {
-           
-           __longjmp(
-            Unmanaged<CoroutineContext>
-               .fromOpaque($0!)
-               .takeUnretainedValue()
-               .performBlock(),
-            
-                .finished)
-       }
+                        stackBottom,
+                        Unmanaged.passUnretained(self).toOpaque()) {
+            // 在协程环境中, 执行 performBlock
+            // 执行结束之后, 跳转回线程的主环境, 这也就是, 为什么协程任务执行完毕之后, 可以正常回复到原有环境的原因.
+            __longjmp(
+                Unmanaged<CoroutineContext>
+                    .fromOpaque($0!)
+                    .takeUnretainedValue()
+                    .performBlock(),
+                
+                    .finished)
+        }
         
-        
-       return coroutineResult == .finished
+        return coroutineResult == .finished
     }
     
     /*
-     startTask 就是这里的闭包对象.
+     mainTask 就是 self.movies = try self.dataManager.getPopularMovies().await().
      DispatchQueue.main.startCoroutine {
-         self.movies = try self.dataManager.getPopularMovies().await()
+     self.movies = try self.dataManager.getPopularMovies().await()
      }
+     
+     startCoroutine 是先创建好协程的执行环境, 主要是函数调用栈, 然后才执行的协程主任务.
      */
     private func performBlock() -> UnsafeMutableRawPointer {
         /*
@@ -96,8 +87,8 @@ internal final class CoroutineContext {
          在执行, startTask 的过程中, 有可能会进入到 suspend 的状态. 这个时候, 还是会进入到 contextJumpBuffer 存储的原有环境的.
          这个时候, __assemblyStart 的返回值, 就是 suspended
          */
-        startTask?()
-        startTask = nil
+        coroutineMainTask?()
+        coroutineMainTask = nil
         return contextJumpBuffer
     }
     
@@ -114,15 +105,25 @@ internal final class CoroutineContext {
     @inlinable internal func resume(from jumpToEnv: UnsafeMutableRawPointer) -> Bool {
         /*
          __longjmp(
-          Unmanaged<CoroutineContext>
-             .fromOpaque($0!)
-             .takeUnretainedValue()
-             .performBlock(),
-          
-              .finished)
+         Unmanaged<CoroutineContext>
+         .fromOpaque($0!)
+         .takeUnretainedValue()
+         .performBlock(),
+         
+         .finished)
          */
-        // 这里, __assemblyResume 只所以能够返回 finished, 是 performBlock 执行到最后了, 可以返回 __longjmp 的第二个参数了.
-        // finish 的条件, 就是 start 中, performBlock 执行完了才可以.
+        
+        /*
+         __assemblyResume 是跳转到协程环境里面, 但是当他返回的时候, 是在线程主环境中返回的.
+         当他能够返回的时候:
+         1. 跳转到的协程执行完毕了, 这个时候返回 .finished
+         2. 跳转到的协程被暂停了, 这个时候返回 .suspended
+         对于协程的切换, 一定是线程主环境, 切换到协程, 然后协程切换到主环境. 不可能是协程直接切换到协程.
+
+         __assemblyResume 的返回值, 是 longjmp 到 contextJumpBuffer 的时候给的第二个参数.
+         如果是协程执行完毕了, 是在 __start 中的 longjmp 中, 传递过来的 .finished.
+         如果是协程暂停了, 是在 __assemblySuspend 中的 longjmp 中, 传递过来的 .suspended
+         */
         let resumeResult = __assemblyResume(jumpToEnv, contextJumpBuffer, .suspended)
         return  resumeResult == .finished
     }
@@ -131,25 +132,20 @@ internal final class CoroutineContext {
      进行协程的暂停, 要记录协程中的环境, 然后切换到 Queue 的 JumpBuffer 所记录的环境上.
      */
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        // data.pointee._stackTop 唯一会修改的地方. 
+        // data.pointee._stackTop 唯一会修改的地方. 在里面, 用特殊的技巧, 记录了当前的调用栈栈顶的位置.
         __assemblySuspend(data.pointee._jumpBuffer,
-                  &data.pointee._stackTop,
-                  contextJumpBuffer, .suspended)
+                          &data.pointee._stackTop,
+                          contextJumpBuffer, .suspended)
     }
     
     deinit {
         if haveGuardPage {
             /*
              mprotect()函数把自start开始的、长度为len的内存区的保护属性修改为prot指定的值。
-
              prot可以取以下几个值，并且可以用“|”将几个属性合起来使用：
-
              1）PROT_READ：表示内存段内的内容可写；
-
              2）PROT_WRITE：表示内存段内的内容可读；
-
              3）PROT_EXEC：表示内存段中的内容可执行；
-
              4）PROT_NONE：表示内存段中的内容根本没法访问。
              */
             mprotect(contextStack, .pageSize, PROT_READ | PROT_WRITE)
@@ -157,9 +153,6 @@ internal final class CoroutineContext {
         contextJumpBuffer.deallocate()
         contextStack.deallocate()
     }
-    
-    
-    
 }
 
 extension Int32 {

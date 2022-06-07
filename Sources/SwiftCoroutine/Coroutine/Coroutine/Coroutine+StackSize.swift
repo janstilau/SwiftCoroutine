@@ -6,6 +6,7 @@
 //  Copyright © 2019 Alex Belozierov. All rights reserved.
 //
 
+// 定义了一些常量. 
 extension Coroutine {
     
     @usableFromInline internal struct StackSize {

@@ -48,7 +48,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         queueCurrentCoroutine?.saveStack()
         queueCurrentCoroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
-        context.startTask = task
+        context.coroutineMainTask = task
         self.complete(with: queueCurrentCoroutine.start())
     }
     
