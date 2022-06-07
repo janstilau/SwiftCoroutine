@@ -123,6 +123,8 @@ internal final class _BufferedChannel<T>: _Channel<T> {
              在 channel 接收到数据之后, 调用 receiveCallbacks 进行回调.
              receivedCallback 在 await 里面, 会进行协程的值的读取, 以及协程唤醒的逻辑.
              */
+            
+            // 使用 Coroutine.await 这种方式, 进行当前协程的获取.
             let result = try Coroutine.await { receivedCallback in consumeCallbacks.push(receivedCallback) }
             return try result.get()
         case (_, 1):
