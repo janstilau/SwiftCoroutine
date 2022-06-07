@@ -28,6 +28,9 @@ class ViewControllerViewModel {
         // 这应该就是 await 所做的事情了.
         
         DispatchQueue.main.startCoroutine {
+            let result = try? DispatchQueue.main.await {
+                return 200
+            }
             self.movies = try self.dataManager.getPopularMovies().await()
         }
         

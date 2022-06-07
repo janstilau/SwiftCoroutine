@@ -89,6 +89,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     }
     
     /*
+     self.complete(with: queueCurrentCoroutine.start())
      self.complete(with: coroutine.start())
      self.complete(with: coroutine.resume())
      */

@@ -121,7 +121,10 @@ extension CoroutineScheduler {
     /// - Throws: Rethrows an error from the task or throws `CoroutineError`.
     /// - Returns: Returns the result of the task.
     
-    // 这一定要在一个协程环境下调用, 这样, Coroutine.current() 才能够获取到这个协程对象.
+    /*
+     当前的协程, 使用 self scheduler 来去处理 task 的任务.
+     然后恢复到原来的 scheduler 继续后续的任务.
+     */
     @inlinable public func await<T>(_ task: () throws -> T) throws -> T {
         try Coroutine.current().await(on: self, task: task)
     }

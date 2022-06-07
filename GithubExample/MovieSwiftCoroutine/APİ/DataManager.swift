@@ -35,6 +35,9 @@ class DataManager {
             let currentThread = Thread.current
             print("网络任务: \(recordId) 启动线程 \(Thread.current)")
             let (data , response , error) = try Coroutine.await { callback in
+                //  open func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask
+                // dataTask(with 本身, 就是 completionHandler 的参数, 是一个元组类型.
+                // 对于 Callback 来说, 它的参数, 只会是一个, 只不过这个参数的类型是一个元组类型. 而不是, 回调是多个参数.
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
             print("网络任务: \(recordId) 恢复线程 \(Thread.current)")
