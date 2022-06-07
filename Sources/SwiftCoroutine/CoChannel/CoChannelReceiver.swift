@@ -1,10 +1,3 @@
-//
-//  CoChannelReceiver.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 04.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 extension CoChannel {
     

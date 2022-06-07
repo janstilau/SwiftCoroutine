@@ -25,6 +25,7 @@
 ///     print("Done")
 /// }
 /// ```
+
 public final class CoChannel<Element> {
     
     /// `CoChannel` buffer type.

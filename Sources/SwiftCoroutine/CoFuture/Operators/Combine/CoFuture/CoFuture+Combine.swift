@@ -33,6 +33,5 @@ extension Publisher {
         promise.whenCanceled(cancellable.cancel)
         return promise
     }
-    
 }
 #endif
