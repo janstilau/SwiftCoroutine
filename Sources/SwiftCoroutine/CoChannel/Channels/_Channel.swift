@@ -1,11 +1,5 @@
-//
-//  _Channel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
+// 父类, 啥都不干. 
 @usableFromInline internal class _Channel<T>: CoChannel<T>.Receiver {
     
     private var completeBlocks = CallbackStack<CoChannelError?>()

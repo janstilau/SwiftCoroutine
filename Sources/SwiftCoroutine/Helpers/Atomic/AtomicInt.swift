@@ -35,6 +35,7 @@ internal func atomicCAS(_ pointer: UnsafeMutablePointer<Int>,
 func atomicUpdate(_ pointer: UnsafeMutablePointer<Int>,
                   transform: (Int) -> Int)
 -> (old: Int, new: Int) {
+    
     var oldValue = pointer.pointee
     var newValue: Int
     repeat { newValue = transform(oldValue) }

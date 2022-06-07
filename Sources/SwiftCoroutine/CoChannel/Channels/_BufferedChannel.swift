@@ -9,12 +9,16 @@
 internal final class _BufferedChannel<T>: _Channel<T> {
     
     private typealias ReceiveCallback = (Result<T, CoChannelError>) -> Void
-    private struct SendBlock { let element: T, resumeBlock: ((CoChannelError?) -> Void)? }
+    
+    private struct SendBlock {
+        let element: T
+        let resumeBlock: ((CoChannelError?) -> Void)?
+    }
     
     private let capacity: Int
-    private var receiveCallbacks = FifoQueue<ReceiveCallback>()
-    private var sendBlocks = FifoQueue<SendBlock>()
-    private var atomic = AtomicTuple()
+    private var consumeCallbacks = FifoQueue<ReceiveCallback>()
+    private var generatorCallbacks = FifoQueue<SendBlock>()
+    private var atomic = AtomicTuple() // 起始的状态是 0, 0, 前面是 count, 后面是 state
     
     internal init(capacity: Int) {
         self.capacity = max(0, capacity)
@@ -32,20 +36,23 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     
     internal override func awaitSend(_ element: T) throws {
         switch atomic.update ({ count, state in
+            // 向, Channel 中添加数据, 更新数量.
+            // 如果 state 不是 0, 那么就不做任何的处理. 
             if state != 0 { return (count, state) }
             return (count + 1, 0)
         }).old {
+            
         case (_, 1):
             throw CoChannelError.closed
         case (_, 2):
             throw CoChannelError.canceled
         case (let count, _) where count < 0:
-            receiveCallbacks.blockingPop()(.success(element))
+            consumeCallbacks.blockingPop()(.success(element))
         case (let count, _) where count < capacity:
-            sendBlocks.push(.init(element: element, resumeBlock: nil))
+            generatorCallbacks.push(.init(element: element, resumeBlock: nil))
         default:
             try Coroutine.await {
-                sendBlocks.push(.init(element: element, resumeBlock: $0))
+                generatorCallbacks.push(.init(element: element, resumeBlock: $0))
             }.map { throw $0 }
         }
     }
@@ -59,8 +66,8 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             }.old
             guard state == 0 else { return }
             count < 0
-            ? self.receiveCallbacks.blockingPop()(.success($0))
-            : self.sendBlocks.push(.init(element: $0, resumeBlock: nil))
+            ? self.consumeCallbacks.blockingPop()(.success($0))
+            : self.generatorCallbacks.push(.init(element: $0, resumeBlock: nil))
         }
     }
     
@@ -71,10 +78,10 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         }.old
         if state != 0 { return false }
         if count < 0 {
-            receiveCallbacks.blockingPop()(.success(element))
+            consumeCallbacks.blockingPop()(.success(element))
             return true
         } else if count < capacity {
-            sendBlocks.push(.init(element: element, resumeBlock: nil))
+            generatorCallbacks.push(.init(element: element, resumeBlock: nil))
             return true
         }
         return false
@@ -84,6 +91,9 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     
     internal override func awaitReceive() throws -> T {
         switch atomic.update({ count, state in
+            // 如果, state 为 0, 也就是还在使用的状态.
+            // 这个时候, count 可以是负数, 当是负数的时候, 就代表着有需求, 但是当前没有值.
+            // 当有值到达的时候, 就使用存储的需求回调, 消耗掉这个值就可以了.
             if state == 0 { return (count - 1, 0) }
             return (Swift.max(0, count - 1), state)
         }).old {
@@ -91,7 +101,18 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             defer { if count == 1, state == 1 { finish() } }
             return getValue()
         case (_, 0):
-            return try Coroutine.await { receiveCallbacks.push($0) }.get()
+            /*
+             @inlinable public static func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T {
+                 try current().await(callback)
+             }
+             */
+            /*
+             await, 在 await 中, 启动 receiveCallbacks.push 将回调进行存储.
+             在 channel 接收到数据之后, 调用 receiveCallbacks 进行回调.
+             receivedCallback 在 await 里面, 会进行协程的值的读取, 以及协程唤醒的逻辑.
+             */
+            let result = try Coroutine.await { receivedCallback in consumeCallbacks.push(receivedCallback) }
+            return try result.get()
         case (_, 1):
             throw CoChannelError.closed
         default:
@@ -117,7 +138,9 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             callback(.success(getValue()))
             if count == 1, state == 1 { finish() }
         case (_, 0):
-            receiveCallbacks.push(callback)
+            // 如果, 当前没有值了, 那么存储 callback, 在得到新的值之后, 触发传递进来的 callback.
+            consumeCallbacks.push(callback)
+            
         case (_, 1):
             callback(.failure(.closed))
         default:
@@ -134,7 +157,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     }
     
     private func getValue() -> T {
-        let block = sendBlocks.blockingPop()
+        let block = generatorCallbacks.blockingPop()
         block.resumeBlock?(nil)
         return block.element
     }
@@ -148,18 +171,23 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         guard state == 0 else { return false }
         if count < 0 {
             for _ in 0..<count.magnitude {
-                receiveCallbacks.blockingPop()(.failure(.closed))
+                consumeCallbacks.blockingPop()(.failure(.closed))
             }
         } else if count > 0 {
-            sendBlocks.forEach { $0.resumeBlock?(.closed) }
+            generatorCallbacks.forEach { $0.resumeBlock?(.closed) }
         } else {
             finish()
         }
         return true
     }
     
+    // 恶心的写法, 0 代表正常, 1 代表已经关闭, 2 代表已经取消.
     internal override var isClosed: Bool {
         atomic.value.1 == 1
+    }
+    
+    internal override var isCanceled: Bool {
+        atomic.value.1 == 2
     }
     
     // MARK: - cancel
@@ -168,26 +196,22 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         let count = atomic.update { _ in (0, 2) }.old.0
         if count < 0 {
             for _ in 0..<count.magnitude {
-                receiveCallbacks.blockingPop()(.failure(.canceled))
+                consumeCallbacks.blockingPop()(.failure(.canceled))
             }
         } else if count > 0 {
             for _ in 0..<count {
-                sendBlocks.blockingPop().resumeBlock?(.canceled)
+                generatorCallbacks.blockingPop().resumeBlock?(.canceled)
             }
         }
         finish()
     }
     
-    internal override var isCanceled: Bool {
-        atomic.value.1 == 2
-    }
-    
     deinit {
-        while let block = receiveCallbacks.pop() {
+        while let block = consumeCallbacks.pop() {
             block(.failure(.canceled))
         }
-        receiveCallbacks.free()
-        sendBlocks.free()
+        consumeCallbacks.free()
+        generatorCallbacks.free()
     }
     
 }

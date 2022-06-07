@@ -2,6 +2,7 @@
 extension CoChannel {
     
     /// A `CoChannel` wrapper that provides send-only functionality.
+    // 这个类, 就是对于 _channel 的包装, 所有的都是调用的 channel 来实现的.
     public final class Sender {
         
         @usableFromInline internal let channel: _Channel<Element>
@@ -14,9 +15,7 @@ extension CoChannel {
         @inlinable public var bufferType: BufferType {
             channel.bufferType
         }
-        
     }
-    
 }
 
 extension CoChannel.Sender {

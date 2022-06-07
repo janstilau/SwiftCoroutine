@@ -6,6 +6,7 @@
 //  Copyright © 2020 Alex Belozierov. All rights reserved.
 //
 
+// 垃圾设计. 
 internal struct AtomicTuple {
     
     internal typealias Tuple = (Int32, Int32)

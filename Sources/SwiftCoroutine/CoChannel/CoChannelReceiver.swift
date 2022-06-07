@@ -91,6 +91,9 @@ extension CoChannel.Receiver {
     /// then the coroutine will be suspended until a new element will be added to the channel or it will be closed or canceled.
     /// - Returns: Iterator for the channel elements.
     @inlinable public func makeIterator() -> AnyIterator<Element> {
+        /*
+         如果, 当前在协程环境, 就调用 awaitReceive 来获取数据. 
+         */
         AnyIterator { Coroutine.isInsideCoroutine ? try? self.awaitReceive() : self.poll() }
     }
     

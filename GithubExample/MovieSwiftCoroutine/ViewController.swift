@@ -350,14 +350,10 @@ class ViewControllerViewModel {
     }
    
     
-    /// 3- Channels
-    ///
-    
-    // Futures and promises provide a convenient way to transfer a single value between coroutines. [Channels] provide a way to transfer a stream of values. Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty, or on send if it is full.
-    
-    // Usage:
+    // 3- Channels
+    // Futures and promises provide a convenient way to transfer a single value between coroutines.
+    // Channels provide a way to transfer a stream of values. Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty, or on send if it is full.
     // To create channels, use the CoChannel class.
-
     //create a channel with a buffer which can store only one element
     
     func executeChannel() {

@@ -16,7 +16,7 @@ extension CoChannel {
 
     /// Returns a publisher that emits elements of this `CoChannel`.
     @inlinable public func publisher() -> AnyPublisher<Element, CoChannelError> {
-        channel.publisher()
+        _innerChannel.publisher()
     }
 
 }
@@ -38,11 +38,11 @@ extension Publisher {
     
     /// Attaches `CoChannel.Receiver` as a subscriber and returns it.
     public func subscribeCoChannel(buffer: CoChannel<Output>.BufferType = .unlimited) -> CoChannel<Output>.Receiver {
-        let channel = CoChannel<Output>(bufferType: buffer)
-        let cancellable = sink(receiveCompletion: { _ in channel.close() },
-                               receiveValue: { channel.offer($0) })
-        channel.whenCanceled(cancellable.cancel)
-        return channel.receiver
+        let _innerChannel = CoChannel<Output>(bufferType: buffer)
+        let cancellable = sink(receiveCompletion: { _ in _innerChannel.close() },
+                               receiveValue: { _innerChannel.offer($0) })
+        _innerChannel.whenCanceled(cancellable.cancel)
+        return _innerChannel.receiver
     }
     
 }
