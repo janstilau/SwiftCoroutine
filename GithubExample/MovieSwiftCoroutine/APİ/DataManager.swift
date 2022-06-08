@@ -24,17 +24,21 @@ var taskId: Int = 0
 class DataManager {
     //:-> Get Popular Movie
     func getPopularMovies()->CoFuture<Movies>{
+        /*
+         Future 应该是一个统一的编程模型, 在 Qt 里面,  Future 在进行取值的时候, 是使用了线程的 WaitConfition 的模型. 如果在使用值的时候, 还没有得到 Result, 就进行线程的等待.
+         在协程里面, 则是协程的等待, 知道 Future SetResult 的时候, 才会进行协程的唤醒.
+         */
         guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
         let moviedPromise = CoPromise<Movies>()
         
         
-        // 在这里, 又进行了一次协程的创建
         DispatchQueue.main.startCoroutine {
             // callback 从哪里来的啊.
             taskId += 1
             let recordId = taskId
             let currentThread = Thread.current
             print("网络任务: \(recordId) 启动线程 \(Thread.current)")
+            // Coroutine.await  是找到当下的协程, 进行 wait 的操作.
             let (data , response , error) = try Coroutine.await { callback in
                 //  open func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask
                 // dataTask(with 本身, 就是 completionHandler 的参数, 是一个元组类型.
@@ -42,6 +46,15 @@ class DataManager {
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
             print("网络任务: \(recordId) 恢复线程 \(Thread.current)")
+            /*
+             这里之所以进行这样的一个比较, 是之前思考错误的结果.
+             协程其实和线程不是绑定的, 在这个库里面, scheduler 控制的是, 协程的 start, resume 的等操作, 应该在什么环境下.
+             如果是使用 globalQueue 作为调度器, 那么 Coroutine.await 之前的环境, 可能是线程 1.
+             在 Coroutine.await 中, 经过回调函数, 触发了协程的 resume 的时候, 还是会使用 globalQueue 来调度, 协程 resume 的操作.
+             因为是 globalQueue, 所以协程逻辑再次被执行的时候, 线程很有可能就不是同样的一个线程.
+             
+             正是因为如此, 如果是使用 mainQueue 当做调度器的话, 那么一定就是在同一个线程里面了.
+             */
             if currentThread != Thread.current {
                 print("网络任务不是一个线程")
             }

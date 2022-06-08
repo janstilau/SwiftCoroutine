@@ -186,10 +186,8 @@ extension SharedCoroutine: CoroutineProtocol {
          
          协程, 这种保证了顺序一定是线性的, 和同步函数一样, 让代码逻辑变得简单明了.
          */
-        
-        
         /*
-         asyncTrigger 
+         asyncTrigger 可能不是异步函数, 所以, 它的回调可能会直接就在当前线程里面执行完毕了.
          */
         asyncTrigger { value in
             while true {
