@@ -53,7 +53,6 @@ extension Coroutine {
         }
         throw CoroutineError.calledOutsideCoroutine
     }
-    
 }
 
 extension pthread_key_t {

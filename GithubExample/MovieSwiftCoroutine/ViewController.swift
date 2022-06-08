@@ -23,16 +23,125 @@ class ViewControllerViewModel {
     var temp_2: Movies? = nil
     var temp_3: Movies? = nil
     var temp_4: Movies? = nil
+    
     func getPopularMovies(){
         // DispatchQueue.main.startCoroutine
         // 这应该就是 await 所做的事情了.
         
+        // Level0
         DispatchQueue.main.startCoroutine {
-            let result = try? DispatchQueue.main.await {
-                return 200
+            print("进入到 Level 0")
+            let leve0Data = "leve01Data"
+            let level1Data1: String = try Coroutine.await { asyncCompletion in
+                
+                // Level1
+                DispatchQueue.main.startCoroutine {
+                    print("进入到 Level 1")
+                    guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
+                    let innerValue = try Coroutine.await { callback in
+                        URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+                    }
+                    print("退出 Level 1")
+                    asyncCompletion("level1Data")
+                }
             }
-            self.movies = try self.dataManager.getPopularMovies().await()
+            print(level1Data1)
+            
+            let level1Data2: String = try Coroutine.await { asyncCompletion in
+                
+                // Level 1
+                DispatchQueue.main.startCoroutine {
+                    print("进入到 Level 1")
+                    guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
+                    let innerValue = try Coroutine.await { callback in
+                        URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+                    }
+                    print("退出 Level 1")
+                    asyncCompletion("level1Data2")
+                }
+            }
+            print(level1Data2)
+
+            // level 0 协程 会暂停.
+            let level1Data3: String = try Coroutine.await { asyncCompletion in
+                
+                // Level 1
+                DispatchQueue.main.startCoroutine {
+                    print("进入到 Level 1")
+                    // level 1 协程会暂停
+                    let level2Data1: String = try Coroutine.await { asyncCompletion in
+                        
+                        // Level2
+                        DispatchQueue.main.startCoroutine {
+                            print("进入到 Level 2")
+                            guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
+                            // Level 2 协程会暂停
+                            let innerValue = try Coroutine.await { callback in
+                                // Level 2 协程会回复
+                                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+                            }
+                            print("退出 Level 2")
+                            // Level 1 协程会回复.
+                            // 在这个点上, Level 2 协程对应的 contextJumpBuffer, 其实是 Level 1 协程的函数调用栈.
+                            asyncCompletion("level2Data1")
+                        }
+                    }
+                    print(level2Data1)
+                    
+                    
+                    // Level 1 协程会暂停.
+                    let level2Data2: String = try Coroutine.await { asyncCompletion in
+                        // Level2
+                        DispatchQueue.main.startCoroutine {
+                            print("进入到 Level 2")
+                            guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
+                            // Level 2 协程会暂停
+                            let innerValue = try Coroutine.await { callback in
+                                // Level 2 协程会回复
+                                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+                            }
+                            print("退出 Level 2")
+                            // Level 1 协程会回复
+                            asyncCompletion("level2Data2")
+                        }
+                    }
+                    print(level2Data2)
+                    
+                    // Level 1 协程会暂停.
+                    let level2Data3: String = try Coroutine.await { asyncCompletion in
+                        // Level2
+                        DispatchQueue.main.startCoroutine {
+                            print("进入到 Level 2")
+                            guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
+                            // Level 2 协程会暂停
+                            let innerValue = try Coroutine.await { callback in
+                                // Level 2 协程会回复
+                                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+                            }
+                            print("退出 Level 2")
+                            // Level 1 协程会回复
+                            asyncCompletion("level2Data3")
+                        }
+                    }
+                    print(level2Data3)
+                    
+                    
+                    print("退出 Level 1")
+                    // Level 0 协程会回复
+                    asyncCompletion("level1Data3")
+                }
+            }
+            print(level1Data3)
+            print("退出 Level 0")
         }
+        
+//        DispatchQueue.main.startCoroutine {
+//            let result = try? DispatchQueue.main.await {
+//
+//                return 200
+//            }
+//            self.movies = try self.dataManager.getPopularMovies().await()
+//        }
         
         
         /*
@@ -268,7 +377,6 @@ class ViewControllerViewModel {
 //            self.temp_4 = try self.dataManager.getPopularMovies().await()
 //        }
         
-        print("ViewDidLoad End")
     }
     
     @IBOutlet weak var imageView: UIImageView!

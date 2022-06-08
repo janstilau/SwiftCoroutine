@@ -12,6 +12,18 @@ internal final class SharedCoroutine {
     
     // 这三项, 仅仅在这里进行一个索引. 并不是在 SharedCoroutine 进行的生成.
     internal let dispatcher: SharedCoroutineDispatcher // 这是一个定值, 就是一个单例对象.
+    
+    weak var superCoroutine: SharedCoroutine? {
+        didSet {
+        }
+    }
+    var level: Int {
+        if let superCoroutine = superCoroutine {
+            return superCoroutine.level + 1
+        } else {
+            return 0
+        }
+    }
     /*
      将协程 start, resume 的动作进行调度.
      可以看做是协程运行环境的管理. 协程和线程, 没有必然的关系.
@@ -27,7 +39,7 @@ internal final class SharedCoroutine {
     private var isCanceled = 0
     private var awaitTag = 0
     
-    private var id: Int = 0
+    var id: Int = 0
     
     internal init(dispatcher: SharedCoroutineDispatcher,
                   queue: SharedCoroutineQueue,
@@ -44,7 +56,7 @@ internal final class SharedCoroutine {
     internal func start() -> CompletionState {
         performAsCurrent {
             return perform {
-                print("id: \(self.id) 在 queue: \(queue.id) 上启动. 当前线程 \(Thread.current)")
+                print("id: \(self.id) level: \(self.level) 在 queue: \(queue.id) 上启动. 当前线程 \(Thread.current)")
                 return queue.context.start()
             }
         }
@@ -53,7 +65,7 @@ internal final class SharedCoroutine {
     internal func resume() -> CompletionState {
         performAsCurrent {
             return perform {
-                print("id: \(self.id) 在 queue: \(queue.id) 上恢复. 当前线程 \(Thread.current)")
+                print("id: \(self.id) level: \(self.level) 在 queue: \(queue.id) 上恢复. 当前线程 \(Thread.current)")
                 return queue.context.resume(from: environment.pointee._jumpBuffer)
             }
         }
@@ -103,7 +115,7 @@ internal final class SharedCoroutine {
             environment = .allocate(capacity: 1)
             environment.initialize(to: .init())
         }
-        print("id: \(self.id) 在 queue: \(queue.id) 上暂停. 当前线程 \(Thread.current)")
+        print("id: \(self.id) level: \(self.level) 在 queue: \(queue.id) 上暂停. 当前线程 \(Thread.current)")
         queue.context.suspend(to: environment)
     }
     
@@ -203,6 +215,7 @@ extension SharedCoroutine: CoroutineProtocol {
         
         if routeState == .suspending {
             // 在异步函数, 触发之后, 进行调度.
+            // 如果上面的 asyncTrigger 不是异步函数, 而是一个同步函数, 那么 resumeIfSuspended 其实会将 routeState 的状态修改为 running, 这里也就不需要 suspend()
             suspend()
         }
         
@@ -243,6 +256,8 @@ extension SharedCoroutine: CoroutineProtocol {
             // 不过, 在协程的概念里面, 确实是听到了, 不要进行上锁, 而是进行原子操作的这样的语句.
             switch routeState {
             case .suspending:
+                // 如果, await 中传入的是一个同步 asyncTrigger, 也就是不需要暂停当前的协程.
+                // 所以, 这里如果是 suspending 的状态, 修改一下状态, 使得 await 那里不进行真正的 suspend 的调用.
                 if atomicCAS(&routeState, expected: .suspending, desired: .running) { return }
             case .suspended:
                 if atomicCAS(&routeState, expected: .suspended, desired: .running) {

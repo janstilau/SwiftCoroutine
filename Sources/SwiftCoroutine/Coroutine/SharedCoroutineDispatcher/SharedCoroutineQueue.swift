@@ -25,6 +25,7 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     internal init(stackSize size: Int) {
         context = CoroutineContext(stackSize: size)
         id = idGenerator
+        print("生成了 Queue \(idGenerator)")
         idGenerator += 1
     }
     
@@ -45,8 +46,10 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         scheduler: CoroutineScheduler,
         task: @escaping () -> Void
     ) {
+        let superCoroutine = try? Coroutine.current() as? SharedCoroutine
         queueCurrentCoroutine?.saveStack()
         queueCurrentCoroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
+        queueCurrentCoroutine.superCoroutine = superCoroutine
         started += 1
         context.coroutineMainTask = task
         self.complete(with: queueCurrentCoroutine.start())
@@ -64,10 +67,10 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
         
         // 如果, 当前正在进行进行协程处理. 不会立马触发传入的新的协程对象.
         // prepared 会存储所有等待重新调用的协程对象.
-        state == .isFree ? resumeOnQueue(coroutine) : prepared.push(coroutine)
+        state == .isFree ? resumeOnQueueImmediately(coroutine) : prepared.push(coroutine)
     }
     
-    private func resumeOnQueue(_ coroutine: SharedCoroutine) {
+    private func resumeOnQueueImmediately(_ coroutine: SharedCoroutine) {
         if self.queueCurrentCoroutine !== coroutine {
             // 原有协程的状态存储.
             self.queueCurrentCoroutine?.saveStack()
@@ -90,11 +93,10 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
     
     /*
      self.complete(with: queueCurrentCoroutine.start())
-     self.complete(with: coroutine.start())
      self.complete(with: coroutine.resume())
      */
     private func complete(with state: CompletionState) {
-        print("Complete With \(state), \(Thread.current)")
+        print("id: \(self.queueCurrentCoroutine.id) Complete With \(state), \(Thread.current)")
         switch state {
         case .finished:
             started -= 1
@@ -118,8 +120,11 @@ internal final class SharedCoroutineQueue: CustomStringConvertible {
             count > 0 ? (.running, count - 1) : (.isFree, 0)
         }.new.0 == .isFree
         
-        // 判断一下, 当前 Queue 的剩余任务量. 进行任务的调度处理. 
-        isFinished ? dispatcher.pushFreeQueue(self) : resumeOnQueue(prepared.blockingPop())
+        /*
+         如果, 当前 Queue 没有任务了, 就插入到战备池中.
+         否则, 在 Queue 上继续执行, 应该被唤醒的任务.
+         */
+        isFinished ? dispatcher.pushFreeQueue(self) : resumeOnQueueImmediately(prepared.blockingPop())
     }
     
     deinit {

@@ -10,8 +10,8 @@ import Foundation
 import SwiftCoroutine
 
 //MARK:-> URL
-fileprivate struct movieApiConstant {
-    private static let api_key = "?api_key=22da445752083e2b1c7cba53e1db864e"
+struct movieApiConstant {
+    static let api_key = "?api_key=22da445752083e2b1c7cba53e1db864e"
     
     static var popularMovies_URL : String {
         return "https://api.themoviedb.org/3/movie/popular\(movieApiConstant.api_key)&language=en-US"
@@ -26,6 +26,7 @@ class DataManager {
     func getPopularMovies()->CoFuture<Movies>{
         guard let url = URL(string: movieApiConstant.popularMovies_URL) else {fatalError()}
         let moviedPromise = CoPromise<Movies>()
+        
         
         // 在这里, 又进行了一次协程的创建
         DispatchQueue.main.startCoroutine {
@@ -58,6 +59,7 @@ class DataManager {
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
             
+            
             if let data = data {
                 if let dataMovies = self.parse(data: data)  {
                     // 在异步函数的最终位置, 进行 Promise 的状态的改变.
@@ -66,6 +68,15 @@ class DataManager {
             }
         }
         return moviedPromise
+    }
+    
+    func someAsync() -> Void {
+        DispatchQueue.main.startCoroutine {
+            let value = try? Coroutine.await { callback in
+                URLSession.shared.dataTask(with: URL.init(string: "https://www.baidu.com")!,
+                                           completionHandler: callback).resume()
+            }
+        }
     }
     
     //:-> Parsing
