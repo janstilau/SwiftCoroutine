@@ -206,7 +206,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         let (count, state) = atomic.update { count, state in
             state == 0 ? (Swift.max(0, count), 1) : (count, state)
         }.old
-
+        
         guard state == 0 else { return false }
         
         if count < 0 {
@@ -264,5 +264,4 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         consumeCallbacks.free()
         generatorCallbacks.free()
     }
-    
 }

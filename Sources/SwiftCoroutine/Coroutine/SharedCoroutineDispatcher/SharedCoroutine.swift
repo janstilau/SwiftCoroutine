@@ -1,6 +1,7 @@
 
 private var idGenerator: Int = 0
 
+
 internal final class SharedCoroutine {
     
     internal typealias CompletionState = SharedCoroutineQueue.CompletionState
@@ -257,7 +258,7 @@ extension SharedCoroutine: CoroutineProtocol {
             switch routeState {
             case .suspending:
                 // 如果, await 中传入的是一个同步 asyncTrigger, 也就是不需要暂停当前的协程.
-                // 所以, 这里如果是 suspending 的状态, 修改一下状态, 使得 await 那里不进行真正的 suspend 的调用.
+                // 这样修改了之后, await 中的代码不会真正的触发 suspend 的逻辑, 所以整个协程, 其实是不会暂停运行的. 
                 if atomicCAS(&routeState, expected: .suspending, desired: .running) { return }
             case .suspended:
                 if atomicCAS(&routeState, expected: .suspended, desired: .running) {

@@ -42,9 +42,9 @@
  而 suspend, resume 中, 则是保存 A 环境, 跳转到 B 环境.
  */
 int __assemblyStart(void* contextJumpBuffer,
-            const void* stack,
-            const void* param,
-            const void (*block)(const void*)) {
+                    const void* stack,
+                    const void* param,
+                    const void (*block)(const void*)) {
     // 将, 当前的运行状态, 存放到了 jumpBufferAddress 中.
     int n = _setjmp(contextJumpBuffer);
     if (n) {
@@ -56,19 +56,19 @@ int __assemblyStart(void* contextJumpBuffer,
     
     
     // __asm 关键字用于调用内联汇编程序，并且可在 C 或 C++ 语句合法时出现。
-    #if defined(__x86_64__)
+#if defined(__x86_64__)
     // rsp 是存放的栈顶地址, 可以看到, 协程, 是将自己内存中 alloc 的一段空间, 当做了自己的栈顶.
     // 这样, _setjmp 的时候, 这个自定义的栈顶, 其实也就被存储到了 JumpBuffer 中了.
     __asm__ ("movq %0, %%rsp" :: "g"(stack));
     block(param);
     
     
-    #elif defined(__arm64__)
+#elif defined(__arm64__)
     __asm__ (
-    "mov sp, %0\n"
-    "mov x0, %1\n"
-    "blr %2" :: "r"(stack), "r"(param), "r"(block));
-    #endif
+             "mov sp, %0\n"
+             "mov x0, %1\n"
+             "blr %2" :: "r"(stack), "r"(param), "r"(block));
+#endif
     
     return 0;
 }
@@ -84,7 +84,7 @@ void __assemblySuspend(void* coroutineJumpBuffer, void** stackTopAddress, void* 
          suspend 并不需要根据返回值来判断, 协程是否已经结束了. 这是必然的, suspend 被调用, 就是协程在等待耗时任务完成, 然后执行后面的逻辑.
          
          let (data, _, _) = try Coroutine.await { callback in
-             URLSession.shared.dataTask(with: self.imageURL, completionHandler: callback).resume()
+         URLSession.shared.dataTask(with: self.imageURL, completionHandler: callback).resume()
          }
          guard let image = UIImage(data: data!) else { return }
          Coroutine.await 必须在一个协程环境中运行, 它会停滞当前的协程流程, 直到 URLSession.shared.dataTask 的回调被调用.
@@ -96,7 +96,7 @@ void __assemblySuspend(void* coroutineJumpBuffer, void** stackTopAddress, void* 
     }
     // 使用了这种诡异的方式, 记录了当前的调用栈的栈顶地址.
     char x; *stackTopAddress = (void*)&x;
-    // 切回到了线程原有的环境. 从这里可以看出, 一定是 协程 -> 线程主逻辑 -> 协程. 不会存在协程切协程. 
+    // 切回到了线程原有的环境. 从这里可以看出, 一定是 协程 -> 线程主逻辑 -> 协程. 不会存在协程切协程.
     _longjmp(contextJumpBuffer, retVal);
 }
 

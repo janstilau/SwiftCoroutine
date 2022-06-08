@@ -1,16 +1,19 @@
+
 private protocol _CoFutureCancellable: AnyObject {
     func cancel()
 }
 
-/// Holder for a result that will be provided later.
+// Holder for a result that will be provided later.
 
 // 类似于, Combine 中的 Promise, 将值的确定逻辑, 放到了异步函数的回调里面.
-// 使用者直接使用 Future 对象. 可以通过添加 SetResult 回调的方式, 来监听. 也可以通过 await 的方式, 进行协程的 suspend 操作.
+// Future 里面, 可以存储各种的 Block 对象. 这些 Block 对象, 会在 Future 的 SetResult 被调用的时候, 统一的进行触发.
+// 所以 Future 的行为模式, 和 Promise 是相似的.
+// Future await 就是将当前的协程停止, 然后将协程恢复的逻辑, 添加到 Future Result Callback 中去. 这样, 当 Future 的值确定了之后, 可以触发协程的恢复.
+// Future/Promise 是一种, 常见的异步结果使用的方式. 在各个语言里面, 都看见过相关的代码.
 /// `CoFuture` and its subclass `CoPromise` are the implementation of the Future/Promise approach.
 /// They allow to launch asynchronous tasks and immediately return` CoFuture` with its future results.
 /// The available result can be observed by the `whenComplete()` callback
 /// or by `await()` inside a coroutine without blocking a thread.
-
 
 
 /// ```
@@ -20,6 +23,7 @@ private protocol _CoFutureCancellable: AnyObject {
 ///         . . . do some work . . .
 ///         promise.success(response)
 ///     }
+///     直接就是将这个对象进行了返回, 在异步操作里面, 再对这个对象进行值的确定.
 ///     return promise
 /// }
 
@@ -58,6 +62,7 @@ private protocol _CoFutureCancellable: AnyObject {
 ///     . . . handle error . . .
 /// }
 /// ```
+
 ///
 /// Apple has introduced a new reactive programming framework `Combine`
 /// that makes writing asynchronous code easier and includes a lot of convenient and common functionality.
@@ -85,7 +90,7 @@ public class CoFuture<Value> {
     private var resultState: Int
     private var nodes: CallbackStack<_Result>
     private var _result: _Result?
-    // 没太理解, 这个 Parent 究竟有什么作用. 目前来看, 是任何作用都没有. 
+    // 没太理解, 这个 Parent 究竟有什么作用. 目前来看, 是任何作用都没有.
     private unowned(unsafe) var parent: _CoFutureCancellable?
     
     /*
@@ -127,6 +132,7 @@ extension CoFuture: _CoFutureCancellable {
     //
     @inlinable public convenience init(promise: (@escaping (Result<Value, Error>) -> Void) -> Void) {
         self.init(_result: nil)
+        // 直接将 setResult 函数传递了出去.
         promise(setResult)
     }
     
@@ -179,7 +185,10 @@ extension CoFuture: _CoFutureCancellable {
     // MARK: - Callback
     
     /*
-     用, 响应链条的方式, 去思考 Future. 这就是一个 Promise 对象, 然后将 Promise 的值确定的回调, 进行存储. 
+     用, 响应链条的方式, 去思考 Future. 这就是一个 Promise 对象, 然后将 Promise 的值确定的回调, 进行存储.
+     
+     如果, 安插不进去了, 就是这个 Future 已经有值了.
+     直接调用 callback, 传入当前的 result 值就好了.
      */
     @usableFromInline internal func addCallback(_ callback: @escaping (_Result) -> Void) -> Void {
         if !nodes.append(callback) { _result.map(callback) }

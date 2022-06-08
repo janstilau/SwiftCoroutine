@@ -81,7 +81,6 @@ extension CoChannel {
 }
 
 extension CoChannel.Receiver {
-    
     // MARK: - sequence
     
     /// Make an iterator which successively retrieves and removes values from the channel.
@@ -96,5 +95,4 @@ extension CoChannel.Receiver {
          */
         AnyIterator { Coroutine.isInsideCoroutine ? try? self.awaitReceive() : self.poll() }
     }
-    
 }
