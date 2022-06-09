@@ -1,8 +1,8 @@
-
 // 这可以认为是 AsyncSequence 的实现.
 
 /// Channel is a non-blocking primitive for communication between a sender and a receiver.
-// 这里说的很清楚, 会有一个缓存区的概念. 作为 Sender, 当缓存区满的时候 await.
+// 这里说的很清楚, 会有一个缓存区的概念.
+// 作为 Sender, 当缓存区满的时候 await.
 // 作为 Receiver, 当缓存区空的时候, await.
 
 /// Conceptually, a channel is similar to a queue that allows to

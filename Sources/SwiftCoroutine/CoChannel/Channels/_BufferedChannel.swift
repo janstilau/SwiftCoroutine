@@ -1,23 +1,18 @@
-//
-//  _BufferedChannel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 07.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 internal final class _BufferedChannel<T>: _Channel<T> {
     
-    private typealias ReceiveCallback = (Result<T, CoChannelError>) -> Void
+    private typealias ConsumeAction = (Result<T, CoChannelError>) -> Void
     
-    private struct SendBlock {
+    private struct GenerateAction {
         let element: T
-        let resumeBlock: ((CoChannelError?) -> Void)?
+        // 当, 被消耗的时候, 触发的回调.
+        // 只有在 AwaitReceive 的时候, 才会赋值. 赋值的逻辑就是, 唤醒 AwaitReceive 发现队列满员之后的协程主动地 suspend.
+        let consumedTriggerAction: ((CoChannelError?) -> Void)?
     }
     
     private let capacity: Int
-    private var consumeCallbacks = FifoQueue<ReceiveCallback>()
-    private var generatorCallbacks = FifoQueue<SendBlock>()
+    private var consumeCallbacks = FifoQueue<ConsumeAction>()
+    private var generatorCallbacks = FifoQueue<GenerateAction>()
     private var atomic = AtomicTuple() // 起始的状态是 0, 0, 前面是 count, 后面是 state
     
     internal init(capacity: Int) {
@@ -44,10 +39,12 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             }.old
             guard state == 0 else { return }
             
+            // 这里没有 await 的相关逻辑触发.
+            // 目前这种, 其实是会将 Buffer 的 Limit 机制破坏掉的.
             if count < 0 {
                 self.consumeCallbacks.blockingPop()(.success($0))
             } else {
-                self.generatorCallbacks.push(.init(element: $0, resumeBlock: nil))
+                self.generatorCallbacks.push(.init(element: $0, consumedTriggerAction: nil))
             }
         }
     }
@@ -64,7 +61,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             consumeCallbacks.blockingPop()(.success(element))
             return true
         } else if count < capacity {
-            generatorCallbacks.push(.init(element: element, resumeBlock: nil))
+            generatorCallbacks.push(.init(element: element, consumedTriggerAction: nil))
             return true
         }
         return false
@@ -72,6 +69,11 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     
     // MARK: - MAIN
     
+    /*
+     消耗数据.
+     如果 Buffer 里面有值, 直接使用里面缓存的值.
+     如果没有, 那么就协程暂停. 在真正有数据产生之后, 会进行唤醒处理.
+     */
     internal override func awaitReceive() throws -> T {
         switch atomic.update({ count, state in
             // 如果, state 为 0, 也就是还在使用的状态.
@@ -87,7 +89,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
                     finish()
                 }
             }
-            // 在awaitReceive 中, 会是 sender 协程的唤醒操作.
+            // 在 awaitReceive 中, 会是 sender 协程的唤醒操作.
             // 在 awaitSend 中, 会是 receiver 协程的唤醒操作.
             // 所以, 其实这和使用信号量, 来进行消费者生产者的同步, 没有太多的区别.
             return getCachedValue()
@@ -98,12 +100,11 @@ internal final class _BufferedChannel<T>: _Channel<T> {
              }
              */
             /*
-             await, 在 await 中, 启动 receiveCallbacks.push 将回调进行存储.
-             在 channel 接收到数据之后, 调用 receiveCallbacks 进行回调.
-             receivedCallback 在 await 里面, 会进行协程的值的读取, 以及协程唤醒的逻辑.
+             receivedCallback 是 await 中, 取值并且唤醒协程的操作.
+             存储到 consumeCallbacks 中,
+             consumeCallbacks 会在 awaitSend 生成值的时候, 被提取出来并且调用.
+             这里, consumeCallbacks 存储的, 不是直接对于值的消耗. 而是唤醒操作, 值的消耗是在环境后, 值返回给调用方, 调用方的逻辑.
              */
-            
-            // 使用 Coroutine.await 这种方式, 进行当前协程的获取.
             let result = try Coroutine.await { receivedCallback in consumeCallbacks.push(receivedCallback) }
             return try result.get()
         case (_, 1):
@@ -114,7 +115,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     }
     
     // 怎么解决, 同时操作 consumeCallbacks 的问题啊, 在这里在进行消耗, 在 awaitReceive 中进行添加. 在不同的协程里面运行, 不一定在同一个线程的.
-    // 这样, 岂不是会有数据同步的问题.
+    // 这里没有解决, 在 Swift 里面, 是使用了 actor 模型解决的这个问题. 这里还是直接是内存没有任何保护地进行了访问.
     internal override func awaitSend(_ element: T) throws {
         switch atomic.update ({ count, state in
             // 向, Channel 中添加数据, 更新数量.
@@ -124,25 +125,27 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         }).old {
             
         case (_, 1):
+            // 如果已经 close 或者 cancel 了, 直接报错.
             throw CoChannelError.closed
         case (_, 2):
+            // 如果已经 close 或者 cancel 了, 直接报错.
             throw CoChannelError.canceled
+            
         case (let count, _) where count < 0:
             // 当 Channel 接受到数据之后, 如果 count 小于 0, 则是 consumeCallbacks 已经存储了消费逻辑.
             // 弹出最顶的消费逻辑, 消耗刚刚添加进来的数据.
+            // 弹出的 consumeCallbacks, 可能是 whenComplete 中存储的回调, 这个回调弹出调用, 是监听机制的回调触发.
+            // 弹出的 consumeCallbacks, 可能是 awaitReceive 中存储的回调, 这个回调弹出调用, 是 resume awaitReceive 中暂停的协程.
+            
+            // 无论是异步操作, 还是异步函数, 对于耗时操作来说, 都是触发回调的操作. 不同的是, 这个回调具体是做什么事情. resume 协程, 对于异步操作来说, 是未知的.
+            // 在 Swift 中, continuation 应该包装的也是协程 resume 的操作, 也是触发异步操作, 然后在异步操作的回调里面, 调用对应的 continuation
             consumeCallbacks.blockingPop()(.success(element))
         case (let count, _) where count < capacity:
             // 如果, 还能存储, 就缓存生成策略. 这里使用的是缓存生成方法的方式.
-            generatorCallbacks.push(.init(element: element, resumeBlock: nil))
+            generatorCallbacks.push(.init(element: element, consumedTriggerAction: nil))
         default:
-            // 非常糟糕的代码.
-            /*
-             SendBlock 在进行 getValue 的时候, 会调用自己的 resumeBlock
-             而这个值, 是在这里填入的. 这个值是 await 的内部逻辑, 目的就是在于进行协程的唤醒.
-             当, 容量不够的时候, 就进行协程的暂停, 直到 getValue 的时候, 消耗掉队列中的数据, 触发唤醒的操作.
-             */
-            try Coroutine.await { resumeCallBack in
-                generatorCallbacks.push(.init(element: element, resumeBlock: resumeCallBack))
+            try Coroutine.await { resumeSendCallback in
+                generatorCallbacks.push(.init(element: element, consumedTriggerAction: resumeSendCallback))
             }.map { throw $0 }
         }
     }
@@ -157,7 +160,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         let (count, state) = atomic.update { count, state in
             (Swift.max(0, count - 1), state)
         }.old
-        
+        // 如果, 队列里面没有缓存的值, 直接返回 nil.
         guard count > 0 else { return nil }
         defer { if count == 1, state == 1 { finish() } }
         
@@ -193,7 +196,8 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     
     private func getCachedValue() -> T {
         let block = generatorCallbacks.blockingPop()
-        block.resumeBlock?(nil)
+        // 目前, 唯一的作用, 就是在生成数据的时候, 进行 awaitReceive 的唤醒操作.
+        block.consumedTriggerAction?(nil)
         return block.element
     }
     
@@ -225,7 +229,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             // Count 大于 0, 并不代表着, 有生产者在等待着消费.
             // 只有当缓存的数据, 大于的 Capacity 的数据的时候, 生产者才会陷入到 await 的状态. 这个时候, resumeBlock 才有值.
             // 不过, 这里统一的调用一次, 也没有太大的问题.
-            generatorCallbacks.forEach { $0.resumeBlock?(.closed) }
+            generatorCallbacks.forEach { $0.consumedTriggerAction?(.closed) }
         } else {
             finish()
         }
@@ -247,11 +251,12 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         let count = atomic.update { _ in (0, 2) }.old.0
         if count < 0 {
             for _ in 0..<count.magnitude {
+                //
                 consumeCallbacks.blockingPop()(.failure(.canceled))
             }
         } else if count > 0 {
             for _ in 0..<count {
-                generatorCallbacks.blockingPop().resumeBlock?(.canceled)
+                generatorCallbacks.blockingPop().consumedTriggerAction?(.canceled)
             }
         }
         finish()
