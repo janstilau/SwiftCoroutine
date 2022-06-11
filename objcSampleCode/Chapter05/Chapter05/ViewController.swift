@@ -8,7 +8,7 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -23,14 +23,14 @@ class ViewController: UIViewController {
                 
                 // 按照 UTF8 字符的 line 获取
                 // try await sessionLines()
-
+                
                 // await notifications()
             } catch {
                 print(error)
             }
         }
     }
-
+    
     func sessionBytes() async throws {
         let url = URL(string: "https://example.com")!
         let session = URLSession.shared

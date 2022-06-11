@@ -48,7 +48,7 @@ class ViewController: UIViewController {
             print("Done Task: \(index)")
         }
     }
-
+    
     private var idGenerator: Int = 0
     
     func loadResultRemotely() async throws {
