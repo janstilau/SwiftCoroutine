@@ -1,7 +1,11 @@
 import Foundation
 import CoreLocation
 
+/*
+ 在这里, 封装的是, CLLocationManager 的相关逻辑 i.
+ */
 class ChatLocationDelegate: NSObject, CLLocationManagerDelegate {
+  
   typealias LocationContinuation = CheckedContinuation<CLLocation, Error>
   private var continuation: LocationContinuation?
   private let manager = CLLocationManager()

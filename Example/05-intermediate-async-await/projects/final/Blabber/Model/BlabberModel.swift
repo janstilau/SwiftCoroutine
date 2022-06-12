@@ -8,8 +8,7 @@ class BlabberModel: ObservableObject {
   var username = ""
   var urlSession = URLSession.shared
   
-  init() {
-  }
+  init() { }
   
   /// Current live updates
   @Published var messages: [Message] = []
@@ -19,6 +18,24 @@ class BlabberModel: ObservableObject {
   
   /// Shares the current user's address in chat.
   func shareLocation() async throws {
+    // 实际上, 还是使用原有的 API 进行真正的业务操作.
+    // 当调用 withCheckedThrowingContinuation 的时候, 其实是将当前的 Task 进行了 Suspend,
+    // 然后调用传入的 body, 在 body 里面, 开启异步函数, 在异步函数的最后, 进行 resume 的操作.
+    /*
+     Suspends the current task, then calls the given closure with a checked throwing continuation for the current task.
+
+     func withCheckedThrowingContinuation<T>(function: String = #function, _ body: (CheckedContinuation<T, Error>) -> Void) async throws -> T
+
+     If resume(throwing:) is called on the continuation, this function throws that error.
+
+     function
+     A string identifying the declaration that is the notional source for the continuation, used to identify the continuation in runtime diagnostics related to misuse of this continuation.
+     body
+     A closure that takes an UnsafeContinuation parameter. You must resume the continuation exactly once.
+     */
+    
+    // 这里的实现, 可以用 SwiftCoroutine 中的 wait 实现来进行理解.
+    // 续体, 把其中 CompeltionHandler 取值, 并且 resume 的操作, 封装到了内部. 
     let location: CLLocation = try await
     withCheckedThrowingContinuation { [weak self] continuation in
       self?.delegate = ChatLocationDelegate(continuation: continuation)
@@ -28,6 +45,7 @@ class BlabberModel: ObservableObject {
     
     let address: String = try await
     withCheckedThrowingContinuation { continuation in
+      // 只要 continuation 可以出发就可以了. 至于到底是用异步函数, CompletionHandler, 还是 Delegate, 其实都不是太重要的事情.
       AddressEncoder.addressFor(location: location) { address, error in
         switch (address, error) {
         case (nil, let error?):
