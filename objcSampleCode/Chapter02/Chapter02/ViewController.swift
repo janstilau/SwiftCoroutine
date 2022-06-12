@@ -12,7 +12,6 @@ actor Holder {
     func setResults(_ results: [String]) {
         self.results = results
     }
-    
     func append(_ value: String) {
         results.append(value)
     }
@@ -34,6 +33,16 @@ class ViewController: UIViewController {
             someSyncMethod(index: i)
         }
     }
+    
+    /*
+     func withThrowingTaskGroup<ChildTaskResult, GroupResult>(
+     of childTaskResultType: ChildTaskResult.Type,
+     returning returnType: GroupResult.Type = GroupResult.self,
+     body: (inout ThrowingTaskGroup<ChildTaskResult, Error>) async throws -> GroupResult)
+     async rethrows -> GroupResult where ChildTaskResult : Sendable
+     
+     Starts a new scope that can contain a dynamic number of throwing child tasks.
+     */
     
     func someSyncMethod(index: Int) {
         Task {

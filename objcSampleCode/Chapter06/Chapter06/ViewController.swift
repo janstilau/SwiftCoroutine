@@ -14,7 +14,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         Task {
-            // await TaskGroupSample().start()
+             await TaskGroupSample().start()
             // await TaskGroupDataErrorSample().start()
             // await TaskGroupEscapingSample().start()
             // await TaskGroupDeferSample().start()
@@ -23,7 +23,8 @@ class ViewController: UIViewController {
             // await TaskGroupCombination().start()
             // await AsyncLetCombination().start()
             // await TopLevelTask().start()
-            print("Task done")
+//            print("Task done")
+            
         }
     }
 }
@@ -34,7 +35,7 @@ struct TaskGroupSample {
         print("Start")
         let v: Int = await withTaskGroup(of: Int.self) { group in
             var value = 0
-            for i in 0 ..< 3 {
+            for i in 0 ..< 20 {
                 group.addTask {
                     await work(i)
                 }
@@ -211,8 +212,13 @@ struct TopLevelTask {
 
 func work(_ value: Int) async -> Int {
     print("Start work \(value)")
+    
+    
+    
     // print("Task \(value) cancelled: \(Task.isCancelled)")
+    print("\(value) Start Thread \(Thread.current)")
     await Task.sleep(UInt64(value) * NSEC_PER_SEC)
     print("Work \(value) done")
+    print("\(value) End Thread \(Thread.current)")
     return value
 }
