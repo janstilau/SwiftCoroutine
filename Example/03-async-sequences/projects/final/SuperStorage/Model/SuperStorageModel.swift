@@ -1,19 +1,17 @@
 import Foundation
 
-/// The download model.
+// The download model.
 class SuperStorageModel: ObservableObject {
   /// The list of currently running downloads.
   @Published var downloads: [DownloadInfo] = []
   /*
    TaskLocal
-   
    Property wrapper that defines a task-local value key.
    Declaration
    
    @propertyWrapper final class TaskLocal<Value> where Value : Sendable
-   Discussion
-   
-   A task-local value is a value that can be bound and read in the context of a Task. It is implicitly carried with the task, and is accessible by any child tasks the task creates (such as TaskGroup or async let created tasks).
+   A task-local value is a value that can be bound and read in the context of a Task.
+   It is implicitly carried with the task, and is accessible by any child tasks the task creates (such as TaskGroup or async let created tasks).
    */
   @TaskLocal static var supportsPartialDownloads = false
   
@@ -51,14 +49,14 @@ class SuperStorageModel: ObservableObject {
     }
     await addDownload(name: name)
     
+    // 这种, 提前进行声明使用 let, 然后在判断语句中进行赋值的操作, 是一个非常常见的操作.
+    // AsyncBytes, 从这个命名可以看出来, 每次是返回一个字节的数据.
     let result: (downloadStream: URLSession.AsyncBytes, response: URLResponse)
-    
     if let offset = offset {
       // 在这里, 进行了类似于断点续传的工作.
       let urlRequest = URLRequest(url: url, offset: offset, length: size)
-      // 这里进行 Await, 是因为网络请求, Response 的到达, 其实也是一个异步的过程. 
+      // 这里进行 Await, 是因为网络请求, Response 的到达, 其实也是一个异步的过程.
       result = try await URLSession.shared.bytes(for: urlRequest, delegate: nil)
-      
       guard (result.response as? HTTPURLResponse)?.statusCode == 206 else {
         throw "The server responded with an error."
       }
@@ -76,9 +74,10 @@ class SuperStorageModel: ObservableObject {
     
     while !stopDownloads, !accumulator.checkCompleted() {
       while !accumulator.isBatchCompleted,
-            let byte = try await asyncDownloadIterator.next() {
+              let byte = try await asyncDownloadIterator.next() {
         accumulator.append(byte)
       }
+      
       let progress = accumulator.progress
       // 在收集到相应的数据之后, 进行 UI 更新的工作.
       Task.detached(priority: .medium) {

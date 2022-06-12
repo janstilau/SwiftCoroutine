@@ -1,35 +1,3 @@
-/// Copyright (c) 2021 Razeware LLC
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to deal
-/// in the Software without restriction, including without limitation the rights
-/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-/// copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-///
-/// Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
-/// distribute, sublicense, create a derivative work, and/or sell copies of the
-/// Software in any work that is designed, intended, or marketed for pedagogical or
-/// instructional purposes related to programming, coding, application development,
-/// or information technology.  Permission for such use, copying, modification,
-/// merger, publication, distribution, sublicensing, creation of derivative works,
-/// or sale is expressly withheld.
-///
-/// This project and source code may use libraries or frameworks that are
-/// released under various Open-Source licenses. Use of those libraries and
-/// frameworks are governed by their own individual licenses.
-///
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-/// THE SOFTWARE.
-///
 import Foundation
 
 /// Type that accumulates incoming data into an array of bytes.
@@ -40,6 +8,7 @@ class ByteAccumulator: CustomStringConvertible {
   private let size: Int
   private let chunkCount: Int
   private var bytes: [UInt8]
+  
   var data: Data { return Data(bytes[0..<offset]) }
   
   /// Creates a named byte accumulator.
@@ -53,21 +22,31 @@ class ByteAccumulator: CustomStringConvertible {
   /// Appends a byte to the accumulator.
   func append(_ byte: UInt8) {
     bytes[offset] = byte
+    // 每次收集数据之后, 进行值的增加.
     counter += 1
     offset += 1
   }
   
   /// `true` if the current batch is filled with bytes.
+  // 不断地进行数据的收集, 同时进行 counter 的修改.
+  // 如果超过了某个阈值, 才进行后续的工作.
+  // 这就是这个类最大的作用. 
   var isBatchCompleted: Bool {
     return counter >= chunkCount
   }
   
+  /*
+   这里的实现, 真实令人作呕.
+   明明和 FullSize 进行判断就可以了.
+   
+   在判断之后, 进行 counter == 0 的赋值动作, 这样, 下一次进来如果还是 0, 那就是在这次循环里面, 没有进行真正的数据收集工作.
+   这种写法, 无缘无故增加了复杂度.
+   */
   func checkCompleted() -> Bool {
     defer { counter = 0 }
     return counter == 0
   }
   
-  /// The overall progress.
   var progress: Double {
     Double(offset) / Double(size)
   }
