@@ -7,6 +7,7 @@ extension String: LocalizedError {
   }
 }
 
+// ByteCountFormatter 在 iOS 6.0 里面就出现了.
 let sizeFormatter: ByteCountFormatter = {
   let formatter = ByteCountFormatter()
   formatter.allowedUnits = [.useMB]
@@ -24,6 +25,7 @@ let dateFormatter: DateFormatter = {
 extension URLRequest {
   init(url: URL, offset: Int, length: Int) {
     self.init(url: url)
+    // 使用, Http 的 bytes 进行了对应的断点续传的功能. 
     addValue("bytes=\(offset)-\(offset + length - 1)", forHTTPHeaderField: "Range")
   }
 }

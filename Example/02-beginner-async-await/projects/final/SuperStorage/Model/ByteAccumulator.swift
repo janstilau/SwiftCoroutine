@@ -8,6 +8,7 @@ class ByteAccumulator: CustomStringConvertible {
   private let size: Int
   private let chunkCount: Int
   private var bytes: [UInt8]
+  
   var data: Data { return Data(bytes[0..<offset]) }
   
   /// Creates a named byte accumulator.

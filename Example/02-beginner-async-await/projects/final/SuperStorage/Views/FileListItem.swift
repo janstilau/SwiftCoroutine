@@ -9,6 +9,7 @@ struct FileListItem: View {
         Spacer()
         Image(systemName: "chevron.right")
       }
+      
       HStack {
         Image(systemName: "photo")
         Text(sizeFormatter.string(fromByteCount: Int64(file.size)))

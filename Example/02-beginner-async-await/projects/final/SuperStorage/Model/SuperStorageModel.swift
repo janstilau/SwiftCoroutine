@@ -3,6 +3,7 @@ import Foundation
 /// The download model.
 class SuperStorageModel: ObservableObject {
   /// The list of currently running downloads.
+  // 
   @Published var downloads: [DownloadInfo] = []
   
   /// Downloads a file and returns its content.
@@ -11,10 +12,12 @@ class SuperStorageModel: ObservableObject {
       throw "Could not create the URL."
     }
     
+    /*
+     addDownload, updateDownload 因为要在 MainActor 上执行, 所以在这里要使用 await 进行等待.
+     */
     await addDownload(name: file.name)
     
-    let (data, response) = try await
-    URLSession.shared.data(from: url, delegate: nil)
+    let (data, response) = try await URLSession.shared.data(from: url, delegate: nil)
     
     await updateDownload(name: file.name, progress: 1.0)
     
@@ -27,11 +30,15 @@ class SuperStorageModel: ObservableObject {
   
   /// Downloads a file, returns its data, and updates the download progress in ``downloads``.
   func downloadWithProgress(file: DownloadFile) async throws -> Data {
-    return try await downloadWithProgress(fileName: file.name, name: file.name, size: file.size)
+    return try await
+    downloadWithProgress(fileName: file.name, name: file.name, size: file.size)
   }
   
   /// Downloads a file, returns its data, and updates the download progress in ``downloads``.
-  private func downloadWithProgress(fileName: String, name: String, size: Int, offset: Int? = nil) async throws -> Data {
+  private func downloadWithProgress(fileName: String,
+                                    name: String,
+                                    size: Int,
+                                    offset: Int? = nil) async throws -> Data {
     guard let url = URL(string: "http://localhost:8080/files/download?\(fileName)") else {
       throw "Could not create the URL."
     }
@@ -100,6 +107,10 @@ class SuperStorageModel: ObservableObject {
 
 extension SuperStorageModel {
   /// Adds a new download.
+  /*
+   A singleton actor whose executor is equivalent to the main dispatch queue.
+   被 MainActor 修饰的方法, 会在主线程中执行.
+   */
   @MainActor func addDownload(name: String) {
     let downloadInfo = DownloadInfo(id: UUID(), name: name, progress: 0.0)
     downloads.append(downloadInfo)
@@ -110,6 +121,9 @@ extension SuperStorageModel {
     if let index = downloads.firstIndex(where: { $0.name == name }) {
       var info = downloads[index]
       info.progress = progress
+      // downloads 是一个值语义的类型.
+      // 所以, 当它的 Mutating 方法被调用的时候, 可以出发它的 set 方法也被调用.
+      // 而 set 方法的调用, 会导致 @Published 的信号发送, 导致 View 进行刷新重绘. 
       downloads[index] = info
     }
   }

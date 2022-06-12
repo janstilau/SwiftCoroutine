@@ -10,7 +10,7 @@
 		9C1AFC5B26C285EF0009636E /* StartUp.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9C1AFC5A26C285EF0009636E /* StartUp.storyboard */; };
 		9C1AFC5E26C287540009636E /* SerreriaSobria.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9C1AFC5D26C287540009636E /* SerreriaSobria.otf */; };
 		9C72072B26CA7B8100726D6D /* FilePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C72072A26CA7B8100726D6D /* FilePreview.swift */; };
-		9C72072D26CA7BE200726D6D /* Downloads.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C72072C26CA7BE200726D6D /* Downloads.swift */; };
+		9C72072D26CA7BE200726D6D /* DownloadsProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C72072C26CA7BE200726D6D /* DownloadsProgress.swift */; };
 		9C72072F26CA7C6100726D6D /* FileDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C72072E26CA7C6100726D6D /* FileDetails.swift */; };
 		9C72073126CA7E6100726D6D /* FileListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C72073026CA7E6100726D6D /* FileListItem.swift */; };
 		9C972CD326C116F600E48FAC /* SuperStorageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C972CD226C116F600E48FAC /* SuperStorageApp.swift */; };
@@ -28,7 +28,7 @@
 		9C1AFC5D26C287540009636E /* SerreriaSobria.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SerreriaSobria.otf; sourceTree = "<group>"; };
 		9C1AFC5F26C287600009636E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9C72072A26CA7B8100726D6D /* FilePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreview.swift; sourceTree = "<group>"; };
-		9C72072C26CA7BE200726D6D /* Downloads.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloads.swift; sourceTree = "<group>"; };
+		9C72072C26CA7BE200726D6D /* DownloadsProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsProgress.swift; sourceTree = "<group>"; };
 		9C72072E26CA7C6100726D6D /* FileDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetails.swift; sourceTree = "<group>"; };
 		9C72073026CA7E6100726D6D /* FileListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileListItem.swift; sourceTree = "<group>"; };
 		9C972CCF26C116F600E48FAC /* SuperStorage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SuperStorage.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,7 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				9C72072A26CA7B8100726D6D /* FilePreview.swift */,
-				9C72072C26CA7BE200726D6D /* Downloads.swift */,
+				9C72072C26CA7BE200726D6D /* DownloadsProgress.swift */,
 				9C72072E26CA7C6100726D6D /* FileDetails.swift */,
 				9C72073026CA7E6100726D6D /* FileListItem.swift */,
 			);
@@ -205,7 +205,7 @@
 				9CB1ACF426CBE09600EC8427 /* ByteAccumulator.swift in Sources */,
 				9C972CE126C1172300E48FAC /* SuperStorageModel.swift in Sources */,
 				9C972CD326C116F600E48FAC /* SuperStorageApp.swift in Sources */,
-				9C72072D26CA7BE200726D6D /* Downloads.swift in Sources */,
+				9C72072D26CA7BE200726D6D /* DownloadsProgress.swift in Sources */,
 				9C972CE626C1205000E48FAC /* DownloadView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
