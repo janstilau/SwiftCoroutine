@@ -1,5 +1,11 @@
 import Foundation
 
+extension Thread {
+  static func dump(_ text: String = "") {
+    print("Action:\(text) -> Current Thread is \(Thread.current)")
+  }
+}
+
 /// The download model.
 class SuperStorageModel: ObservableObject {
   /// The list of currently running downloads.
@@ -62,6 +68,7 @@ class SuperStorageModel: ObservableObject {
   }
   
   /// Flag that stops ongoing downloads.
+  // 目前该值没有多大作用.
   var stopDownloads = false
   
   func reset() {
@@ -93,10 +100,12 @@ class SuperStorageModel: ObservableObject {
     guard let url = URL(string: "http://localhost:8080/files/status") else {
       throw "Could not create the URL."
     }
-    
+    Thread.dump("Before status")
+    // 这里显示, 已经是子线程环境了.
     let (data, response) = try await
     URLSession.shared.data(from: url, delegate: nil)
-    
+    Thread.dump("After status")
+    // 这里显示, 已经是子线程环境了. 
     guard (response as? HTTPURLResponse)?.statusCode == 200 else {
       throw "The server responded with an error."
     }

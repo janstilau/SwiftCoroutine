@@ -47,10 +47,10 @@ struct DownloadView: View {
   @State var downloadTask: Task<Void, Error>? {
     didSet {
       timerTask?.cancel()
-
+      
       guard isDownloadActive else { return }
       let startTime = Date().timeIntervalSince1970
-
+      
       let timerSequence = Timer
         .publish(every: 1, tolerance: 1, on: .main, in: .common)
         .autoconnect()
@@ -59,7 +59,7 @@ struct DownloadView: View {
           return "\(duration)s"
         }
         .values
-
+      
       timerTask = Task {
         for await duration in timerSequence {
           self.duration = duration
@@ -68,7 +68,7 @@ struct DownloadView: View {
     }
   }
   @State var timerTask: Task<Void, Error>?
-
+  
   var body: some View {
     List {
       // Show the details of the selected file and download buttons.
@@ -94,8 +94,8 @@ struct DownloadView: View {
               try await SuperStorageModel
                 .$supportsPartialDownloads
                 .withValue(file.name.hasSuffix(".jpeg")) {
-                fileData = try await model.downloadWithProgress(file: file)
-              }
+                  fileData = try await model.downloadWithProgress(file: file)
+                }
             } catch { }
             isDownloadActive = false
           }
@@ -108,12 +108,12 @@ struct DownloadView: View {
         // Show progress for any ongoing downloads.
         Downloads(downloads: model.downloads)
       }
-
+      
       if !duration.isEmpty {
         Text("Duration: \(duration)")
           .font(.caption)
       }
-
+      
       if let fileData = fileData {
         // Show a preview of the file if it's a valid image.
         FilePreview(fileData: fileData)
@@ -126,7 +126,7 @@ struct DownloadView: View {
         model.stopDownloads = true
         timerTask?.cancel()
       }, label: { Text("Cancel All") })
-        .disabled(model.downloads.isEmpty)
+      .disabled(model.downloads.isEmpty)
     })
     .onDisappear {
       fileData = nil

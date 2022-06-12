@@ -35,7 +35,7 @@ import SwiftUI
 struct FileDetails: View {
   let file: DownloadFile
   let isDownloading: Bool
-
+  
   @Binding var isDownloadActive: Bool
   let downloadSingleAction: () -> Void
   let downloadWithUpdatesAction: () -> Void

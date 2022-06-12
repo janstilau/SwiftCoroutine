@@ -162,6 +162,8 @@ struct ListView: View {
               .foregroundColor(Color.accentColor)
               .padding(.bottom, 20)
           }, footer: {
+            // 将 View 的展示, 和 ViewState 进行了绑定.
+            // 当 status 改变的时候, 也就是 View 改变的时候. 
             Text(status)
           })
           
@@ -185,11 +187,14 @@ struct ListView: View {
           async let files = try model.availableFiles()
           async let status = try model.status()
           // 当, 结构化的任务完成之后, 才会继续下面的流程.
+          
+          Thread.dump("ListView Appeared")
+          // 这里显示, 是主线程环境.
           let (filesResult, statusResult) = try await (files, status)
           
-          // 异步结束之后, 进行 UI 的更新.
-          // 在 availableFiles 中还是子线程的环境, 到这里, 就是主线程了.
-          // SwiftUI 自动进行了切换????
+          Thread.dump("ListView Get Results")
+          // 这里显示, 已经是主线程环境了.
+          // 异步结束之后, 进行 UI 的更新. 为什么自动切换到了主线程.
           self.files = filesResult
           self.status = statusResult
         } catch {

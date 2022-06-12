@@ -27,7 +27,9 @@ struct DownloadView: View {
           // Download a file in a single go.
           print("downloadSingleAction")
           // 当, 点击了按钮之后, 触发下载操作.
-          // 当, 下载完成之后, 触发 Model 的改变, 然后触发 View 的改变. 
+          // 当, 下载完成之后, 触发 Model 的改变, 然后触发 View 的改变.
+          
+          // 使用, Task, 将异步函数的执行环境创建出来.
           Task {
             fileData = try await model.download(file: file)
           }
