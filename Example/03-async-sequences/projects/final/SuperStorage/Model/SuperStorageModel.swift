@@ -1,41 +1,20 @@
-/// Copyright (c) 2021 Razeware LLC
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to deal
-/// in the Software without restriction, including without limitation the rights
-/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-/// copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-///
-/// Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
-/// distribute, sublicense, create a derivative work, and/or sell copies of the
-/// Software in any work that is designed, intended, or marketed for pedagogical or
-/// instructional purposes related to programming, coding, application development,
-/// or information technology.  Permission for such use, copying, modification,
-/// merger, publication, distribution, sublicensing, creation of derivative works,
-/// or sale is expressly withheld.
-///
-/// This project and source code may use libraries or frameworks that are
-/// released under various Open-Source licenses. Use of those libraries and
-/// frameworks are governed by their own individual licenses.
-///
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-/// THE SOFTWARE.
-
 import Foundation
 
 /// The download model.
 class SuperStorageModel: ObservableObject {
   /// The list of currently running downloads.
   @Published var downloads: [DownloadInfo] = []
+  /*
+   TaskLocal
+   
+   Property wrapper that defines a task-local value key.
+   Declaration
+   
+   @propertyWrapper final class TaskLocal<Value> where Value : Sendable
+   Discussion
+   
+   A task-local value is a value that can be bound and read in the context of a Task. It is implicitly carried with the task, and is accessible by any child tasks the task creates (such as TaskGroup or async let created tasks).
+   */
   @TaskLocal static var supportsPartialDownloads = false
   
   /// Downloads a file and returns its content.
@@ -60,7 +39,9 @@ class SuperStorageModel: ObservableObject {
   
   /// Downloads a file, returns its data, and updates the download progress in ``downloads``.
   func downloadWithProgress(file: DownloadFile) async throws -> Data {
-    return try await downloadWithProgress(fileName: file.name, name: file.name, size: file.size)
+    return try await downloadWithProgress(fileName: file.name,
+                                          name: file.name,
+                                          size: file.size)
   }
   
   /// Downloads a file, returns its data, and updates the download progress in ``downloads``.
@@ -73,16 +54,17 @@ class SuperStorageModel: ObservableObject {
     let result: (downloadStream: URLSession.AsyncBytes, response: URLResponse)
     
     if let offset = offset {
+      // 在这里, 进行了类似于断点续传的工作.
       let urlRequest = URLRequest(url: url, offset: offset, length: size)
-      result = try await
-      URLSession.shared.bytes(for: urlRequest, delegate: nil)
+      // 这里进行 Await, 是因为网络请求, Response 的到达, 其实也是一个异步的过程. 
+      result = try await URLSession.shared.bytes(for: urlRequest, delegate: nil)
       
       guard (result.response as? HTTPURLResponse)?.statusCode == 206 else {
         throw "The server responded with an error."
       }
     } else {
+      // 如果, 没有 offset 值, 就是重新进行下载的动作.
       result = try await URLSession.shared.bytes(from: url, delegate: nil)
-      
       guard (result.response as? HTTPURLResponse)?.statusCode == 200 else {
         throw "The server responded with an error."
       }
@@ -98,9 +80,9 @@ class SuperStorageModel: ObservableObject {
         accumulator.append(byte)
       }
       let progress = accumulator.progress
+      // 在收集到相应的数据之后, 进行 UI 更新的工作.
       Task.detached(priority: .medium) {
-        await self
-          .updateDownload(name: name, progress: progress)
+        await self.updateDownload(name: name, progress: progress)
       }
       print(accumulator.description)
     }

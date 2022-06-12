@@ -1,35 +1,3 @@
-/// Copyright (c) 2021 Razeware LLC
-///
-/// Permission is hereby granted, free of charge, to any person obtaining a copy
-/// of this software and associated documentation files (the "Software"), to deal
-/// in the Software without restriction, including without limitation the rights
-/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-/// copies of the Software, and to permit persons to whom the Software is
-/// furnished to do so, subject to the following conditions:
-///
-/// The above copyright notice and this permission notice shall be included in
-/// all copies or substantial portions of the Software.
-///
-/// Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
-/// distribute, sublicense, create a derivative work, and/or sell copies of the
-/// Software in any work that is designed, intended, or marketed for pedagogical or
-/// instructional purposes related to programming, coding, application development,
-/// or information technology.  Permission for such use, copying, modification,
-/// merger, publication, distribution, sublicensing, creation of derivative works,
-/// or sale is expressly withheld.
-///
-/// This project and source code may use libraries or frameworks that are
-/// released under various Open-Source licenses. Use of those libraries and
-/// frameworks are governed by their own individual licenses.
-///
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-/// THE SOFTWARE.
-
 import SwiftUI
 import Combine
 import UIKit
@@ -42,15 +10,19 @@ struct DownloadView: View {
   /// The downloaded data.
   @State var fileData: Data?
   /// Should display a download activity indicator.
+  // 在下载任务开启结束的时候, 会修改这个值. 
   @State var isDownloadActive = false
   @State var duration = ""
+  
+  // 当, downloadTask 被赋值之后, 也就是新的下载任务开启的时候.
+  // 这是时候, 开启一个新的定时器任务, 来进行 UI 的更新.
   @State var downloadTask: Task<Void, Error>? {
     didSet {
       timerTask?.cancel()
       
       guard isDownloadActive else { return }
-      let startTime = Date().timeIntervalSince1970
       
+      let startTime = Date().timeIntervalSince1970
       let timerSequence = Timer
         .publish(every: 1, tolerance: 1, on: .main, in: .common)
         .autoconnect()
@@ -58,10 +30,33 @@ struct DownloadView: View {
           let duration = Int(date.timeIntervalSince1970 - startTime)
           return "\(duration)s"
         }
+      /*
+       extension Publisher where Self.Failure == Never {
+           /// The elements produced by the publisher, as an asynchronous sequence.
+           /// This property provides an ``AsyncPublisher``, which allows you to use the Swift `async`-`await` syntax to receive the publisher's elements. Because ``AsyncPublisher`` conforms to <doc://com.apple.documentation/documentation/Swift/AsyncSequence>, you iterate over its elements with a `for`-`await`-`in` loop, rather than attaching a subscriber.
+           
+           /// The following example shows how to use the `values` property to receive elements asynchronously. The example adapts a code snippet from the ``Publisher/filter(_:)`` operator's documentation, which filters a sequence to only emit even integers.
+           /// This example replaces the ``Subscribers/Sink`` subscriber with a `for`-`await`-`in` loop that iterates over the ``AsyncPublisher`` provided by the `values` property.
+           ///
+           ///     let numbers: [Int] = [1, 2, 3, 4, 5]
+           ///     let filtered = numbers.publisher
+           ///         .filter { $0 % 2 == 0 }
+           ///
+           ///     for await number in filtered.values
+           ///     {
+           ///         print("\(number)", terminator: " ")
+           ///     }
+           ///
+           public var values: AsyncPublisher<Self> { get }
+       }
+       */
         .values
       
       timerTask = Task {
+        // 将 Combine 中的技术, 应用到了 async 的场景里面.
         for await duration in timerSequence {
+          print("Thread: \(Thread.current)")
+          // 这里打印的都是主线程.
           self.duration = duration
         }
       }
@@ -75,6 +70,8 @@ struct DownloadView: View {
       FileDetails(
         file: file,
         isDownloading: !model.downloads.isEmpty,
+        // 使用 Binding 的方式, 当当前 ViewState 的 $isDownloadActive 改变的时候.
+        // 子 View 的 isDownloadActive 也会同时发生改变, 然后触发子 View 的刷新.
         isDownloadActive: $isDownloadActive,
         downloadSingleAction: {
           // Download a file in a single go.
@@ -86,8 +83,8 @@ struct DownloadView: View {
             isDownloadActive = false
           }
         },
+        
         downloadWithUpdatesAction: {
-          // Download a file with UI progress updates.
           isDownloadActive = true
           downloadTask = Task {
             do {
@@ -97,13 +94,16 @@ struct DownloadView: View {
                   fileData = try await model.downloadWithProgress(file: file)
                 }
             } catch { }
+            // 因为上面是 await 的调用, 所以能够到达这里, 就是上面的异步任务, 已经完成了. 
             isDownloadActive = false
           }
         },
+        
         downloadMultipleAction: {
           // Download a file in multiple concurrent parts.
         }
       )
+      
       if !model.downloads.isEmpty {
         // Show progress for any ongoing downloads.
         Downloads(downloads: model.downloads)

@@ -36,6 +36,7 @@ struct FileDetails: View {
   let file: DownloadFile
   let isDownloading: Bool
   
+  // isDownloadActive 这个值, 是在父 View 进行控制的. 
   @Binding var isDownloadActive: Bool
   let downloadSingleAction: () -> Void
   let downloadWithUpdatesAction: () -> Void
