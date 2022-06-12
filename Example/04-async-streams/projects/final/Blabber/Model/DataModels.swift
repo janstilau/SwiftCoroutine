@@ -13,6 +13,7 @@ struct Message: Codable, Identifiable, Hashable {
   var date: Date
 }
 
+// 在 Extension 里面, 提供简便方法. 
 extension Message {
   init(message: String) {
     self.id = .init()

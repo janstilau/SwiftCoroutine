@@ -12,13 +12,14 @@ enum AddressEncoder {
     
     Task {
       do {
-        guard
-          let placemark = try await geocoder.reverseGeocodeLocation(location).first,
-          let address = placemark.postalAddress else {
+        guard let placemark = try await geocoder.reverseGeocodeLocation(location).first,
+                let address = placemark.postalAddress else {
           completion(nil, "No addresses found")
           return
         }
-        completion(CNPostalAddressFormatter.string(from: address, style: .mailingAddress), nil)
+        completion(CNPostalAddressFormatter.string(from: address,
+                                                   style: .mailingAddress),
+                   nil)
       } catch {
         completion(nil, error)
       }
