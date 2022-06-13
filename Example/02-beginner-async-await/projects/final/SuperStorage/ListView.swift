@@ -39,12 +39,10 @@ struct ListView: View {
          hidden()
          
          Hides this view unconditionally.
-         Declaration
-
          func hidden() -> some View
-         Discussion
 
-         Hidden views are invisible and can’t receive or respond to interactions. However, they do remain in the view hierarchy and affect layout. Use this modifier if you want to include a view for layout purposes, but don’t want it to display.
+         Hidden views are invisible and can’t receive or respond to interactions. However, they do remain in the view hierarchy and affect layout.
+         Use this modifier if you want to include a view for layout purposes, but don’t want it to display.
          使用 Hidden 进行 View 的隐藏, 但是不会影响到这个 View 的布局相关的影响.
          
          HStack {
@@ -60,7 +58,8 @@ struct ListView: View {
              HStack {
                  Image(systemName: "a.circle.fill")
                  Image(systemName: "b.circle.fill")
-         // 使用这种方式, 可以影响到布局了.
+         // 使用这种方式, 可以影响到布局了. 每次当 isHidden 为 True 的时候, 第三个 Image 其实也就不显示了.
+         // 每次, Body 都是全量获取数据, 所以布局相关也是重新计算的.
                  if !isHidden {
                      Image(systemName: "c.circle.fill")
                  }
@@ -85,12 +84,15 @@ struct ListView: View {
          struct NavigationLink<Label, Destination> where Label : View, Destination : View
          Discussion
 
-         Users click or tap a navigation link to present a view inside a NavigationView. You control the visual appearance of the link by providing view content in the link’s trailing closure. For example, you can use a Label to display a link:
+         Users click or tap a navigation link to present a view inside a NavigationView. You control the visual appearance of the link by providing view content in the link’s trailing closure.
+         
+         For example, you can use a Label to display a link:
          NavigationLink(destination: FolderList(id: workFolder.id)) {
              Label("Work Folder", systemImage: "folder")
          }
          For a link composed only of text, you can use one of the convenience initializers that takes a string and creates a Text view for you:
          NavigationLink("Work Folder", destination: FolderList(id: workFolder.id))
+         
          Perform navigation by initializing a link with a destination view. For example, consider a ColorDetail view that displays a color sample:
          struct ColorDetail: View {
              var color: Color
@@ -101,6 +103,7 @@ struct ListView: View {
                      .navigationTitle(color.description.capitalized)
              }
          }
+         
          The following NavigationView presents three links to color detail views:
          NavigationView {
              List {
@@ -127,6 +130,7 @@ struct ListView: View {
              isActive: $shouldShowPurple)
          If elsewhere in your code you set shouldShowPurple to true, the navigation link activates.
          */
+        // 这里 link, 是 Hidden 的, 但是还是会占据空间的.
         NavigationLink(destination: DownloadView(file: selected).environmentObject(model),
                        isActive: $isDisplayingDownload) {
           EmptyView()
@@ -179,6 +183,47 @@ struct ListView: View {
       }, message: {
         Text(lastErrorMessage)
       })
+      
+      /*
+       Adds an asynchronous task to perform when this view appears.
+       func task(priority: TaskPriority = .userInitiated,
+                _ action: @escaping () async -> Void)
+       -> some View
+
+       // 这样创建的任务, 是会和 View 的生命周期绑定在一起的.
+       Use this modifier to perform an asynchronous task with a lifetime that matches that of the modified view. If the task doesn’t finish before SwiftUI removes the view or the view changes identity, SwiftUI cancels the task.
+       Use the await keyword inside the task to wait for an asynchronous call to complete, or to wait on the values of an AsyncSequence instance. For example, you can modify a Text view to start a task that loads content from a remote resource:
+       
+       let url = URL(string: "https://example.com")!
+       @State private var message = "Loading..."
+
+       var body: some View {
+           Text(message)
+               .task {
+                   do {
+                       var receivedLines = [String]()
+                       for try await line in url.lines {
+                           receivedLines.append(line)
+                           message = "Received \(receivedLines.count) lines"
+                       }
+                   } catch {
+                       message = "Failed to load"
+                   }
+               }
+       }
+       
+       This example uses the lines method to get the content stored at the specified URL as an asynchronous sequence of strings.
+       When each new line arrives, the body of the for-await-in loop stores the line in an array of strings and updates the content of the text view to report the latest line count.
+
+       priority
+       The task priority to use when creating the asynchronous task. The default priority is userInitiated.
+       
+       action
+       A closure that SwiftUI calls as an asynchronous task when the view appears. SwiftUI automatically cancels the task if the view disappears before the action completes.
+       Returns
+
+       A view that runs the specified action asynchronously when the view appears.
+       */
       .task {
         guard files.isEmpty else { return }
         
