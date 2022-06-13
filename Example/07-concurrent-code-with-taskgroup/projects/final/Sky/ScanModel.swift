@@ -40,6 +40,7 @@ class ScanModel: ObservableObject {
       // 先同时开启四个, 然后没完成一个, 新加入一个.
       var index = batchSize
       
+      // 在遍历的同时, 居然在操作 group.
       for try await result in group {
         switch result {
         case .success(let result):
@@ -87,6 +88,8 @@ class ScanModel: ObservableObject {
 }
 
 // MARK: - Tracking task progress.
+
+// 各种, UI 上面的变化, 都是根据属性值的变化触发的.
 extension ScanModel {
   @MainActor
   private func onTaskCompleted() {
