@@ -37,6 +37,7 @@ class ScanModel: ObservableObject {
         }
       }
       
+      // 先同时开启四个, 然后没完成一个, 新加入一个.
       var index = batchSize
       
       for try await result in group {

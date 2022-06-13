@@ -3,12 +3,12 @@ import Combine
 
 @main
 struct SkyApp: App {
+  
   @ObservedObject
-  var scanModel = ScanModel(total: 20, localName: UIDevice.current.name)
+  var scanModel = ScanModel(total: 30, localName: UIDevice.current.name)
   
   @State var isScanning = false
   
-  /// The last error message that happened.
   @State var lastMessage = "" {
     didSet {
       isDisplayingMessage = true
@@ -58,6 +58,7 @@ struct SkyApp: App {
           .buttonStyle(.bordered)
           .disabled(isScanning)
         }
+        
         .alert("Message", isPresented: $isDisplayingMessage, actions: {
           Button("Close", role: .cancel) { }
         }, message: {

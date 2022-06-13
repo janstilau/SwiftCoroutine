@@ -6,7 +6,7 @@ struct ScanningView: View {
   @Binding var completed: Int
   @Binding var perSecond: Double
   @Binding var scheduled: Int
-
+  
   private func colorForAvg(_ num: Int) -> Color {
     switch num {
     case 0..<5: return .red
@@ -15,18 +15,24 @@ struct ScanningView: View {
     default: return .gray
     }
   }
-
+  
   var body: some View {
     VStack(alignment: .leading) {
-      ProgressView("\(scheduled) scheduled", value: Double(min(scheduled, total)), total: Double(total))
+      
+      ProgressView("\(scheduled) scheduled",
+                   value: Double(min(scheduled, total)),
+                   total: Double(total))
         .tint(colorForAvg(scheduled))
         .padding()
-
-      ProgressView(String(format: "%.2f per sec.", perSecond), value: min(perSecond, 10), total: 10)
+      
+      ProgressView(String(format: "%.2f per sec.", perSecond),
+                   value: min(perSecond, 10),
+                   total: 10)
         .tint(colorForAvg(Int(perSecond)))
         .padding()
-
-      ProgressView("\(completed) tasks completed", value: min(1.0, Double(completed) / Double(total)))
+      
+      ProgressView("\(completed) tasks completed",
+                   value: min(1.0, Double(completed) / Double(total)))
         .tint(Color.blue)
         .padding()
     }
