@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A view that displays the amount of total, completed, and avg. per second scan tasks.
+// A view that displays the amount of total, completed, and avg. per second scan tasks.
 struct ScanningView: View {
   @Binding var total: Int
   @Binding var completed: Int

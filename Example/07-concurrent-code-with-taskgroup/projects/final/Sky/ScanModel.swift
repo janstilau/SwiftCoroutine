@@ -56,6 +56,7 @@ class ScanModel: ObservableObject {
         }
       }
       
+      // 最后, 在主线程进行数据的归零操作.
       await MainActor.run {
         completed = 0
         countPerSecond = 0
@@ -67,6 +68,7 @@ class ScanModel: ObservableObject {
   }
   
   func worker(number: Int) async -> Result<String, Error> {
+    // 在主线程, 进行数据的操作.
     await onScheduled()
     
     let task = ScanTask(input: number)
@@ -78,6 +80,7 @@ class ScanModel: ObservableObject {
       return .failure(error)
     }
     
+    // 在主线程, 进行数据的操作. 
     await onTaskCompleted()
     return .success(result)
   }

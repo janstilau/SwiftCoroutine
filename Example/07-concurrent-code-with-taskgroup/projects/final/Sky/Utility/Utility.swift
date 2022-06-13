@@ -21,16 +21,9 @@ extension Task where Success == Never, Failure == Never {
 }
 
 actor UnreliableAPI {
-  struct Error: LocalizedError {
-    var errorDescription: String? {
-      return "UnreliableAPI.action(failingEvery:) failed."
-    }
-  }
-  
-  static let shared = UnreliableAPI()
-  
   var counter = 0
   
+  // 这是一个同步函数. 但是, 这是一个 actor, 所以在外界调用的时候, 这是一个异步函数. 
   func action(failingEvery: Int) throws {
     counter += 1
     if counter % failingEvery == 0 {
@@ -38,4 +31,14 @@ actor UnreliableAPI {
       throw Error()
     }
   }
+}
+
+extension UnreliableAPI {
+  struct Error: LocalizedError {
+    var errorDescription: String? {
+      return "UnreliableAPI.action(failingEvery:) failed."
+    }
+  }
+  
+  static let shared = UnreliableAPI()
 }

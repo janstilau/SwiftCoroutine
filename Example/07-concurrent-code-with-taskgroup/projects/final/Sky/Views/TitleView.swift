@@ -19,6 +19,7 @@ struct TitleView: View {
     "s|0 |1k|1 |2y|2 |2n|0 |1e|3 |2t|1"
   ]
   
+  // 没太理这个类, 和主逻辑, 没有太大的关系. 
   private func updateTitle() {
     titleIndex += 1
     if titleIndex >= Self.titleAnimation.count {
