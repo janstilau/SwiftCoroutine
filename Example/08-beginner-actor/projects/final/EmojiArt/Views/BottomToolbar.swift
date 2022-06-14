@@ -9,13 +9,13 @@ struct BottomToolbar: View {
   var body: some View {
     HStack {
       Button(action: {
-        // Clear on-disk cache
+        
       }, label: {
         Image(systemName: "folder.badge.minus")
       })
       
       Button(action: {
-        // Clear in-memory cache
+        
       }, label: {
         Image(systemName: "square.stack.3d.up.slash")
       })

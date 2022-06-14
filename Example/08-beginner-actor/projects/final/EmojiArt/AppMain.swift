@@ -18,6 +18,7 @@ struct AppMain: App {
       }
       .transition(.opacity)
       .animation(.linear, value: isVerified)
+      // 进行了环境变量的注册.
       .environmentObject(model)
     }
   }

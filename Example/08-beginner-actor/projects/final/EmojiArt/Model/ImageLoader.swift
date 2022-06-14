@@ -1,7 +1,9 @@
 import UIKit
 
 actor ImageLoader: ObservableObject {
+  
   enum DownloadState {
+    // 直接, 存储的是 Task.
     case inProgress(Task<UIImage, Error>)
     case completed(UIImage)
     case failed
@@ -13,12 +15,14 @@ actor ImageLoader: ObservableObject {
     cache[key] = .completed(image)
   }
   
+  // 使用这种方式, 来触发下载的操作.
   func image(_ serverPath: String) async throws -> UIImage {
     if let cached = cache[serverPath] {
       switch cached {
       case .completed(let image):
         return image
       case .inProgress(let task):
+        // 这里进行了 await.
         return try await task.value
       case .failed: throw "Download failed"
       }
@@ -36,6 +40,7 @@ actor ImageLoader: ObservableObject {
     cache[serverPath] = .inProgress(download)
     
     do {
+      // 在这里, 等待 task 的结果, 然后加入到缓存中. 
       let result = try await download.value
       add(result, forKey: serverPath)
       return result

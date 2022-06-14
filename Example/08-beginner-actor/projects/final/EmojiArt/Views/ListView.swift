@@ -56,14 +56,17 @@ struct ListView: View {
           }
         }
       }
+      
       .alert("Error", isPresented: $isDisplayingError, actions: {
         Button("Close", role: .cancel) { }
       }, message: {
         Text(lastErrorMessage)
       })
+      
       .sheet(isPresented: $isDisplayingPreview, onDismiss: {
         selected = nil
       }, content: {
+        // 当, isDisplayingPreview 改变了之后, 进行对应的 DetailView 的弹出.
         if let selected = selected {
           DetailsView(file: selected)
         }

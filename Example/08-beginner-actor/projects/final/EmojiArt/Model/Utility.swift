@@ -18,6 +18,7 @@ extension Task where Success == Never, Failure == Never {
 
 struct ResizeError: Error { }
 
+// 复杂的操作, 不过都是 Inage 相关的, 和 async 无关. 
 func resize(_ data: Data, to size: CGSize) throws -> UIImage {
   guard let cgImage = UIImage(data: data)?.cgImage,
         let colorSpace = cgImage.colorSpace else {

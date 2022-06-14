@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct ThumbImage: View {
+  
   let file: ImageFile
   @State var image = UIImage()
   @State var overlay = ""
   @EnvironmentObject var imageLoader: ImageLoader
   
+  // 在主线程, 进行 UI 的更新. 
   @MainActor func updateImage(_ image: UIImage) {
     self.image = image
   }
