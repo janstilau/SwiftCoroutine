@@ -21,7 +21,6 @@ struct LoadingView: View {
   
   var body: some View {
     VStack(spacing: 4) {
-      
       ProgressView("Verifying feed", value: progress)
         .tint(.gray)
         .font(.subheadline)
@@ -34,6 +33,7 @@ struct LoadingView: View {
       }
     }
     .padding(.horizontal, 20)
+    
     .task {
       guard model.imageFeed.isEmpty else { return }
       Task {
@@ -42,6 +42,7 @@ struct LoadingView: View {
           try await model.loadImages()
           // 然后并发.进行图片的检测
           try await model.verifyImages()
+          // 在检测完毕之后, 进行 isVer
           withAnimation {
             isVerified = true
           }
@@ -62,7 +63,7 @@ struct LoadingView: View {
     .onReceive(timer) { _ in
       guard !model.imageFeed.isEmpty else { return }
       Task {
-        
+        // 在 Model 的内部,
         progress = await Double(model.verifiedCount) / Double(model.imageFeed.count)
       }
     }

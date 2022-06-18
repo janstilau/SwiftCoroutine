@@ -9,9 +9,9 @@ struct AppMain: App {
   var body: some Scene {
     WindowGroup {
       VStack {
+        // 根据, isVerified 的值的不同, 显示不同的 View
         if isVerified {
-          ListView()
-            .environmentObject(ImageLoader())
+          ListView().environmentObject(ImageLoader())
         } else {
           LoadingView(isVerified: $isVerified)
         }

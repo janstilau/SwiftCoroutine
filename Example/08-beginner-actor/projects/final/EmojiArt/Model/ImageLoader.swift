@@ -40,7 +40,7 @@ actor ImageLoader: ObservableObject {
     cache[serverPath] = .inProgress(download)
     
     do {
-      // 在这里, 等待 task 的结果, 然后加入到缓存中. 
+      // 在这里, 等待 task 的结果, 然后加入到缓存中.
       let result = try await download.value
       add(result, forKey: serverPath)
       return result

@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-// 这是一个 Actor, 所以, 里面的修改, 都是安全的. 
+// 这是一个 Actor, 所以, 里面的修改, 都是安全的.
 actor EmojiArtModel: ObservableObject {
   @Published @MainActor private(set) var imageFeed: [ImageFile] = []
   
