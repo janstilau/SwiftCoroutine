@@ -1,0 +1,16 @@
+PODS:
+  - SwiftCoroutine (2.1.11)
+
+DEPENDENCIES:
+  - SwiftCoroutine (from `../`)
+
+EXTERNAL SOURCES:
+  SwiftCoroutine:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  SwiftCoroutine: b584780401083a0c41323ef1af07c2effe369dce
+
+PODFILE CHECKSUM: 4e7fd38faec44ac14c4cf78e8b90e7e713524e47
+
+COCOAPODS: 1.11.3
