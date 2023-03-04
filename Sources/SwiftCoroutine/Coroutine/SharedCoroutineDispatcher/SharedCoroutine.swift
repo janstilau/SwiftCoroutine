@@ -1,4 +1,5 @@
 
+// 这个类, 是协程函数的真正体现. 
 internal final class SharedCoroutine {
     
     internal typealias CompletionState = SharedCoroutineQueue.CompletionState

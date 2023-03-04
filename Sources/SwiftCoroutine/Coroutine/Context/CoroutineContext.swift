@@ -1,11 +1,3 @@
-//
-//  CoroutineContext.swift
-//  SwiftCoroutine iOS
-//
-//  Created by Alex Belozierov on 08.12.2019.
-//  Copyright © 2019 Alex Belozierov. All rights reserved.
-//
-
 #if SWIFT_PACKAGE
 import CCoroutine
 #endif
@@ -43,12 +35,12 @@ internal final class CoroutineContext {
     // MARK: - Start
     
     @inlinable internal func start() -> Bool {
-       __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
-           __longjmp(Unmanaged<CoroutineContext>
-               .fromOpaque($0!)
-               .takeUnretainedValue()
-               .performBlock(), .finished)
-       } == .finished
+        __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
+            __longjmp(Unmanaged<CoroutineContext>
+                .fromOpaque($0!)
+                .takeUnretainedValue()
+                .performBlock(), .finished)
+        } == .finished
     }
     
     private func performBlock() -> UnsafeMutableRawPointer {

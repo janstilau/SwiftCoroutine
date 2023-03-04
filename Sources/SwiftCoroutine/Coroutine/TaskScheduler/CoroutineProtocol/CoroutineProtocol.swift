@@ -18,7 +18,8 @@ import Darwin
     
     func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T
     
-    func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T) throws -> T
+    func await<T>(on scheduler: CoroutineScheduler,
+                  task: () throws -> T) throws -> T
     
     func cancel()
     
@@ -45,6 +46,8 @@ extension Coroutine {
     }
     
     @inlinable internal static func current() throws -> CoroutineProtocol {
+        // 从 rawPointer 到特定的 Swfit 的转化, 必须用到 Unmanaged 这个类.
+        // A type for propagating an unmanaged object reference.
         if let pointer = currentPointer,
            let coroutine = Unmanaged<AnyObject>.fromOpaque(pointer)
             .takeUnretainedValue() as? CoroutineProtocol {
@@ -56,13 +59,12 @@ extension Coroutine {
 }
 
 extension pthread_key_t {
-    
+    // 创建了一个 pthread_getspecific 所使用的特定的数据类型.
     @usableFromInline internal static let coroutine: pthread_key_t = {
         var key: pthread_key_t = .zero
         pthread_key_create(&key, nil)
         return key
     }()
-    
 }
 
 
