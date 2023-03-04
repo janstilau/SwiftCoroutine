@@ -21,7 +21,9 @@ import Darwin
 
 extension Int {
     
+    //系统页大小 
     internal static let pageSize = sysconf(_SC_PAGESIZE)
+    // sysconf(_SC_NPROCESSORS_ONLN)的返回值真正的代表了系统 当前可用的核数.
     internal static let processorsNumber = sysconf(_SC_NPROCESSORS_ONLN)
     
 }

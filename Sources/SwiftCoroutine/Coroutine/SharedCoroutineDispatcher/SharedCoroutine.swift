@@ -1,10 +1,3 @@
-//
-//  SharedCoroutine.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.04.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 internal final class SharedCoroutine {
     
@@ -29,7 +22,7 @@ internal final class SharedCoroutine {
         self.queue = queue
         self.scheduler = scheduler
     }
-  
+    
     // MARK: - Actions
     
     internal func start() -> CompletionState {
@@ -119,7 +112,7 @@ extension SharedCoroutine: CoroutineProtocol {
         defer { setScheduler(currentScheduler) }
         if isCanceled == 1 { throw CoroutineError.canceled }
         return try task()
-
+        
     }
     
     private func setScheduler(_ scheduler: CoroutineScheduler) {

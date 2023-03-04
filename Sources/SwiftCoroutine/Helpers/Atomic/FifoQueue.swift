@@ -1,10 +1,3 @@
-//
-//  FifoQueue.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 29.04.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 internal struct FifoQueue<T> {
     

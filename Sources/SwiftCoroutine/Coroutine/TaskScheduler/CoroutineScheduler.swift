@@ -1,10 +1,3 @@
-//
-//  CoroutineScheduler.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 26.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 /// A protocol that defines how to execute a task.
 ///
@@ -12,7 +5,9 @@
 /// Inside the coroutine you can use such methods as `Coroutine.await(_:)`, `CoFuture.await()`,
 /// and `CoroutineScheduler.await(_:)` to suspend the coroutine without blocking a thread
 /// and resume it when the result is ready.
-///
+// 这里说的很清楚了, 这个 Protocol 其实是一个基类. 各种协程相关的逻辑, 在这里定义了.
+
+// 开启协程的代码, 直接写到了 Protocol 里面了.
 /// To launch a coroutine, use `CoroutineScheduler.startCoroutine(_:)`.
 /// ```
 /// //execute coroutine on the main thread
@@ -38,6 +33,11 @@
 ///
 /// }
 /// ```
+
+
+// 这个协议, 类似于 Combine 里面的 Scheduler, 所完成的是 task 运行环境的切换.
+// 实际的进行协程创建, 开启, 恢复, 结束重新调度的逻辑, 都是在 extensin 中定义的.
+// 所以这个类其实是一个抽象基类. 所要求的是, 能够将以上协程触发的各个时机, 调度到各个合理的线程环境中.
 public protocol CoroutineScheduler {
     
     /// Performs the task at the next possible opportunity.
@@ -48,6 +48,7 @@ public protocol CoroutineScheduler {
 extension CoroutineScheduler {
     
     @inlinable internal func _startCoroutine(_ task: @escaping () -> Void) {
+        // 真正进行管理协程的类, 是 SharedCoroutineDispatcher
         SharedCoroutineDispatcher.default.execute(on: self, task: task)
     }
     
@@ -65,11 +66,13 @@ extension CoroutineScheduler {
     /// - Parameters:
     ///   - scope: `CoScope`to add coroutine to.
     ///   - task: The closure that will be executed inside coroutine. If the task throws an error, then the coroutine will be terminated.
-    public func startCoroutine(in scope: CoScope? = nil, task: @escaping () throws -> Void) {
+    public func startCoroutine(in scope: CoScope? = nil,
+                               task: @escaping () throws -> Void) {
         guard let scope = scope else { return _startCoroutine { try? task() } }
+        
         _startCoroutine { [weak scope] in
             guard let coroutine = try? Coroutine.current(),
-                let completion = scope?.add(coroutine.cancel) else { return }
+                  let completion = scope?.add(coroutine.cancel) else { return }
             try? task()
             completion()
         }
@@ -166,16 +169,16 @@ extension CoroutineScheduler {
     @inlinable public func actor<T>(of type: T.Type = T.self,
                                     bufferType: CoChannel<T>.BufferType = .unlimited,
                                     body: @escaping (CoChannel<T>.Receiver) throws -> Void)
-        -> CoChannel<T>.Sender {
-            let (receiver, sender) = CoChannel<T>(bufferType: bufferType).pair
-            _startCoroutine {
-                if let coroutine = try? Coroutine.current() {
-                    receiver.whenCanceled { [weak coroutine] in coroutine?.cancel() }
-                }
-                if receiver.isCanceled { return }
-                try? body(receiver)
+    -> CoChannel<T>.Sender {
+        let (receiver, sender) = CoChannel<T>(bufferType: bufferType).pair
+        _startCoroutine {
+            if let coroutine = try? Coroutine.current() {
+                receiver.whenCanceled { [weak coroutine] in coroutine?.cancel() }
             }
-            return sender
+            if receiver.isCanceled { return }
+            try? body(receiver)
+        }
+        return sender
     }
     
 }

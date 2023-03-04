@@ -1,15 +1,10 @@
-//
-//  SharedCoroutineQueue.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.04.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
+
 
 internal final class SharedCoroutineQueue {
     
     private struct Task {
-        let scheduler: CoroutineScheduler, task: () -> Void
+        let scheduler: CoroutineScheduler
+        let task: () -> Void
     }
     
     internal enum CompletionState {
@@ -59,6 +54,7 @@ internal final class SharedCoroutineQueue {
             coroutine.restoreStack()
             self.coroutine = coroutine
         }
+        // 在恢复任务的时候, CoroutineScheduler 发挥了作用.
         coroutine.scheduler.scheduleTask {
             self.complete(with: coroutine.resume())
         }
@@ -74,6 +70,7 @@ internal final class SharedCoroutineQueue {
         case .suspended:
             performNext(for: coroutine.dispatcher)
         case .restarting:
+            // 在结束任务的时候, CoroutineScheduler 发挥了作用. 
             coroutine.scheduler.scheduleTask {
                 self.complete(with: self.coroutine.resume())
             }

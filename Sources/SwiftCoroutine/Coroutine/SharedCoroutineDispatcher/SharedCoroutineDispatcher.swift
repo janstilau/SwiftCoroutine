@@ -1,10 +1,4 @@
-//
-//  SharedCoroutineDispatcher.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 12.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
+
 
 @usableFromInline internal final class SharedCoroutineDispatcher {
     
@@ -12,7 +6,8 @@
     static let `default` = SharedCoroutineDispatcher(capacity: .processorsNumber * 2,
                                                      stackSize: .recommended)
     
-    private let stackSize, capacity: Int
+    private let stackSize: Int
+    private let capacity: Int
     private var queues = FifoQueue<SharedCoroutineQueue>()
     private var queuesCount = 0
     
@@ -22,7 +17,9 @@
     }
     
     @usableFromInline
-    internal func execute(on scheduler: CoroutineScheduler, task: @escaping () -> Void) {
+    internal func execute(on scheduler: CoroutineScheduler,
+                          task: @escaping () -> Void) {
+        // 在启动任务的时候, CoroutineScheduler 发挥了作用. 
         scheduler.scheduleTask {
             self.getFreeQueue().start(dispatcher: self, scheduler: scheduler, task: task)
         }
