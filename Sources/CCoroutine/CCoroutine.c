@@ -15,15 +15,15 @@
 int __start(void* ret, const void* stack, const void* param, const void (*block)(const void*)) {
     int n = _setjmp(ret);
     if (n) return n;
-    #if defined(__x86_64__)
+#if defined(__x86_64__)
     __asm__ ("movq %0, %%rsp" :: "g"(stack));
     block(param);
-    #elif defined(__arm64__)
+#elif defined(__arm64__)
     __asm__ (
-    "mov sp, %0\n"
-    "mov x0, %1\n"
-    "blr %2" :: "r"(stack), "r"(param), "r"(block));
-    #endif
+             "mov sp, %0\n"
+             "mov x0, %1\n"
+             "blr %2" :: "r"(stack), "r"(param), "r"(block));
+#endif
     return 0;
 }
 
