@@ -33,7 +33,7 @@ internal final class SharedCoroutineQueue {
         coroutine?.saveStack()
         coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
-        context.block = task
+        context.businessBlock = task
         complete(with: coroutine.start())
     }
     

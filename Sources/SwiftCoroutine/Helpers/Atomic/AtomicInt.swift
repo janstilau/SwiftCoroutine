@@ -26,6 +26,7 @@ internal func atomicAdd(_ pointer: UnsafeMutablePointer<Int>, value: Int) -> Int
 @discardableResult @inlinable
 internal func atomicCAS(_ pointer: UnsafeMutablePointer<Int>, expected: Int, desired: Int) -> Bool {
     var expected = expected
+    // __atomicCompareExchange != 0, 代表着当前的值, 和 expected 的值不相等.
     return __atomicCompareExchange(OpaquePointer(pointer), &expected, desired) != 0
 }
 

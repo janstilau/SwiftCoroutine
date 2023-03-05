@@ -101,8 +101,18 @@ public struct Coroutine {
     /// - Parameter callback: The callback для resume coroutine. Must be called inside a coroutine.
     /// - Returns: The result which is passed to callback.
     /// - Throws: `CoroutineError`.
-    @inlinable public static func await<T, N, M>(_ callback: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {
-        try current().await { completion in callback { a, b, c in completion((a, b, c)) } }
+    /*
+     try Coroutine.await { callback in
+         let url = URL.init(string: "https://www.baidu.com")!
+         URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+     }
+     */
+    @inlinable public static func await<T, N, M>(_ asyncAction: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {
+        /*
+         asyncAction 用来触发异步操作, 他需要一个 三个参数的闭包, 来进行异步操作返回值的处理.
+         这个闭包在 wait 中提供了.
+         */
+        try current().await { completion in asyncAction { a, b, c in completion((a, b, c)) } }
     }
     
     // MARK: - delay

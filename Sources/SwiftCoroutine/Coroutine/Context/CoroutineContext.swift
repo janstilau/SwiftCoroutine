@@ -8,13 +8,14 @@ import Glibc
 import Darwin
 #endif
 
+// 单个任务的协程环境.
 internal final class CoroutineContext {
     
     internal let haveGuardPage: Bool
     internal let stackSize: Int
     private let stack: UnsafeMutableRawPointer
     private let returnEnv: UnsafeMutableRawPointer
-    internal var block: (() -> Void)?
+    internal var businessBlock: (() -> Void)?
     
     internal init(stackSize: Int, guardPage: Bool = true) {
         self.stackSize = stackSize
@@ -35,24 +36,36 @@ internal final class CoroutineContext {
     // MARK: - Start
     
     @inlinable internal func start() -> Bool {
+        // Unmanaged.passUnretained(self).toOpaque() 当做后面传入 Block 的参数
+        // Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue() 则是恢复成为 Self
+        // 这是为了使用 C 风格代码做的转化.
+        // 直接调用传递过来的闭包, 是一件麻烦的事情, 之所以这样转化, 就是使用面向对象的方式, 来进行管理.
+        
+        /*
+         将当前的运行环境, 存储到 returnEnv 中,
+         将自己当前维护的堆栈当做新的运行堆栈, 然后执行存储的 businessBlock
+         businessBlock 运行结束之后, 使用 __longjmp 跳转回原本的运行环境中.
+         
+         不过, businessBlock 的运行过程中, 如果使用了 wait, 还会造成运行环境的切换.
+         */
         __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
-            __longjmp(Unmanaged<CoroutineContext>
-                .fromOpaque($0!)
-                .takeUnretainedValue()
-                .performBlock(), .finished)
+            let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().performBlock()
+            __longjmp(returnEnv_end,.finished)
         } == .finished
     }
     
     private func performBlock() -> UnsafeMutableRawPointer {
-        block?()
-        block = nil
+        businessBlock?()
+        businessBlock = nil
         return returnEnv
     }
     
     // MARK: - Operations
     
     internal struct SuspendData {
+        // JumpBuffer 的位置.
         let env: UnsafeMutableRawPointer
+        // 简单来说，SP 寄存器用于跟踪当前程序运行时的堆栈位置。
         var sp: UnsafeMutableRawPointer!
     }
     
@@ -61,7 +74,10 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __suspend(data.pointee.env, &data.pointee.sp, returnEnv, .suspended)
+        __suspend(data.pointee.env,
+                  &data.pointee.sp,
+                  returnEnv,
+                  .suspended)
     }
     
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
@@ -88,7 +104,8 @@ extension Int32 {
 extension CoroutineContext.SuspendData {
     
     internal init() {
-        self = .init(env: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
+        self = .init(env: .allocate(byteCount: .environmentSize, alignment: 16),
+                     sp: nil)
     }
     
 }
