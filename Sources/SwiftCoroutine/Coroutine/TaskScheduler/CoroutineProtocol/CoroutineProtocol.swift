@@ -33,6 +33,8 @@ extension CoroutineProtocol {
     @inlinable internal func performAsCurrent<T>(_ block: () -> T) -> T {
         let caller = pthread_getspecific(.coroutine)
         pthread_setspecific(.coroutine, Unmanaged.passUnretained(self).toOpaque())
+        // 在最后, 会有一个回撤处理.
+        // 这里可能会嵌套环境.
         defer { pthread_setspecific(.coroutine, caller) }
         return block()
     }
@@ -41,13 +43,12 @@ extension CoroutineProtocol {
 
 extension Coroutine {
     
+    // 在刚开始, 是没有这个值的. 这个值只会在上面 performAsCurrent 中进行赋值.
     @inlinable internal static var currentPointer: UnsafeMutableRawPointer? {
         pthread_getspecific(.coroutine)
     }
     
     @inlinable internal static func current() throws -> CoroutineProtocol {
-        // 从 rawPointer 到特定的 Swfit 的转化, 必须用到 Unmanaged 这个类.
-        // A type for propagating an unmanaged object reference.
         if let pointer = currentPointer,
            let coroutine = Unmanaged<AnyObject>.fromOpaque(pointer)
             .takeUnretainedValue() as? CoroutineProtocol {

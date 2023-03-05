@@ -9,14 +9,13 @@ internal final class SharedCoroutine {
         let size: Int
     }
     private var stackBuffer: StackBuffer!
+    private var suspenEnvironment: UnsafeMutablePointer<CoroutineContext.SuspendData>!
     
     internal let dispatcher: SharedCoroutineDispatcher
     internal let queue: SharedCoroutineQueue
     private(set) var scheduler: CoroutineScheduler
-    
     private var state: Int = .running
-    private var environment: UnsafeMutablePointer<CoroutineContext.SuspendData>!
-    private var isCanceled = 0
+        private var isCanceled = 0
     private var completionInvokeOnlyOnceTag = 0
     
     internal init(dispatcher: SharedCoroutineDispatcher, queue: SharedCoroutineQueue, scheduler: CoroutineScheduler) {
@@ -36,7 +35,7 @@ internal final class SharedCoroutine {
     }
     
     private func resumeContext() -> CompletionState {
-        perform { queue.context.resume(from: environment.pointee.env) }
+        perform { queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv) }
     }
     
     private func perform(_ block: () -> Bool) -> CompletionState {
@@ -58,37 +57,38 @@ internal final class SharedCoroutine {
     }
     
     private func suspend() {
-        if environment == nil {
+        if suspenEnvironment == nil {
             // 使用 alloc 进行内存的分配操作.
-            environment = .allocate(capacity: 1)
+            suspenEnvironment = .allocate(capacity: 1)
             // 使用 initialize 将这块内存, 分配给参数的这个值. 参数的这个值, 如果是引用类型, 会加入到 swift 的内存管理策略中.
             /*
              The destination memory must be uninitialized or the pointer’s Pointee must be a trivial type. After a call to initialize(to:), the memory referenced by this pointer is initialized. Calling this method is roughly equivalent to calling initialize(repeating:count:) with a count of 1.
              */
-            environment.initialize(to: .init())
+            suspenEnvironment.initialize(to: .init())
         }
         // 将, 当前的协程运行信息, 存储到了 environment 中, 然后返回到其他的协程任务中.
-        queue.context.suspend(to: environment)
+        queue.context.suspend(to: suspenEnvironment)
     }
     
     // MARK: - Stack
     
     internal func saveStack() {
-        let size = environment.pointee.sp.distance(to: queue.context.stackTop)
+        let size = suspenEnvironment.pointee.sp.distance(to: queue.context.stackTop)
         let stack = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-        stack.copyMemory(from: environment.pointee.sp, byteCount: size)
+        stack.copyMemory(from: suspenEnvironment.pointee.sp, byteCount: size)
+        // 在这里, 进行了当前的堆栈数据的存储.
         stackBuffer = .init(stack: stack, size: size)
     }
     
     internal func restoreStack() {
-        environment.pointee.sp.copyMemory(from: stackBuffer.stack, byteCount: stackBuffer.size)
+        suspenEnvironment.pointee.sp.copyMemory(from: stackBuffer.stack, byteCount: stackBuffer.size)
         stackBuffer.stack.deallocate()
         stackBuffer = nil
     }
     
     deinit {
-        environment?.pointee.env.deallocate()
-        environment?.deallocate()
+        suspenEnvironment?.pointee.jumpBufferEnv.deallocate()
+        suspenEnvironment?.deallocate()
     }
 }
 

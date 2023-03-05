@@ -8,7 +8,6 @@ import Glibc
 import Darwin
 #endif
 
-// 单个任务的协程环境.
 internal final class CoroutineContext {
     
     internal let haveGuardPage: Bool
@@ -64,7 +63,7 @@ internal final class CoroutineContext {
     
     internal struct SuspendData {
         // JumpBuffer 的位置.
-        let env: UnsafeMutableRawPointer
+        let jumpBufferEnv: UnsafeMutableRawPointer
         // 简单来说，SP 寄存器用于跟踪当前程序运行时的堆栈位置。
         var sp: UnsafeMutableRawPointer!
     }
@@ -74,7 +73,8 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __suspend(data.pointee.env,
+        // 在调用 suspend 的时候, SuspendData 中记录了 JumpBuffer 的数据, 以及当前的堆栈顶端.
+        __suspend(data.pointee.jumpBufferEnv,
                   &data.pointee.sp,
                   returnEnv,
                   .suspended)
@@ -104,7 +104,7 @@ extension Int32 {
 extension CoroutineContext.SuspendData {
     
     internal init() {
-        self = .init(env: .allocate(byteCount: .environmentSize, alignment: 16),
+        self = .init(jumpBufferEnv: .allocate(byteCount: .environmentSize, alignment: 16),
                      sp: nil)
     }
     

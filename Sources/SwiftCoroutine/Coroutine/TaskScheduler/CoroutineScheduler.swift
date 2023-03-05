@@ -48,7 +48,6 @@ public protocol CoroutineScheduler {
 extension CoroutineScheduler {
     
     @inlinable internal func _startCoroutine(_ task: @escaping () -> Void) {
-        // 真正进行管理协程的类, 是 SharedCoroutineDispatcher
         SharedCoroutineDispatcher.default.execute(on: self, task: task)
     }
     

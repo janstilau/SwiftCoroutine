@@ -29,7 +29,9 @@ internal final class SharedCoroutineQueue {
     
     // MARK: - Actions
     
-    internal func start(dispatcher: SharedCoroutineDispatcher, scheduler: CoroutineScheduler, task: @escaping () -> Void) {
+    internal func start(dispatcher: SharedCoroutineDispatcher,
+                        scheduler: CoroutineScheduler,
+                        task: @escaping () -> Void) {
         coroutine?.saveStack()
         coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1

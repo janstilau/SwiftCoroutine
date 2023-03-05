@@ -70,14 +70,14 @@ int __start(void* jumpBuffer, const void* stack, const void* param, const void (
     return 0;
 }
 
-void __suspend(void* env, void** sp, void* ret, int retVal) {
-    if (_setjmp(env)) {
+void __suspend(void* jumpBuffer, void** sp, void* retJumpBuffer, int retVal) {
+    if (_setjmp(jumpBuffer)) {
         return;
     }
     // 这是一个比较 tricky 的点, 使用下一个指针位置, 来存储了当前运行到的堆栈位置信息. 
     char x;
     *sp = (void*)&x;
-    _longjmp(ret, retVal);
+    _longjmp(retJumpBuffer, retVal);
 }
 
 int __save(void* env, void* ret, int retVal) {

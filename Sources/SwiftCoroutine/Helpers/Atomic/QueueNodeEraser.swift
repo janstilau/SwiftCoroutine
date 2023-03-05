@@ -1,15 +1,6 @@
-//
-//  QueueNodeEraser.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.05.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 internal protocol QueueNode {
-    
     var nextToFree: Int { get set }
-    
 }
 
 internal struct QueueNodeEraser<T: QueueNode> {

@@ -1,10 +1,3 @@
-//
-//  CoScope.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 09.05.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 /// The holder of uncompleted `CoCancellable` and coroutines.
 ///

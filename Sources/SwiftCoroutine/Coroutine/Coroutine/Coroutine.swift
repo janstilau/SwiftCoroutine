@@ -1,11 +1,3 @@
-//
-//  Coroutine.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 01.02.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 import Dispatch
 
 @usableFromInline internal struct ImmediateScheduler: CoroutineScheduler {
@@ -59,7 +51,7 @@ public struct Coroutine {
     @inlinable public static func await(_ callback: (@escaping () -> Void) -> Void) throws {
         try current().await { completion in callback { completion(()) } }
     }
-
+    
     /// Suspends a coroutine and resumes it on callback.
     /// ```
     /// queue.startCoroutine {
@@ -103,8 +95,8 @@ public struct Coroutine {
     /// - Throws: `CoroutineError`.
     /*
      try Coroutine.await { callback in
-         let url = URL.init(string: "https://www.baidu.com")!
-         URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+     let url = URL.init(string: "https://www.baidu.com")!
+     URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
      }
      */
     @inlinable public static func await<T, N, M>(_ asyncAction: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {
