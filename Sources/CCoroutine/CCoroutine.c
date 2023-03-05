@@ -83,6 +83,7 @@ void __suspend(void* jumpBuffer, void** sp, void* retJumpBuffer, int retVal) {
 int _replaceTo(void* resumeJumpBuffer, void* saveJumpBuffer, int retVal) {
     int n = _setjmp(saveJumpBuffer);
     if (n) return n;
+    // 这里居然没有报错, 不用返回 Int 值.
     _longjmp(resumeJumpBuffer, retVal);
 }
 

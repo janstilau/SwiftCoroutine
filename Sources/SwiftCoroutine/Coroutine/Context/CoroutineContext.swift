@@ -13,7 +13,6 @@ internal final class CoroutineContext {
     // 对于一个 SharedCoroutioneQueue 来说, 他们是共用一个 CoroutineContext 对象的
     internal let stackSize: Int
     private let stack: UnsafeMutableRawPointer
-    // 在整个的运行过程中, returnEnv 中的 JumpBuffer 其实是一直在发生变化的.
     private let returnEnv: UnsafeMutableRawPointer
     internal var businessBlock: (() -> Void)?
     
@@ -46,6 +45,7 @@ internal final class CoroutineContext {
          */
         __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
             let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().performBlock()
+            // 在这里, 进行了最终的调度. 
             __longjmp(returnEnv_end,.finished)
         } == .finished
     }
@@ -67,6 +67,7 @@ internal final class CoroutineContext {
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
         // 在调用 suspend 的时候, SuspendData 中记录了 JumpBuffer 的数据, 以及当前的堆栈顶端.
+        // __suspend 函数, 在进行当前协程的暂停时候, 会恢复到原来的记录的 JumpBuffer 的运行状态中.
         __suspend(data.pointee.jumpBufferEnv,
                   &data.pointee.sp,
                   returnEnv,
@@ -74,6 +75,7 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func resume(from resumeEnv: UnsafeMutableRawPointer) -> Bool {
+        
         _replaceTo(resumeEnv, returnEnv, .suspended) == .finished
     }
     

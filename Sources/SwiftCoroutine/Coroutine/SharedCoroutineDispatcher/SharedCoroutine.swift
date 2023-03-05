@@ -134,6 +134,7 @@ extension SharedCoroutine: CoroutineProtocol {
         
     }
     
+    // 当重新设定了调度器之后, 会出现 restarting 这种情况.
     private func setScheduler(_ scheduler: CoroutineScheduler) {
         self.scheduler = scheduler
         state = .restarting
@@ -145,6 +146,7 @@ extension SharedCoroutine: CoroutineProtocol {
         resumeIfSuspended()
     }
     
+    // 异步操作的回调, 会触发到这里.
     private func resumeIfSuspended() {
         while true {
             switch state {
@@ -156,6 +158,7 @@ extension SharedCoroutine: CoroutineProtocol {
                 // 如果异步操作确实是异步的, 那么下方的 suspend 函数会被调用, 那么当前的状态就是 suspended.
                 // 那么需要进行协程的恢复处理.
                 if atomicCAS(&state, expected: .suspended, desired: .running) {
+                    // 修改完状态之后, 主动通知 queue 调度自己
                     return queue.resume(coroutine: self)
                 }
             default:
