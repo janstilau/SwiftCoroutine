@@ -80,10 +80,10 @@ void __suspend(void* jumpBuffer, void** sp, void* retJumpBuffer, int retVal) {
     _longjmp(retJumpBuffer, retVal);
 }
 
-int __save(void* env, void* ret, int retVal) {
-    int n = _setjmp(ret);
+int _replaceTo(void* resumeJumpBuffer, void* saveJumpBuffer, int retVal) {
+    int n = _setjmp(saveJumpBuffer);
     if (n) return n;
-    _longjmp(env, retVal);
+    _longjmp(resumeJumpBuffer, retVal);
 }
 
 void __longjmp(void* returnJumpBuffer, int retVal) {

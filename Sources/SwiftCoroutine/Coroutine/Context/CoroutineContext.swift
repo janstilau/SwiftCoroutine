@@ -10,22 +10,19 @@ import Darwin
 
 internal final class CoroutineContext {
     
-    internal let haveGuardPage: Bool
+    // 对于一个 SharedCoroutioneQueue 来说, 他们是共用一个 CoroutineContext 对象的
     internal let stackSize: Int
     private let stack: UnsafeMutableRawPointer
+    // 在整个的运行过程中, returnEnv 中的 JumpBuffer 其实是一直在发生变化的.
     private let returnEnv: UnsafeMutableRawPointer
     internal var businessBlock: (() -> Void)?
     
-    internal init(stackSize: Int, guardPage: Bool = true) {
+    internal init(stackSize: Int) {
         self.stackSize = stackSize
+        stack = .allocate(byteCount: stackSize + .pageSize, alignment: .pageSize)
+        
         returnEnv = .allocate(byteCount: .environmentSize, alignment: 16)
-        haveGuardPage = guardPage
-        if guardPage {
-            stack = .allocate(byteCount: stackSize + .pageSize, alignment: .pageSize)
-            mprotect(stack, .pageSize, PROT_READ)
-        } else {
-            stack = .allocate(byteCount: stackSize, alignment: .pageSize)
-        }
+        mprotect(stack, .pageSize, PROT_READ)
     }
     
     @inlinable internal var stackTop: UnsafeMutableRawPointer {
@@ -68,10 +65,6 @@ internal final class CoroutineContext {
         var sp: UnsafeMutableRawPointer!
     }
     
-    @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
-        __save(env, returnEnv, .suspended) == .finished
-    }
-    
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
         // 在调用 suspend 的时候, SuspendData 中记录了 JumpBuffer 的数据, 以及当前的堆栈顶端.
         __suspend(data.pointee.jumpBufferEnv,
@@ -80,14 +73,16 @@ internal final class CoroutineContext {
                   .suspended)
     }
     
+    @inlinable internal func resume(from resumeEnv: UnsafeMutableRawPointer) -> Bool {
+        _replaceTo(resumeEnv, returnEnv, .suspended) == .finished
+    }
+    
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        __save(returnEnv, env, .suspended)
+        _replaceTo(returnEnv, env, .suspended)
     }
     
     deinit {
-        if haveGuardPage {
-            mprotect(stack, .pageSize, PROT_READ | PROT_WRITE)
-        }
+        mprotect(stack, .pageSize, PROT_READ | PROT_WRITE)
         returnEnv.deallocate()
         stack.deallocate()
     }

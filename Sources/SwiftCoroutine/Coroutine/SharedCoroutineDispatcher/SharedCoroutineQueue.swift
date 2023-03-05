@@ -12,7 +12,7 @@ internal final class SharedCoroutineQueue {
     }
     
     internal let context: CoroutineContext
-    private var coroutine: SharedCoroutine!
+    private var currentCoroutine: SharedCoroutine!
     
     internal var inQueue = false
     private(set) var started = 0
@@ -32,11 +32,11 @@ internal final class SharedCoroutineQueue {
     internal func start(dispatcher: SharedCoroutineDispatcher,
                         scheduler: CoroutineScheduler,
                         task: @escaping () -> Void) {
-        coroutine?.saveStack()
-        coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
+        currentCoroutine?.saveStack()
+        currentCoroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
         context.businessBlock = task
-        complete(with: coroutine.start())
+        complete(with: currentCoroutine.start())
     }
     
     internal func resume(coroutine: SharedCoroutine) {
@@ -51,10 +51,10 @@ internal final class SharedCoroutineQueue {
     }
     
     private func resumeOnQueue(_ coroutine: SharedCoroutine) {
-        if self.coroutine !== coroutine {
-            self.coroutine?.saveStack()
+        if self.currentCoroutine !== coroutine {
+            self.currentCoroutine?.saveStack()
             coroutine.restoreStack()
-            self.coroutine = coroutine
+            self.currentCoroutine = coroutine
         }
         // 在恢复任务的时候, CoroutineScheduler 发挥了作用.
         coroutine.scheduler.scheduleTask {
@@ -66,15 +66,15 @@ internal final class SharedCoroutineQueue {
         switch state {
         case .finished:
             started -= 1
-            let dispatcher = coroutine.dispatcher
-            coroutine = nil
+            let dispatcher = currentCoroutine.dispatcher
+            currentCoroutine = nil
             performNext(for: dispatcher)
         case .suspended:
-            performNext(for: coroutine.dispatcher)
+            performNext(for: currentCoroutine.dispatcher)
         case .restarting:
             // 在结束任务的时候, CoroutineScheduler 发挥了作用. 
-            coroutine.scheduler.scheduleTask {
-                self.complete(with: self.coroutine.resume())
+            currentCoroutine.scheduler.scheduleTask {
+                self.complete(with: self.currentCoroutine.resume())
             }
         }
     }
@@ -93,7 +93,6 @@ internal final class SharedCoroutineQueue {
 }
 
 fileprivate extension Int32 {
-    
     static let running: Int32 = 0
     static let isFree: Int32 = 1
     

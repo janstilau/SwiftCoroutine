@@ -1,13 +1,5 @@
-//
-//  CoFuture2.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 26.01.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 private protocol _CoFutureCancellable: AnyObject {
-
+    
     func cancel()
     
 }
@@ -125,7 +117,7 @@ extension CoFuture: _CoFutureCancellable {
         self.init(_result: nil)
         promise(setResult)
     }
-
+    
     /// Starts a new coroutine and initializes future with its result.
     ///
     /// - Note: If you cancel this `CoFuture`, it will also cancel the coroutine that was started inside of it.
@@ -173,7 +165,7 @@ extension CoFuture: _CoFutureCancellable {
     }
     
     // MARK: - cancel
-
+    
     /// Returns `true` when the current future is canceled.
     @inlinable public var isCanceled: Bool {
         if case .failure(let error as CoFutureError)? = result {

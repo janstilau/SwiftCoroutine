@@ -1,3 +1,4 @@
+
 internal struct AtomicTuple {
     
     internal typealias Tuple = (Int32, Int32)
@@ -18,7 +19,8 @@ internal struct AtomicTuple {
     }
     
     @discardableResult
-    internal mutating func update(keyPath: WritableKeyPath<Tuple, Int32>, with value: Int32) -> Int32 {
+    internal mutating func update(keyPath: WritableKeyPath<Tuple, Int32>,
+                                  with value: Int32) -> Int32 {
         update {
             var tuple = $0
             tuple[keyPath: keyPath] = value

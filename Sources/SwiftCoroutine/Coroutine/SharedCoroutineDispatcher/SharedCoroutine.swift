@@ -14,8 +14,9 @@ internal final class SharedCoroutine {
     internal let dispatcher: SharedCoroutineDispatcher
     internal let queue: SharedCoroutineQueue
     private(set) var scheduler: CoroutineScheduler
+    
     private var state: Int = .running
-        private var isCanceled = 0
+    private var isCanceled = 0
     private var completionInvokeOnlyOnceTag = 0
     
     internal init(dispatcher: SharedCoroutineDispatcher, queue: SharedCoroutineQueue, scheduler: CoroutineScheduler) {
@@ -38,6 +39,7 @@ internal final class SharedCoroutine {
         perform { queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv) }
     }
     
+    // perform 中, 涉及到协程切换, 所以这里会有 block 会有两个返回的机会. 
     private func perform(_ block: () -> Bool) -> CompletionState {
         if block() { return .finished }
         while true {
