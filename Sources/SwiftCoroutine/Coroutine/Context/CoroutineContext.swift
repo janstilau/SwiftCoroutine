@@ -44,13 +44,13 @@ internal final class CoroutineContext {
          不过, businessBlock 的运行过程中, 如果使用了 wait, 还会造成运行环境的切换.
          */
         __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
-            let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().performBlock()
+            let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().startRoutineBusinessBlock()
             // 在这里, 进行了最终的调度. 
             __longjmp(returnEnv_end,.finished)
         } == .finished
     }
     
-    private func performBlock() -> UnsafeMutableRawPointer {
+    private func startRoutineBusinessBlock() -> UnsafeMutableRawPointer {
         businessBlock?()
         businessBlock = nil
         return returnEnv
@@ -75,12 +75,7 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func resume(from resumeEnv: UnsafeMutableRawPointer) -> Bool {
-        
         _replaceTo(resumeEnv, returnEnv, .suspended) == .finished
-    }
-    
-    @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        _replaceTo(returnEnv, env, .suspended)
     }
     
     deinit {
@@ -89,6 +84,12 @@ internal final class CoroutineContext {
         stack.deallocate()
     }
     
+}
+
+extension CoroutineContext {
+    @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
+        _replaceTo(returnEnv, env, .suspended)
+    }
 }
 
 extension Int32 {

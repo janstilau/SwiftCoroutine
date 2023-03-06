@@ -11,6 +11,9 @@
 
 // MARK: - context
 
+/*
+ 所有, 对于执行上下文切换的动作, 都放到了 Context 类中了. 
+ */
 int __start(void* ret, const void* stack, const void* param, const void (*block)(const void*));
 void __suspend(void* env, void** sp, void* ret, int retVal);
 int _replaceTo(void* env, void* ret, int retVal);

@@ -15,6 +15,21 @@
 
 /*
  _setjmp, _longjmp
+ 
+ `_setjmp` 函数是一个用于跳转的函数，它可以把程序的执行控制转移到一个先前通过 `_setjmp` 函数保存的位置。
+ 在 C 语言中，通过 `_setjmp` 函数保存的信息包括当前堆栈帧、寄存器信息以及执行控制的程序计数器等信息。
+
+ 具体来说，当 `_setjmp` 函数被调用时，它会保存当前的 CPU 寄存器、栈指针以及程序计数器等寄存器信息，这些信息被保存在一个称为 `jmp_buf` 的缓冲区中。同时，`_setjmp` 函数还会返回一个非零值，用于标识该缓冲区的状态。
+
+ 当程序需要跳转到之前保存的位置时，可以通过调用 `longjmp` 函数并传入相应的 `jmp_buf` 缓冲区来实现。
+ `longjmp` 函数会使用缓冲区中保存的信息来恢复 CPU 寄存器、栈指针以及程序计数器等寄存器的值，以实现程序跳转的功能。
+
+ 总之，`_setjmp` 函数对存储 CPU 寄存器、栈指针以及程序计数器等寄存器信息，用于实现程序跳转的功能。
+ 
+ CPU 寄存器 状态.
+ 栈指针 状态. 不过这里面的栈, 会有原本的线程的调用栈, 也会有每个协程自己的调用栈. 协程中非常重要的一点, 就是将调用栈进行了分别的存储.
+ PC 程序计数器里面则是存储程序运行的位置, 通过该状态, 才能继续原本的运行指令.
+ 
  通常用于信号处理程序。调用 _setjmp() 会使其在 env 中保存当前堆栈环境。随后调用 _longjmp() 可以恢复之前保存的堆栈环境。
  简单来说，_setjmp() 函数用于保存当前的程序状态，而 _longjmp() 函数则可以将程序状态恢复到之前由 _setjmp() 保存的状态。
  
@@ -55,12 +70,12 @@
      :: "r"(stack), "r"(param), "r"(block)
  );
  */
-int __start(void* jumpBuffer, const void* stack, const void* param, const void (*block)(const void*)) {
+int __start(void* jumpBuffer, const void* routineStack, const void* param, const void (*routineStart)(const void*)) {
     int n = _setjmp(jumpBuffer);
     if (n) return n;
 #if defined(__x86_64__)
-    __asm__ ("movq %0, %%rsp" :: "g"(stack));
-    block(param);
+    __asm__ ("movq %0, %%rsp" :: "g"(routineStack));
+    routineStart(param);
 #elif defined(__arm64__)
     __asm__ (
              "mov sp, %0\n"

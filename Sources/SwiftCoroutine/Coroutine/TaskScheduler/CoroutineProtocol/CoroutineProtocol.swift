@@ -33,8 +33,8 @@ extension CoroutineProtocol {
     @inlinable internal func performAsCurrent<T>(_ block: () -> T) -> T {
         let caller = pthread_getspecific(.coroutine)
         pthread_setspecific(.coroutine, Unmanaged.passUnretained(self).toOpaque())
-        // 在最后, 会有一个回撤处理.
-        // 这里可能会嵌套环境.
+        
+        // 在 Block 的结束的时候, 其实会进行当前协程的回撤动作. 
         defer { pthread_setspecific(.coroutine, caller) }
         return block()
     }

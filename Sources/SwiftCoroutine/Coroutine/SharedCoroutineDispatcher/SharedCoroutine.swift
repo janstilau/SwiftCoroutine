@@ -1,5 +1,5 @@
-
-// 这个类, 是协程函数的真正体现. 
+// 每一个 StartCoroutine, 面对的都是这样的一个 SharedCoroutine 实例对象.
+// SharedCoroutine 执行完毕不会再次进入 Queue 中, Queue 的主要作用, 是做可以进行 Resume Coroutine 对象的管理, 而不是为了复用.
 internal final class SharedCoroutine {
     
     internal typealias CompletionState = SharedCoroutineQueue.RoutineState
@@ -11,7 +11,10 @@ internal final class SharedCoroutine {
     private var stackBuffer: StackBuffer!
     private var suspenEnvironment: UnsafeMutablePointer<CoroutineContext.SuspendData>!
     
-    internal let dispatcher: SharedCoroutineDispatcher
+    internal let dispatcher: SharedCoroutineDispatcher // 该值只是为了在 Queue 里面使用
+    /*
+     queue.context 中触发了各种执行上下文切换的动作.
+     */
     internal let queue: SharedCoroutineQueue
     private(set) var scheduler: CoroutineScheduler
     
@@ -19,7 +22,9 @@ internal final class SharedCoroutine {
     private var isCanceled = 0
     private var completionInvokeOnlyOnceTag = 0
     
-    internal init(dispatcher: SharedCoroutineDispatcher, queue: SharedCoroutineQueue, scheduler: CoroutineScheduler) {
+    internal init(dispatcher: SharedCoroutineDispatcher,
+                  queue: SharedCoroutineQueue,
+                  scheduler: CoroutineScheduler) {
         self.dispatcher = dispatcher
         self.queue = queue
         self.scheduler = scheduler
@@ -27,20 +32,21 @@ internal final class SharedCoroutine {
     
     // MARK: - Actions
     
+    // 在开始一个协程的时候, 将自己赋值到 Thread 上.
     internal func start() -> CompletionState {
-        performAsCurrent { perform(queue.context.start) }
+        performAsCurrent {
+            perfromRountineSwitch { queue.context.start() }
+        }
     }
     
+    // 当恢复一个协程的时候, 将自己赋值到 Thread 上.
     internal func resume() -> CompletionState {
-        performAsCurrent(resumeContext)
+        performAsCurrent {
+            perfromRountineSwitch { queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv) }
+        }
     }
     
-    private func resumeContext() -> CompletionState {
-        perform { queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv) }
-    }
-    
-    // perform 中, 涉及到协程切换, 所以这里会有 block 会有两个返回的机会. 
-    private func perform(_ block: () -> Bool) -> CompletionState {
+    private func perfromRountineSwitch(_ block: () -> Bool) -> CompletionState {
         if block() { return .finished }
         while true {
             switch state {
@@ -49,7 +55,7 @@ internal final class SharedCoroutine {
                     return .suspended
                 }
             case .running:
-                return resumeContext()
+                return perfromRountineSwitch { queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv) }
             case .restarting:
                 return .restarting
             default:
@@ -170,10 +176,8 @@ extension SharedCoroutine: CoroutineProtocol {
 }
 
 fileprivate extension Int {
-    
     static let running = 0
     static let suspending = 1
     static let suspended = 2
     static let restarting = 3
-    
 }
