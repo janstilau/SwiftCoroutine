@@ -112,8 +112,11 @@ extension CoroutineScheduler {
     /// ```
     /// - Parameter task: The closure that will be executed inside the coroutine.
     /// - Returns: Returns `CoFuture` with the future result of the task.
+    //
     @inlinable public func coroutineFuture<T>(_ task: @escaping () throws -> T) -> CoFuture<T> {
         let promise = CoPromise<T>()
+        // 使用 global 开启一个协程来确定 future 的值.
+        // 在另外的一个协程中, 使用 future 来进行 wait. 这样, 就有了先后顺序了. 
         _startCoroutine {
             if let coroutine = try? Coroutine.current() {
                 // Promise 的 cancel 会触发整个协程的 cancel. 

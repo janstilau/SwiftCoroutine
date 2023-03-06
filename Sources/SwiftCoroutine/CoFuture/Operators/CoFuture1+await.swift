@@ -40,6 +40,7 @@ extension CoFuture {
         defer { timer.cancel() }
         let result: Result<Value, Error> = try Coroutine.current().await { callback in
             self.addCallback(callback)
+            // callback 的触发, 其实就能够确定 result 的值了. 
             timer.setEventHandler { callback(.failure(CoFutureError.timeout)) }
             timer.start()
         }

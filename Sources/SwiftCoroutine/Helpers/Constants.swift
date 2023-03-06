@@ -10,10 +10,8 @@
 import Glibc
 
 extension Int {
-    
     internal static let pageSize = sysconf(Int32(_SC_PAGESIZE))
     internal static let processorsNumber = sysconf(Int32(_SC_NPROCESSORS_ONLN))
-    
 }
 
 #else

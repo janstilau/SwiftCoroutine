@@ -38,6 +38,7 @@ extension URLSession {
             }
         }
         task.resume()
+        // Promise 的 cancel, 出发 task 的 cancel. 
         promise.whenCanceled(task.cancel)
         return promise
     }
