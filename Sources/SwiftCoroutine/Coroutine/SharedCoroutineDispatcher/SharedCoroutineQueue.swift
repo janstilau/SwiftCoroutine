@@ -57,8 +57,17 @@ internal final class SharedCoroutineQueue {
             coroutine.restoreStack()
             self.currentCoroutine = coroutine
         }
-        // 在重新进行协程相关逻辑开启的时候, 主动进行一次调度.
-        // 因为触发协程可以调度的线程, 可能是子线程. 主动进行一次调度, 才能保证协程相关的代码在对应的环境下.
+        
+        /*
+         coroutine 中 start, suspend, resume 等操作, 都是没有锁的, 因为按照协程的设计, 是不会出现一个协程对象, 会同时被多个线程访问的.
+         协程 wait 的时候, 记录原本的协程调用堆栈, 寄存器, PC 计数器的信息, 然后将指令跳转到 returnJumpBuffer 中.
+         协程 resume 的时候, 是修改自身的状态, 然后等待 queue 来重新 resume 自己.
+         在这个重新 resume 的过程中, scheduler.scheduleTask 使得协程恢复的时候, 线程可能发生变化.
+         但是没有问题, 就是将协程运行环境, 在新的线程恢复就可以了,  因为协程完整复制了自己的运行环境.
+         这也就是为什么 resume 的前后, 会有线程之间的变换, 但是调用栈中的数据是不会在多线程中访问的, 堆中的对象还是多线程之间同时共享.
+         
+         协程实际上, 解决的是代码线性执行的问题, 并没有做运行线程的确定. 
+         */
         coroutine.scheduler.scheduleTask {
             self.reschedule(with: coroutine.resume())
         }

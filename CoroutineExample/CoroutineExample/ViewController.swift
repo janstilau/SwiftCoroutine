@@ -37,7 +37,7 @@ class ViewController: UIViewController {
     }
     
     func btn_1_didClicked() {
-        DispatchQueue.main.startCoroutine {
+        DispatchQueue.global().startCoroutine {
             
             let (data, response, error) = try Coroutine.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
