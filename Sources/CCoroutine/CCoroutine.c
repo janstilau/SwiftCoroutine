@@ -72,7 +72,10 @@
  */
 int __start(void* jumpBuffer, const void* routineStack, const void* param, const void (*routineStart)(const void*)) {
     int n = _setjmp(jumpBuffer);
-    if (n) return n;
+    if (n) {
+        return n;
+    }
+    
 #if defined(__x86_64__)
     __asm__ ("movq %0, %%rsp" :: "g"(routineStack));
     routineStart(param);
@@ -82,25 +85,44 @@ int __start(void* jumpBuffer, const void* routineStack, const void* param, const
              "mov x0, %1\n"
              "blr %2" :: "r"(stack), "r"(param), "r"(block));
 #endif
+    // 这里的 return 没有意义, 只是为了编译正确.
+    // 上面的 __asm__ 其实已经完成了 _longjmp 的作用.
     return 0;
 }
 
 void __suspend(void* jumpBuffer, void** sp, void* retJumpBuffer, int retVal) {
-    if (_setjmp(jumpBuffer)) {
+    int n = _setjmp(jumpBuffer);
+    if (n) {
         return;
     }
-    // 这是一个比较 tricky 的点, 使用下一个指针位置, 来存储了当前运行到的堆栈位置信息. 
+    
+    // 这是一个比较 tricky 的点, 使用下一个指针位置, 来存储了当前运行到的堆栈位置信息.
     char x;
     *sp = (void*)&x;
     _longjmp(retJumpBuffer, retVal);
 }
 
-int _replaceTo(void* resumeJumpBuffer, void* saveJumpBuffer, int retVal) {
+int __replaceTo(void* resumeJumpBuffer, void* saveJumpBuffer, int retVal) {
     int n = _setjmp(saveJumpBuffer);
-    if (n) return n;
-    // 这里居然没有报错, 不用返回 Int 值.
+    if (n) {
+        return n;
+    }
+    
+    // 使用 _longjmp 不需要返回值了.
     _longjmp(resumeJumpBuffer, retVal);
 }
+
+/*
+ __start
+ __suspend
+ __replaceTo
+ 
+ 这三个函数中, 都进行了指令的跳转.
+ 当这几个函数返回的时候, 其实是指令跳转回来后, _longjmp 的中带过来的返回值.
+ */
+
+
+
 
 void __longjmp(void* returnJumpBuffer, int retVal) {
     _longjmp(returnJumpBuffer, retVal);

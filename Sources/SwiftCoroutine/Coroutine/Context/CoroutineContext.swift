@@ -40,12 +40,9 @@ internal final class CoroutineContext {
          将当前的运行环境, 存储到 returnEnv 中,
          将自己当前维护的堆栈当做新的运行堆栈, 然后执行存储的 businessBlock
          businessBlock 运行结束之后, 使用 __longjmp 跳转回原本的运行环境中.
-         
-         不过, businessBlock 的运行过程中, 如果使用了 wait, 还会造成运行环境的切换.
          */
         __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
             let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().startRoutineBusinessBlock()
-            // 在这里, 进行了最终的调度. 
             __longjmp(returnEnv_end,.finished)
         } == .finished
     }
@@ -75,7 +72,7 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func resume(from resumeEnv: UnsafeMutableRawPointer) -> Bool {
-        _replaceTo(resumeEnv, returnEnv, .suspended) == .finished
+        __replaceTo(resumeEnv, returnEnv, .suspended) == .finished
     }
     
     deinit {
@@ -88,7 +85,7 @@ internal final class CoroutineContext {
 
 extension CoroutineContext {
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        _replaceTo(returnEnv, env, .suspended)
+        __replaceTo(returnEnv, env, .suspended)
     }
 }
 
