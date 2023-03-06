@@ -37,8 +37,7 @@ class ViewController: UIViewController {
     }
     
     func btn_1_didClicked() {
-        DispatchQueue.main.startCoroutine {
-            
+        DispatchQueue.global().startCoroutine {
             let (data, response, error) = try Coroutine.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
@@ -58,72 +57,93 @@ class ViewController: UIViewController {
             print("1 \(Thread.current)")
         }
         
-        DispatchQueue.main.startCoroutine {
-            
-            let (data, response, error) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_1, response_1, error_1) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_2, response_2, error_2) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_3, response_3, error_3) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://www.baidu.com")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            print("2 \(Thread.current)")
-        }
-        
-        DispatchQueue.main.startCoroutine {
-            
-            let (data, response, error) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_1, response_1, error_1) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_2, response_2, error_2) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_3, response_3, error_3) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://www.baidu.com")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            print("3 \(Thread.current)")
-        }
-        
-        DispatchQueue.main.startCoroutine {
-            
-            let (data, response, error) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_1, response_1, error_1) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_2, response_2, error_2) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            let (data_3, response_3, error_3) = try Coroutine.await { callback in
-                let url = URL.init(string: "https://www.baidu.com")!
-                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
-            }
-            print("4 \(Thread.current)")
-        }
+//        DispatchQueue.main.startCoroutine {
+//
+//            let (data, response, error) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_1, response_1, error_1) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_2, response_2, error_2) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_3, response_3, error_3) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://www.baidu.com")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            print("2 \(Thread.current)")
+//        }
+//
+//        DispatchQueue.main.startCoroutine {
+//
+//            let (data, response, error) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_1, response_1, error_1) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_2, response_2, error_2) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_3, response_3, error_3) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://www.baidu.com")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            print("3 \(Thread.current)")
+//        }
+//
+//        DispatchQueue.main.startCoroutine {
+//
+//            let (data, response, error) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_1, response_1, error_1) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_2, response_2, error_2) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            let (data_3, response_3, error_3) = try Coroutine.await { callback in
+//                let url = URL.init(string: "https://www.baidu.com")!
+//                URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
+//            }
+//            print("4 \(Thread.current)")
+//        }
     }
     
     func btn_2_didClicked() {
-        print(#function)
+        let channel = CoChannel<Int>(capacity: 1)
+
+        DispatchQueue.global().startCoroutine {
+            for i in 0..<100 {
+                //imitate some work
+                try Coroutine.delay(.seconds(1))
+                //sends a value to the channel and suspends coroutine if its buffer is full
+                try channel.awaitSend(i)
+            }
+            
+            //close channel when all values are sent
+            channel.close()
+        }
+
+        DispatchQueue.global().startCoroutine {
+            //receives values until closed and suspends a coroutine if it's empty
+            for i in channel.makeIterator() {
+                print("Receive", i)
+            }
+            
+            print("Done")
+        }
     }
     
     func btn_3_didClicked() {

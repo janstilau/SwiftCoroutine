@@ -68,6 +68,9 @@ internal final class SharedCoroutineQueue {
          
          协程实际上, 解决的是代码线性执行的问题, 并没有做运行线程的确定. 
          */
+        
+        // 这里的触发线程, 就是异步操作回调 completion 的触发线程. 
+        print("即将发生协程的上下文恢复, 当前线程是 \(Thread.current), 会使用 scheduler 进行调度")
         coroutine.scheduler.scheduleTask {
             self.reschedule(with: coroutine.resume())
         }

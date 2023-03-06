@@ -25,6 +25,7 @@ extension CoFuture {
     /// - Throws: The failed result of the `CoFuture`.
     /// - Returns: The value of the `CoFuture` when it is completed.
     @inlinable public func await() throws -> Value {
+        // 将当前协程进行 await, 
         try (result ?? Coroutine.current().await(addCallback)).get()
     }
     

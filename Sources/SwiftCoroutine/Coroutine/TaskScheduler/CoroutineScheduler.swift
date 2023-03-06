@@ -119,6 +119,7 @@ extension CoroutineScheduler {
                 promise.whenCanceled(coroutine.cancel)
             }
             if promise.isCanceled { return }
+            // Result(catching: task), 这样的写法, 来完成异步任务的触发. 
             promise.complete(with: Result(catching: task))
         }
         return promise

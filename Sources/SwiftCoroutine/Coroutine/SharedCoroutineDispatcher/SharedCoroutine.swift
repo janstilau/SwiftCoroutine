@@ -43,7 +43,8 @@ internal final class SharedCoroutine {
     internal func resume() -> CompletionState {
         performAsCurrent {
             perfromRountineSwitch {
-                queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv)
+                print("发生了协程的上下文恢复, 当前线程是 \(Thread.current)")
+                return queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv)
             }
         }
     }
@@ -80,6 +81,7 @@ internal final class SharedCoroutine {
             suspenEnvironment.initialize(to: .init())
         }
         // 将, 当前的协程运行信息, 存储到了 environment 中, 然后返回到其他的协程任务中.
+        print("发生了协程的上下文暂停, 当前线程是 \(Thread.current)")
         queue.context.suspend(to: suspenEnvironment)
     }
     
