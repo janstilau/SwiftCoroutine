@@ -1,11 +1,5 @@
-//
-//  CallbackStack.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 09.05.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
+// 这是一个链表 Stack.
 internal struct CallbackStack<T> {
     
     private typealias Pointer = UnsafeMutablePointer<Node>
@@ -28,6 +22,7 @@ internal struct CallbackStack<T> {
     @inlinable internal var isEmpty: Bool { rawValue <= 0 }
     @inlinable internal var isClosed: Bool { rawValue == -1 }
     
+    // 使用了头插法.
     @inlinable internal mutating func append(_ callback: @escaping (T) -> Void) -> Bool {
         var pointer: Pointer!
         while true {
@@ -46,11 +41,14 @@ internal struct CallbackStack<T> {
         }
     }
     
+    // Close 将自身状态改变了之后, 返回了原来的链表地址.
     @inlinable internal mutating func close() -> Self? {
         let old = atomicExchange(&rawValue, with: -1)
         return old > 0 ? CallbackStack(rawValue: old) : nil
     }
     
+    // 然后在 finish 的时候, 才真正进行了内存的清理.
+    // 所以一定要调用 finish 才可以. 
     @inlinable internal func finish(with result: T) {
         var address = rawValue
         while address > 0, let pointer = Pointer(bitPattern: address) {

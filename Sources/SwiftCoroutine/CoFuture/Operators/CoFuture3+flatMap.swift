@@ -50,6 +50,7 @@ extension CoFuture {
         if let result = result {
             return callback(result)
         }
+        // 这里的逻辑, 和 PromiseKit 的是一致的. 
         let promise = CoPromise<NewValue>(parent: self)
         addCallback { callback($0).addCallback(promise.setResult) }
         return promise

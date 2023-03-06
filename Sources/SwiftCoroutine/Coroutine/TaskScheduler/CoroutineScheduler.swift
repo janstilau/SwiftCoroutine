@@ -116,10 +116,12 @@ extension CoroutineScheduler {
         let promise = CoPromise<T>()
         _startCoroutine {
             if let coroutine = try? Coroutine.current() {
+                // Promise 的 cancel 会触发整个协程的 cancel. 
                 promise.whenCanceled(coroutine.cancel)
             }
             if promise.isCanceled { return }
-            // Result(catching: task), 这样的写法, 来完成异步任务的触发. 
+            // Result(catching: task), 这样的写法, 来完成异步任务的触发.
+            // Result 的结果, 被当做 complete(with: 的参数.
             promise.complete(with: Result(catching: task))
         }
         return promise

@@ -36,6 +36,7 @@ extension CoFuture {
     /// - Parameter callback: The callback that is called when the `CoFuture` is canceled.
     @inlinable public func whenCanceled(_ callback: @escaping () -> Void) {
         addCallback { result in
+            // 就是 result 的特定处理. 
             if case .failure(let error as CoFutureError) = result,
                 error == .canceled { callback() }
         }

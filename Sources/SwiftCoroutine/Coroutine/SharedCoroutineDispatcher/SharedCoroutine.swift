@@ -156,6 +156,7 @@ extension SharedCoroutine: CoroutineProtocol {
     
     internal func cancel() {
         // isCanceled 唯一的改变, 只是在这里.
+        // 整个协程也会进行 cancel.
         atomicStore(&isCanceled, value: 1)
         resumeIfSuspended()
     }

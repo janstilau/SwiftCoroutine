@@ -27,6 +27,7 @@ extension CoPromise {
     }
     
     @inlinable public func complete(with future: CoFuture<Value>) {
+        // 产生一个联动效果, 参数 future resolved 之后, 会触发本 future 的 setResult 效果. 
         future.addCallback(setResult)
     }
     

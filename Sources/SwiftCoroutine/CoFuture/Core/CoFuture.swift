@@ -1,7 +1,5 @@
 private protocol _CoFutureCancellable: AnyObject {
-    
     func cancel()
-    
 }
 
 /// Holder for a result that will be provided later.
@@ -20,7 +18,7 @@ private protocol _CoFutureCancellable: AnyObject {
 ///     }
 ///     return promise
 /// }
-///
+///  以上的写法, 就很像是 PromiseKit 里面的写法了. 将 Promise 的 Resolve 暴露出来, 这样就不用将所有的逻辑, 集中到构造函数里面了.
 /// func makeFutureTwo(args) -> CoFuture<Response> {
 ///     queue.coroutineFuture {
 ///         let future = makeFutureOne(args)
@@ -70,14 +68,15 @@ private protocol _CoFutureCancellable: AnyObject {
 ///     let data: Data = try future.await()
 /// }
 /// ```
-///
+
+
 public class CoFuture<Value> {
     
     @usableFromInline internal typealias _Result = Result<Value, Error>
     
-    private var resultState: Int
-    private var nodes: CallbackStack<_Result>
-    private var _result: Optional<_Result>
+    private var nodes: CallbackStack<_Result> // 这里面存储的是回调闭包.
+    private var resultState: Int // 是否完成的标志
+    private var _result: Optional<_Result> // 完成的结果.
     private unowned(unsafe) var parent: _CoFutureCancellable?
     
     @usableFromInline internal init(_result: _Result?) {
@@ -94,6 +93,7 @@ public class CoFuture<Value> {
     
     deinit {
         if nodes.isEmpty { return }
+        // 最后, 还是会进行清理的.
         nodes.finish(with: .failure(CoFutureError.canceled))
     }
     
@@ -155,18 +155,21 @@ extension CoFuture: _CoFutureCancellable {
         if atomicExchange(&resultState, with: 1) == 1 { return }
         _result = result
         parent = nil
+        // 触发了回调.
         nodes.close()?.finish(with: result)
     }
     
     // MARK: - Callback
     
     @usableFromInline internal func addCallback(_ callback: @escaping (_Result) -> Void) {
+        // 这里和 Promise 的思想是一致的, 如果有结果了, 还是可以出发 callback.
         if !nodes.append(callback) { _result.map(callback) }
     }
     
     // MARK: - cancel
     
     /// Returns `true` when the current future is canceled.
+    // 针对 cancel, 其实就是进行 error 和特定值进行比较.
     @inlinable public var isCanceled: Bool {
         if case .failure(let error as CoFutureError)? = result {
             return error == .canceled
@@ -176,6 +179,7 @@ extension CoFuture: _CoFutureCancellable {
     
     /// Cancels the current future.
     public func cancel() {
+        // 会触发链式 cancel.
         parent?.cancel() ?? setResult(.failure(CoFutureError.canceled))
     }
     

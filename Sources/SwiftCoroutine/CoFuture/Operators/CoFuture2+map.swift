@@ -37,6 +37,7 @@ extension CoFuture {
         if let result = result {
             return CoFuture<NewValue>(result: transform(result))
         }
+        // Promise 带有 Parent 信息, 主要是因为发生了变形
         let promise = CoPromise<NewValue>(parent: self)
         addCallback { promise.setResult(transform($0)) }
         return promise

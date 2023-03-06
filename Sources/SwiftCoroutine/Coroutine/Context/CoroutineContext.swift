@@ -8,6 +8,11 @@ import Glibc
 import Darwin
 #endif
 
+/*
+ 有了 CoroutineContext, 其实协程和线程就没有太大的关系了.
+ 每一个 Coroutine 里面, 存储了调用栈的信息, 存储了 JumpBuffer.
+ 所以在进行 Resume 的时候, 其实是能够完全复原出自己的执行环境的.
+ */
 internal final class CoroutineContext {
     
     // 对于一个 SharedCoroutioneQueue 来说, 他们是共用一个 CoroutineContext 对象的
