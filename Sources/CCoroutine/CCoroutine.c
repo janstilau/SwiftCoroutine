@@ -73,6 +73,7 @@
 int __start(void* jumpBuffer, const void* routineStack, const void* param, const void (*routineStart)(const void*)) {
     int n = _setjmp(jumpBuffer);
     if (n) {
+        // n 不为 0, 则是跳转回来的操作.
         return n;
     }
     
@@ -93,6 +94,7 @@ int __start(void* jumpBuffer, const void* routineStack, const void* param, const
 void __suspend(void* jumpBuffer, void** sp, void* retJumpBuffer, int retVal) {
     int n = _setjmp(jumpBuffer);
     if (n) {
+        // n 不为 0, 则是跳转回来的操作.
         return;
     }
     
@@ -102,9 +104,10 @@ void __suspend(void* jumpBuffer, void** sp, void* retJumpBuffer, int retVal) {
     _longjmp(retJumpBuffer, retVal);
 }
 
-int __replaceTo(void* resumeJumpBuffer, void* saveJumpBuffer, int retVal) {
+int __resumeTo(void* resumeJumpBuffer, void* saveJumpBuffer, int retVal) {
     int n = _setjmp(saveJumpBuffer);
     if (n) {
+        // n 不为 0, 则是跳转回来的操作.
         return n;
     }
     

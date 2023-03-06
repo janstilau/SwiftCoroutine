@@ -37,12 +37,16 @@ internal final class CoroutineContext {
         // 直接调用传递过来的闭包, 是一件麻烦的事情, 之所以这样转化, 就是使用面向对象的方式, 来进行管理.
         
         /*
-         将当前的运行环境, 存储到 returnEnv 中,
-         将自己当前维护的堆栈当做新的运行堆栈, 然后执行存储的 businessBlock
-         businessBlock 运行结束之后, 使用 __longjmp 跳转回原本的运行环境中.
+         如果 startRoutineBusinessBlock 执行过程中, 没有发生过协程的切换, 那么
+         returnEnv_end 的值, 就和 __start(returnEnv) 中确定的值是一致的. 在这种情况下, __start 的返回值就是 .finished
+         如果发生过 wait 操作, 那么 __start 的返回值就不是 .finished.
+         
+         这个时候, 就需要根据 Routine 的 State 进行调度了.
          */
         __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
             let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().startRoutineBusinessBlock()
+            // 在 businessBlock 的执行过程中, returnEnv 的值其实会多次变化的.
+            // 所以需要在 businessBlock() 执行结束之后, 返回当前的最新值.
             __longjmp(returnEnv_end,.finished)
         } == .finished
     }
@@ -67,12 +71,13 @@ internal final class CoroutineContext {
         // __suspend 函数, 在进行当前协程的暂停时候, 会恢复到原来的记录的 JumpBuffer 的运行状态中.
         __suspend(data.pointee.jumpBufferEnv,
                   &data.pointee.sp,
+                  
                   returnEnv,
                   .suspended)
     }
     
     @inlinable internal func resume(from resumeEnv: UnsafeMutableRawPointer) -> Bool {
-        __replaceTo(resumeEnv, returnEnv, .suspended) == .finished
+        __resumeTo(resumeEnv, returnEnv, .suspended) == .finished
     }
     
     deinit {
@@ -81,12 +86,6 @@ internal final class CoroutineContext {
         stack.deallocate()
     }
     
-}
-
-extension CoroutineContext {
-    @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        __replaceTo(returnEnv, env, .suspended)
-    }
 }
 
 extension Int32 {
