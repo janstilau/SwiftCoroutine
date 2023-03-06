@@ -121,18 +121,18 @@ internal struct Storage<T> {
 fileprivate extension Storage.Node {
     
     mutating func access() -> Bool {
-        accessCounter.update { (hasValue, counter) in
+        accessCounter.updateThenReturnOld { (hasValue, counter) in
             if hasValue == 0 { return (0, counter) }
             return (1, counter + 1)
         }.old.0 == 1
     }
     
     mutating func deaccess() -> Bool {
-        accessCounter.update { ($0.0, max(0, $0.1 - 1)) }.old == (0, 1)
+        accessCounter.updateThenReturnOld { ($0.0, max(0, $0.1 - 1)) }.old == (0, 1)
     }
     
     mutating func remove() -> Bool {
-        accessCounter.update { (0, $0.1) }.old == (1, 0)
+        accessCounter.updateThenReturnOld { (0, $0.1) }.old == (1, 0)
     }
     
 }

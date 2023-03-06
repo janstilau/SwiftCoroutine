@@ -31,7 +31,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     // MARK: - send
     
     internal override func awaitSend(_ element: T) throws {
-        switch atomic.update ({ count, state in
+        switch atomic.updateThenReturnOld ({ count, state in
             if state != 0 { return (count, state) }
             return (count + 1, 0)
         }).old {
@@ -53,7 +53,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     internal override func sendFuture(_ future: CoFuture<T>) {
         future.whenSuccess { [weak self] in
             guard let self = self else { return }
-            let (count, state) = self.atomic.update { count, state in
+            let (count, state) = self.atomic.updateThenReturnOld { count, state in
                 if state != 0 { return (count, state) }
                 return (count + 1, 0)
             }.old
@@ -65,7 +65,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     }
     
     internal override func offer(_ element: T) -> Bool {
-        let (count, state) = atomic.update { count, state in
+        let (count, state) = atomic.updateThenReturnOld { count, state in
             if state != 0 || count >= capacity { return (count, state) }
             return (count + 1, 0)
         }.old
@@ -83,7 +83,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     // MARK: - receive
     
     internal override func awaitReceive() throws -> T {
-        switch atomic.update({ count, state in
+        switch atomic.updateThenReturnOld({ count, state in
             if state == 0 { return (count - 1, 0) }
             return (Swift.max(0, count - 1), state)
         }).old {
@@ -100,7 +100,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     }
     
     internal override func poll() -> T? {
-        let (count, state) = atomic.update { count, state in
+        let (count, state) = atomic.updateThenReturnOld { count, state in
             (Swift.max(0, count - 1), state)
         }.old
         guard count > 0 else { return nil }
@@ -109,7 +109,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     }
     
     internal override func whenReceive(_ callback: @escaping (Result<T, CoChannelError>) -> Void) {
-        switch atomic.update({ count, state in
+        switch atomic.updateThenReturnOld({ count, state in
             if state == 0 { return (count - 1, 0) }
             return (Swift.max(0, count - 1), state)
         }).old {
@@ -142,7 +142,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     // MARK: - close
     
     internal override func close() -> Bool {
-        let (count, state) = atomic.update { count, state in
+        let (count, state) = atomic.updateThenReturnOld { count, state in
             state == 0 ? (Swift.max(0, count), 1) : (count, state)
         }.old
         guard state == 0 else { return false }
@@ -165,7 +165,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     // MARK: - cancel
     
     internal override func cancel() {
-        let count = atomic.update { _ in (0, 2) }.old.0
+        let count = atomic.updateThenReturnOld { _ in (0, 2) }.old.0
         if count < 0 {
             for _ in 0..<count.magnitude {
                 receiveCallbacks.blockingPop()(.failure(.canceled))

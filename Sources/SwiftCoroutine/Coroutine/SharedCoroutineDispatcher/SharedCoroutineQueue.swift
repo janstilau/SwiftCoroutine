@@ -2,12 +2,7 @@
 
 internal final class SharedCoroutineQueue {
     
-    private struct Task {
-        let scheduler: CoroutineScheduler
-        let task: () -> Void
-    }
-    
-    internal enum CompletionState {
+    internal enum RoutineState {
         case finished, suspended, restarting
     }
     
@@ -16,18 +11,18 @@ internal final class SharedCoroutineQueue {
     
     internal var inQueue = false
     private(set) var started = 0
-    private var atomic = AtomicTuple()
-    // prepared 里面存放的, 都是可以被调度的协程.
+    private var stateAndCount = AtomicTuple()
+    // 这个队列里面存放的, 都是可以被调度的协程.
     // 在协程的 resumeIfNeed 中, 才会触发重新调度自己的逻辑.
     // 如果协程状态一直没有 runing, 那么也就不需要被切换, 就像线程不会被切换一样.
-    private var prepared = FifoQueue<SharedCoroutine>()
+    private var waitingForSchedule = FifoQueue<SharedCoroutine>()
     
     internal init(stackSize size: Int) {
         context = CoroutineContext(stackSize: size)
     }
     
     internal func occupy() -> Bool {
-        atomic.update(keyPath: \.0, with: .running) == .isFree
+        stateAndCount.updateThenReturnOld(key: "state", with: .running) == .isFree
     }
     
     // MARK: - Actions
@@ -46,14 +41,14 @@ internal final class SharedCoroutineQueue {
      异步操作的回调, 会触发到这里. 
      */
     internal func resume(coroutine: SharedCoroutine) {
-        let (state, _) = atomic.update { state, count in
+        let (state, _) = stateAndCount.updateThenReturnOld { state, count in
             if state == .isFree {
                 return (.running, count)
             } else {
                 return (.running, count + 1)
             }
         }.old
-        state == .isFree ? resumeOnQueue(coroutine) : prepared.push(coroutine)
+        state == .isFree ? resumeOnQueue(coroutine) : waitingForSchedule.push(coroutine)
     }
     
     private func resumeOnQueue(_ coroutine: SharedCoroutine) {
@@ -69,7 +64,7 @@ internal final class SharedCoroutineQueue {
         }
     }
     
-    private func reschedule(with state: CompletionState) {
+    private func reschedule(with state: RoutineState) {
         switch state {
         case .finished:
             started -= 1
@@ -88,14 +83,14 @@ internal final class SharedCoroutineQueue {
     
     // 这个 dispatcher, 只是为了让 queue 回收. 
     private func performNext(for dispatcher: SharedCoroutineDispatcher) {
-        let isFinished = atomic.update { _, count in
+        let isFinished = stateAndCount.updateThenReturnOld { _, count in
             count > 0 ? (.running, count - 1) : (.isFree, 0)
         }.new.0 == .isFree
-        isFinished ? dispatcher.push(self) : resumeOnQueue(prepared.blockingPop())
+        isFinished ? dispatcher.push(self) : resumeOnQueue(waitingForSchedule.blockingPop())
     }
     
     deinit {
-        prepared.free()
+        waitingForSchedule.free()
     }
     
 }

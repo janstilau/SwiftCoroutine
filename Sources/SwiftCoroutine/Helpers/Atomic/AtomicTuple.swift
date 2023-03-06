@@ -10,7 +10,7 @@ internal struct AtomicTuple {
     }
     
     @discardableResult
-    internal mutating func update(_ transform: (Tuple) -> Tuple) -> (old: Tuple, new: Tuple) {
+    internal mutating func updateThenReturnOld(_ transform: (Tuple) -> Tuple) -> (old: Tuple, new: Tuple) {
         let (old, new) = atomicUpdate(&rawValue) {
             let tuple = unsafeBitCast($0, to: Tuple.self)
             return unsafeBitCast(transform(tuple), to: Int.self)
@@ -19,9 +19,21 @@ internal struct AtomicTuple {
     }
     
     @discardableResult
-    internal mutating func update(keyPath: WritableKeyPath<Tuple, Int32>,
+    internal mutating func updateThenReturnOld(key: String,
                                   with value: Int32) -> Int32 {
-        update {
+        if key == "state" {
+            return update(keyPath: \.0, with: value)
+        } else if key == "count" {
+            return update(keyPath: \.1, with: value)
+        } else {
+            return 0
+        }
+    }
+    
+    @discardableResult
+    private mutating func update(keyPath: WritableKeyPath<Tuple, Int32>,
+                                 with value: Int32) -> Int32 {
+        updateThenReturnOld {
             var tuple = $0
             tuple[keyPath: keyPath] = value
             return tuple

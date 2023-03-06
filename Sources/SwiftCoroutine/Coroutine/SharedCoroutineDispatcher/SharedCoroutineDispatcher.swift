@@ -1,5 +1,7 @@
 
-
+/*
+ 该类最主要的责任, 就是进行 Queue 的管理. 
+ */
 @usableFromInline internal final class SharedCoroutineDispatcher {
     
     @usableFromInline internal
@@ -7,13 +9,13 @@
                                                      stackSize: .recommended)
     
     private let stackSize: Int
-    private let capacity: Int
-    private var queues = FifoQueue<SharedCoroutineQueue>()
+    private let queueCapacity: Int
+    private var queueWithRoutineQueue = FifoQueue<SharedCoroutineQueue>()
     private var queuesCount = 0
     
     internal init(capacity: Int, stackSize: Coroutine.StackSize) {
         self.stackSize = stackSize.size
-        self.capacity = capacity
+        self.queueCapacity = capacity
     }
     
     @usableFromInline
@@ -26,7 +28,7 @@
     }
     
     private func getFreeQueue() -> SharedCoroutineQueue {
-        while let queue = queues.pop() {
+        while let queue = queueWithRoutineQueue.pop() {
             atomicAdd(&queuesCount, value: -1)
             queue.inQueue = false
             if queue.occupy() { return queue }
@@ -38,16 +40,16 @@
         if queue.started != 0 {
             if queue.inQueue { return }
             queue.inQueue = true
-            queues.push(queue)
+            queueWithRoutineQueue.push(queue)
             atomicAdd(&queuesCount, value: 1)
-        } else if queuesCount < capacity {
-            queues.insertAtStart(queue)
+        } else if queuesCount < queueCapacity {
+            queueWithRoutineQueue.insertAtStart(queue)
             atomicAdd(&queuesCount, value: 1)
         }
     }
     
     deinit {
-        queues.free()
+        queueWithRoutineQueue.free()
     }
     
 }
