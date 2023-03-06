@@ -47,6 +47,7 @@ internal final class CoroutineContext {
             let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().startRoutineBusinessBlock()
             // 在 businessBlock 的执行过程中, returnEnv 的值其实会多次变化的.
             // 所以需要在 businessBlock() 执行结束之后, 返回当前的最新值.
+            // 只有在这里, .finished 的值才会真正用作赋值操作. 
             __longjmp(returnEnv_end,.finished)
         } == .finished
     }

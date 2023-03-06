@@ -54,6 +54,8 @@ extension Coroutine {
             .takeUnretainedValue() as? CoroutineProtocol {
             return coroutine
         }
+        // 一定要在当前的 Thread 中进行 CoroutineProtocol 的赋值.
+        // 因为实际上, 协程是要进行自己调用环境的单独存储的, 如果没有打造这个环境, 是不应该进行协程的逻辑的触发的. 
         throw CoroutineError.calledOutsideCoroutine
     }
     

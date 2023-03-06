@@ -42,7 +42,9 @@ internal final class SharedCoroutine {
     // 当恢复一个协程的时候, 将自己赋值到 Thread 上.
     internal func resume() -> CompletionState {
         performAsCurrent {
-            perfromRountineSwitch { queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv) }
+            perfromRountineSwitch {
+                queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv)
+            }
         }
     }
     
@@ -55,7 +57,10 @@ internal final class SharedCoroutine {
                     return .suspended
                 }
             case .running:
-                return perfromRountineSwitch { queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv) }
+                return perfromRountineSwitch {
+                    // 这里没太明白.
+                    queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv)
+                }
             case .restarting:
                 return .restarting
             default:
@@ -108,7 +113,7 @@ extension SharedCoroutine: CoroutineProtocol {
         state = .suspending
         let tag = completionInvokeOnlyOnceTag
         var result: T!
-        // 出发了异步操纵, 然后在异步操作的回调里面, 恢复了下方 syspend 住的协程.
+        // 触发了异步操纵, 然后在异步操作的回调里面, 恢复了下方 syspend 住的协程.
         asyncActionNeedCompletion { value in
             while true {
                 // 这里我猜测, 是为了让闭包只触发一次.
@@ -148,6 +153,7 @@ extension SharedCoroutine: CoroutineProtocol {
     }
     
     internal func cancel() {
+        // isCanceled 唯一的改变, 只是在这里.
         atomicStore(&isCanceled, value: 1)
         resumeIfSuspended()
     }
@@ -157,9 +163,11 @@ extension SharedCoroutine: CoroutineProtocol {
         while true {
             switch state {
             case .suspending:
-                // 如果异步操作, 其实不是异步操作, 直接触发了 completion 闭包.
+                // 如果异步操作, 并没有, 直接触发了 completion 闭包.
                 // 那么 state 就还是 .suspending 的状态. 那么直接讲 state 变为 running 状态.
-                if atomicCAS(&state, expected: .suspending, desired: .running) { return }
+                if atomicCAS(&state, expected: .suspending, desired: .running) {
+                    return
+                }
             case .suspended:
                 // 如果异步操作确实是异步的, 那么下方的 suspend 函数会被调用, 那么当前的状态就是 suspended.
                 // 那么需要进行协程的恢复处理.
@@ -172,7 +180,6 @@ extension SharedCoroutine: CoroutineProtocol {
             }
         }
     }
-    
 }
 
 fileprivate extension Int {
