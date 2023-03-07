@@ -22,6 +22,7 @@ internal final class CoFuturePublisher<Output> {
     
 }
 
+// 这是一个起点, 所以不会有新的上游节点. 
 @available(OSX 10.15, iOS 13.0, *)
 extension CoFuturePublisher: Publisher {
     
@@ -32,26 +33,4 @@ extension CoFuturePublisher: Publisher {
     
 }
 
-//@available(OSX 10.15, iOS 13.0, *)
-//final class CoFutureSubject<T>: CoFuturePublisher<T, CoPromise<T>> {}
-//
-//@available(OSX 10.15, iOS 13.0, *)
-//extension CoFutureSubject: Subject {
-//
-//    @inlinable func send(_ value: Output) {
-//        future.success(value)
-//    }
-//
-//    @inlinable func send(completion: Subscribers.Completion<Failure>) {
-//        switch completion {
-//        case .finished: future.cancel()
-//        case .failure(let error): future.complete(with: .failure(error))
-//        }
-//    }
-//
-//    @inlinable func send(subscription: Subscription) {
-//        subscription.request(.max(1))
-//    }
-//
-//}
 #endif

@@ -1,10 +1,3 @@
-//
-//  CoFuture3+await.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 31.12.2019.
-//  Copyright © 2019 Alex Belozierov. All rights reserved.
-//
 
 import Dispatch
 
@@ -35,12 +28,12 @@ extension CoFuture {
     /// - Returns: The value of the `CoFuture` when it is completed.
     public func await(timeout: DispatchTimeInterval) throws -> Value {
         if let result = result { return try result.get() }
+        
         let timer = DispatchSource.makeTimerSource()
         timer.schedule(deadline: .now() + timeout)
         defer { timer.cancel() }
         let result: Result<Value, Error> = try Coroutine.current().await { callback in
             self.addCallback(callback)
-            // callback 的触发, 其实就能够确定 result 的值了. 
             timer.setEventHandler { callback(.failure(CoFutureError.timeout)) }
             timer.start()
         }

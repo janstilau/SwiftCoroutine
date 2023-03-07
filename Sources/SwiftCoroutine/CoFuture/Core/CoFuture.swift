@@ -2,6 +2,14 @@ private protocol _CoFutureCancellable: AnyObject {
     func cancel()
 }
 
+/*
+ 这个 Future/Promise 应该是别的语言已经提出来的通用概念了.
+ 
+ 和 Promise 一样, Future 是状态盒子. 可以给这个状态盒子添加回调. 当状态改变之后, 会触发所有添加的回调.
+ 不同的是, 这个 Future 可以引起协程的 wait 操作.
+ 
+ 将 SetResult 暴露出去, 使得 Future 的构建, 和 Future 的状态 resolve 代码可以分开, 不用集中到构造过程中了.
+ */
 /// Holder for a result that will be provided later.
 ///
 /// `CoFuture` and its subclass `CoPromise` are the implementation of the Future/Promise approach.
@@ -18,6 +26,7 @@ private protocol _CoFutureCancellable: AnyObject {
 ///     }
 ///     return promise
 /// }
+///
 ///  以上的写法, 就很像是 PromiseKit 里面的写法了. 将 Promise 的 Resolve 暴露出来, 这样就不用将所有的逻辑, 集中到构造函数里面了.
 /// func makeFutureTwo(args) -> CoFuture<Response> {
 ///     queue.coroutineFuture {

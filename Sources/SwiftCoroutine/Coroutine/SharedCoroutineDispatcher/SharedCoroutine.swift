@@ -110,6 +110,7 @@ internal final class SharedCoroutine {
 extension SharedCoroutine: CoroutineProtocol {
     
     // T 会是一个 Tuple.
+    // 这个函数会 throw, 主要是因为 cancel 机制的存在. 
     internal func await<T>(_ asyncActionNeedCompletion: (@escaping (T) -> Void) -> Void) throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
         state = .suspending

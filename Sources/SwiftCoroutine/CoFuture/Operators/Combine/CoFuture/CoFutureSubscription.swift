@@ -30,6 +30,8 @@ internal final class CoFutureSubscription<S: Subscriber, T>: Subscription where 
         }
     }
     
+    // cancel 是从下向上的传递.
+    // 不会组织 future 的内部逻辑, 仅仅是将链条中断了.
     @inlinable internal func cancel() {
         subscriber = nil
     }

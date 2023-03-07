@@ -1,8 +1,5 @@
-/// A promise to provide a result later.
-///
-/// `CoPromise` is a subclass of `CoFuture` that allows to deliver the result.
-/// You can set the result to `CoPromise` only once, other attempts will be ignored.
-///
+
+// Promise 相比较 Future, 仅仅是增加了一些 convenience 方法. 还是调用 setResult 来触发后续操作.
 public final class CoPromise<Value>: CoFuture<Value> {}
 
 extension CoPromise {
