@@ -40,8 +40,10 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         case (_, 2):
             throw CoChannelError.canceled
         case (let count, _) where count < 0:
+            // 当有等待的时候, 直接给等待进行消费.
             receiveCallbacks.blockingPop()(.success(element))
         case (let count, _) where count < capacity:
+            // 当还有值的时候, 是不需要 resume Block 的.
             sendBlocks.push(.init(element: element, resumeBlock: nil))
         default:
             try CoroutineStruct.await {
@@ -91,6 +93,8 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             defer { if count == 1, state == 1 { finish() } }
             return getValue()
         case (_, 0):
+            // 没了, 就将 Completion 存储到 receiveCallbacks 中, 也就是$0.
+            // $0 里面会有 resume 协程的逻辑.
             return try CoroutineStruct.await { receiveCallbacks.push($0) }.get()
         case (_, 1):
             throw CoChannelError.closed
@@ -135,7 +139,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     
     private func getValue() -> T {
         let block = sendBlocks.blockingPop()
-        block.resumeBlock?(nil)
+        block.resumeBlock?(nil) // Receiver 唤醒了 Sender.
         return block.element
     }
     

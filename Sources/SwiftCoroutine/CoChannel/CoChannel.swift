@@ -1,11 +1,3 @@
-//
-//  CoChannel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 02.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 /// Channel is a non-blocking primitive for communication between a sender and a receiver.
 /// Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty or on send if it is full.
 ///
@@ -55,7 +47,9 @@ public final class CoChannel<Element> {
         /// `awaitReceive()` suspends only when the buffer is empty.
         case conflated
     }
-    
+        
+    // 使用一个抽象数据类型, 然后在 init 方法里面, 进行真正的变化.
+    // 这种方式, 要比里面来一个 type 要好的多了.
     @usableFromInline internal let channel: _Channel<Element>
     
     /// Initializes a channel.
@@ -75,6 +69,7 @@ public final class CoChannel<Element> {
     
     /// Initializes a channel with `BufferType.buffered(capacity:)` .
     /// - Parameter capacity: The maximum number of elements that can be stored in a channel.
+    // 直接指定了最常用的 _BufferedChannel
     public init(capacity: Int) {
         channel = _BufferedChannel(capacity: capacity)
     }

@@ -43,7 +43,7 @@ internal final class SharedCoroutine {
     internal func resume() -> CompletionState {
         performAsCurrent {
             perfromRountineSwitch {
-                print("发生了协程的上下文恢复, 当前线程是 \(Thread.current)")
+                print("发生了协程的上下文恢复 \(self), 当前线程是 \(Thread.current)")
                 return queue.context.resume(from: suspenEnvironment.pointee.jumpBufferEnv)
             }
         }
@@ -81,7 +81,7 @@ internal final class SharedCoroutine {
             suspenEnvironment.initialize(to: .init())
         }
         // 将, 当前的协程运行信息, 存储到了 environment 中, 然后返回到其他的协程任务中.
-        print("发生了协程的上下文暂停, 当前线程是 \(Thread.current)")
+        print("发生了协程的上下文暂停 \(self), 当前线程是 \(Thread.current)")
         queue.context.suspend(to: suspenEnvironment)
     }
     
@@ -104,6 +104,13 @@ internal final class SharedCoroutine {
     deinit {
         suspenEnvironment?.pointee.jumpBufferEnv.deallocate()
         suspenEnvironment?.deallocate()
+    }
+    
+}
+
+extension SharedCoroutine: CustomStringConvertible {
+    var description: String {
+        return "\(ObjectIdentifier(self))"
     }
 }
 
@@ -134,6 +141,8 @@ extension SharedCoroutine: CoroutineProtocol {
         }
         // 这里的 suspend 操作, 会让整个函数的调用暂停.
         if state == .suspending { suspend() }
+        // 在 wait 的开始, 以及 resume 之后, 会有对于 cancel 的判断.
+        // 如果 cancel 了, 直接就是 throw.
         if isCanceled == 1 { throw CoroutineError.canceled }
         return result
     }
@@ -176,7 +185,7 @@ extension SharedCoroutine: CoroutineProtocol {
                 // 如果异步操作确实是异步的, 那么下方的 suspend 函数会被调用, 那么当前的状态就是 suspended.
                 // 那么需要进行协程的恢复处理.
                 if atomicCAS(&state, expected: .suspended, desired: .running) {
-                    // 修改完状态之后, 主动通知 queue 调度自己
+                    // 协程是否可以运行, 是要靠协程调度器才可以的.
                     return queue.resume(coroutine: self)
                 }
             default:

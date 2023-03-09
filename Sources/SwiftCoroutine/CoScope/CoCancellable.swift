@@ -17,6 +17,7 @@ public protocol CoCancellable: AnyObject {
     
 }
 
+// 这种, Protocl 是为了方便另外一个对象调用非常常见.
 extension CoCancellable {
     
     /// Adds weak referance of `self` to `CoScope`.

@@ -70,7 +70,7 @@ internal final class SharedCoroutineQueue {
          */
         
         // 这里的触发线程, 就是异步操作回调 completion 的触发线程. 
-        print("即将发生协程的上下文恢复, 当前线程是 \(Thread.current), 会使用 scheduler 进行调度")
+        print("即将发生协程的上下文恢复 \(coroutine), 当前线程是 \(Thread.current), 会使用 scheduler 进行调度")
         coroutine.scheduler.scheduleTask {
             self.reschedule(with: coroutine.resume())
         }

@@ -2,7 +2,7 @@ import Dispatch
 
 // ImmediateScheduler 真正的调度方面的实现, 就是直接调用.
 // 但是还有大量的逻辑, 是写在了 CoroutineScheduler 里面.
-// 再次强调了, 对于 swift 的 protocol 来说, 可以当做是一个抽象基类来进行看待. 
+// 再次强调了, 对于 swift 的 protocol 来说, 可以当做是一个抽象基类来进行看待.
 @usableFromInline internal struct ImmediateScheduler: CoroutineScheduler {
     
     @usableFromInline init() {}
@@ -33,6 +33,10 @@ public struct CoroutineStruct {
         currentPointer != nil
     }
     
+    /*
+     协程里面, 还是可以开启另外的一个协程的.
+     这里不像是 await task, 只是开启了一个任务, 当前协程不会等下一个协程结束的. 
+     */
     /// Starts a new coroutine.
     /// - Parameter task: The closure that will be executed inside coroutine.
     @inlinable public static func start(_ task: @escaping () throws -> Void) {

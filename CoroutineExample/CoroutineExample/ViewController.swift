@@ -147,7 +147,21 @@ class ViewController: UIViewController {
     }
     
     func btn_3_didClicked() {
-        print(#function)
+        DispatchQueue.global().startCoroutine {
+            print("3 Begin")
+            CoroutineStruct.start {
+                print("3 Inner Begin")
+                CoroutineStruct.start {
+                    print("3 Inner Inner Begin")
+                    try CoroutineStruct.delay(.seconds(1))
+                    print("3 Inner Inner End")
+                }
+                try CoroutineStruct.delay(.seconds(2))
+                print("3 Inner End")
+            }
+            print("3 End")
+        }
+
     }
     
     func btn_4_didClicked() {

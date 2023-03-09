@@ -39,6 +39,11 @@ public final class CoScope {
     /// Adds weak referance of `CoCancellable` to be canceled when the scope is being canceled or deinited.
     /// - Parameter item: `CoCancellable` to add.
     public func add(_ item: CoCancellable) {
+        // 好复杂.
+        // map 是 optional 的 map
+        // item.whenComplete 参数, 是一个闭包. 将 add 的返回值, 添加到 item.whenComplete 中去.
+        // 也就是说, 当 scope cancel 的时候, 调用 item 的 cancel
+        // 当 item complete 的时候, 将 item 从 scope 中移除.
         add { [weak item] in item?.cancel() }.map(item.whenComplete)
     }
     

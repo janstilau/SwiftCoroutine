@@ -139,6 +139,9 @@ extension CoFuture: _CoFutureCancellable {
     /// - Parameter task: The closure that will be executed inside the coroutine.
     @inlinable public convenience init(task: @escaping () throws -> Value) {
         self.init(_result: nil)
+        // Future 的 Task, 是在一个新的协程里面进行了
+        // 所以 Future 在进行 await 的时候, 是将调用了 await 的协程进行了暂停, 原本的协程还是可以进行调度.
+        // 只有原本的协程可以进行调度, future 的状态才可能发生改变.
         CoroutineStruct.start {
             if let current = try? CoroutineStruct.current() {
                 self.whenCanceled(current.cancel)
