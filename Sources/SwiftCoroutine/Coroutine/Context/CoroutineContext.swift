@@ -18,8 +18,8 @@ internal final class CoroutineContext {
     // 对于一个 SharedCoroutioneQueue 来说, 他们是共用一个 CoroutineContext 对象的
     internal let stackSize: Int
     private let stack: UnsafeMutableRawPointer
-    private let returnEnv: UnsafeMutableRawPointer
-    internal var businessBlock: (() -> Void)?
+    private let returnEnv: UnsafeMutableRawPointer // JumpBuffer 的地址.
+    internal var coroutineStartFunc: (() -> Void)? // 整个协程, 其实就是一个任务块而已. 当协程完毕之后, 其实就是协程关闭的时机了. 
     
     internal init(stackSize: Int) {
         self.stackSize = stackSize
@@ -52,21 +52,21 @@ internal final class CoroutineContext {
             let returnEnv_end = Unmanaged<CoroutineContext> .fromOpaque($0!).takeUnretainedValue().startRoutineBusinessBlock()
             // 在 businessBlock 的执行过程中, returnEnv 的值其实会多次变化的.
             // 所以需要在 businessBlock() 执行结束之后, 返回当前的最新值.
-            // 只有在这里, .finished 的值才会真正用作赋值操作. 
+            // 只有在这里, .finished 的值才会真正用作赋值操作.
             __longjmp(returnEnv_end,.finished)
         } == .finished
     }
     
     private func startRoutineBusinessBlock() -> UnsafeMutableRawPointer {
-        businessBlock?()
-        businessBlock = nil
+        coroutineStartFunc?()
+        coroutineStartFunc = nil
         return returnEnv
     }
     
     // MARK: - Operations
     
     internal struct SuspendData {
-        // JumpBuffer 的位置.
+        // JumpBuffer 的位置. 里面存储了运行环境. sp 则存储了栈的 end 位置. 
         let jumpBufferEnv: UnsafeMutableRawPointer
         // 简单来说，SP 寄存器用于跟踪当前程序运行时的堆栈位置。
         var sp: UnsafeMutableRawPointer!

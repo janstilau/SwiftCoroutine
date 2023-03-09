@@ -38,19 +38,19 @@ class ViewController: UIViewController {
     
     func btn_1_didClicked() {
         DispatchQueue.global().startCoroutine {
-            let (data, response, error) = try Coroutine.await { callback in
+            let (data, response, error) = try CoroutineStruct.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
-            let (data_1, response_1, error_1) = try Coroutine.await { callback in
+            let (data_1, response_1, error_1) = try CoroutineStruct.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
-            let (data_2, response_2, error_2) = try Coroutine.await { callback in
+            let (data_2, response_2, error_2) = try CoroutineStruct.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
-            let (data_3, response_3, error_3) = try Coroutine.await { callback in
+            let (data_3, response_3, error_3) = try CoroutineStruct.await { callback in
                 let url = URL.init(string: "https://www.baidu.com")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
@@ -127,7 +127,7 @@ class ViewController: UIViewController {
         DispatchQueue.global().startCoroutine {
             for i in 0..<100 {
                 //imitate some work
-                try Coroutine.delay(.seconds(1))
+                try CoroutineStruct.delay(.seconds(1))
                 //sends a value to the channel and suspends coroutine if its buffer is full
                 try channel.awaitSend(i)
             }

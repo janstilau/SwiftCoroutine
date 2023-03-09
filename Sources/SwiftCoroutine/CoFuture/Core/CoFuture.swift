@@ -139,8 +139,8 @@ extension CoFuture: _CoFutureCancellable {
     /// - Parameter task: The closure that will be executed inside the coroutine.
     @inlinable public convenience init(task: @escaping () throws -> Value) {
         self.init(_result: nil)
-        Coroutine.start {
-            if let current = try? Coroutine.current() {
+        CoroutineStruct.start {
+            if let current = try? CoroutineStruct.current() {
                 self.whenCanceled(current.cancel)
             }
             self.setResult(Result(catching: task))

@@ -1,5 +1,8 @@
 import Dispatch
 
+// ImmediateScheduler 真正的调度方面的实现, 就是直接调用.
+// 但是还有大量的逻辑, 是写在了 CoroutineScheduler 里面.
+// 再次强调了, 对于 swift 的 protocol 来说, 可以当做是一个抽象基类来进行看待. 
 @usableFromInline internal struct ImmediateScheduler: CoroutineScheduler {
     
     @usableFromInline init() {}
@@ -16,7 +19,7 @@ import Dispatch
 /// In -Ounchecked builds, where preconditions are not evaluated to avoid any crashes,
 /// a thread-blocking mechanism is used for waiting the result.
 ///
-public struct Coroutine {
+public struct CoroutineStruct {
     
     /// Returns `true` if this property is called inside a coroutine.
     /// ```
@@ -132,6 +135,45 @@ public struct Coroutine {
             timer.start()
             throw error
         }
+    }
+    
+}
+
+// 这就是一个工具类, current 返回的只是 SharedCoroutine.
+// 所以这个工具类里面, 都是静态方法. 
+extension CoroutineStruct {
+    
+    // 在刚开始, 是没有这个值的. 这个值只会在上面 performAsCurrent 中进行赋值.
+    @inlinable internal static var currentPointer: UnsafeMutableRawPointer? {
+        pthread_getspecific(.coroutine)
+    }
+    
+    @inlinable internal static func current() throws -> CoroutineProtocol {
+        if let pointer = currentPointer,
+           let coroutine = Unmanaged<AnyObject>.fromOpaque(pointer)
+            .takeUnretainedValue() as? CoroutineProtocol {
+            return coroutine
+        }
+        // 一定要在当前的 Thread 中进行 CoroutineProtocol 的赋值.
+        // 因为实际上, 协程是要进行自己调用环境的单独存储的, 如果没有打造这个环境, 是不应该进行协程的逻辑的触发的.
+        throw CoroutineError.calledOutsideCoroutine
+    }
+    
+}
+
+extension CoroutineStruct {
+    
+    @usableFromInline internal struct StackSize {
+        internal let size: Int
+    }
+}
+
+extension CoroutineStruct.StackSize {
+    
+    internal static let recommended = CoroutineStruct.StackSize(size: 192 * 1024)
+    
+    internal static func pages(_ number: Int) -> CoroutineStruct.StackSize {
+        .init(size: number * .pageSize)
     }
     
 }

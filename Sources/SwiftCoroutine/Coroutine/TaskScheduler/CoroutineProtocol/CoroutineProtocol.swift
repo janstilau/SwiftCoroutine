@@ -14,7 +14,7 @@ import Darwin
 
 @usableFromInline internal protocol CoroutineProtocol: AnyObject {
     
-    typealias StackSize = Coroutine.StackSize
+    typealias StackSize = CoroutineStruct.StackSize
     
     func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T
     
@@ -37,26 +37,6 @@ extension CoroutineProtocol {
         // 在 Block 的结束的时候, 其实会进行当前协程的回撤动作. 
         defer { pthread_setspecific(.coroutine, caller) }
         return block()
-    }
-    
-}
-
-extension Coroutine {
-    
-    // 在刚开始, 是没有这个值的. 这个值只会在上面 performAsCurrent 中进行赋值.
-    @inlinable internal static var currentPointer: UnsafeMutableRawPointer? {
-        pthread_getspecific(.coroutine)
-    }
-    
-    @inlinable internal static func current() throws -> CoroutineProtocol {
-        if let pointer = currentPointer,
-           let coroutine = Unmanaged<AnyObject>.fromOpaque(pointer)
-            .takeUnretainedValue() as? CoroutineProtocol {
-            return coroutine
-        }
-        // 一定要在当前的 Thread 中进行 CoroutineProtocol 的赋值.
-        // 因为实际上, 协程是要进行自己调用环境的单独存储的, 如果没有打造这个环境, 是不应该进行协程的逻辑的触发的. 
-        throw CoroutineError.calledOutsideCoroutine
     }
     
 }

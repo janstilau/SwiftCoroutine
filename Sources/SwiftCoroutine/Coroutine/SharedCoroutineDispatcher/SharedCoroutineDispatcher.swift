@@ -13,7 +13,7 @@
     private var queueWithRoutineQueue = FifoQueue<SharedCoroutineQueue>()
     private var queuesCount = 0
     
-    internal init(capacity: Int, stackSize: Coroutine.StackSize) {
+    internal init(capacity: Int, stackSize: CoroutineStruct.StackSize) {
         self.stackSize = stackSize.size
         self.queueCapacity = capacity
     }

@@ -70,7 +70,7 @@ extension CoroutineScheduler {
         guard let scope = scope else { return _startCoroutine { try? task() } }
         
         _startCoroutine { [weak scope] in
-            guard let coroutine = try? Coroutine.current(),
+            guard let coroutine = try? CoroutineStruct.current(),
                   let completion = scope?.add(coroutine.cancel) else { return }
             try? task()
             completion()
@@ -91,7 +91,7 @@ extension CoroutineScheduler {
     /// - Throws: Rethrows an error from the task or throws `CoroutineError`.
     /// - Returns: Returns the result of the task.
     @inlinable public func await<T>(_ task: () throws -> T) throws -> T {
-        try Coroutine.current().await(on: self, task: task)
+        try CoroutineStruct.current().await(on: self, task: task)
     }
     
     /// Starts a new coroutine and returns its future result.
@@ -118,7 +118,7 @@ extension CoroutineScheduler {
         // 和 Then 的实现很像.
         // 创建一个 Promise 对象, 这个 Promise 对象的状态改变, 放到了协程对象中. 
         _startCoroutine {
-            if let coroutine = try? Coroutine.current() {
+            if let coroutine = try? CoroutineStruct.current() {
                 // Promise 的 cancel 会触发整个协程的 cancel. 
                 promise.whenCanceled(coroutine.cancel)
             }
@@ -177,7 +177,7 @@ extension CoroutineScheduler {
     -> CoChannel<T>.Sender {
         let (receiver, sender) = CoChannel<T>(bufferType: bufferType).pair
         _startCoroutine {
-            if let coroutine = try? Coroutine.current() {
+            if let coroutine = try? CoroutineStruct.current() {
                 receiver.whenCanceled { [weak coroutine] in coroutine?.cancel() }
             }
             if receiver.isCanceled { return }
