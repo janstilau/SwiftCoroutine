@@ -1,10 +1,3 @@
-//
-//  CoChannelSender.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 07.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 extension CoChannel {
     
@@ -21,11 +14,12 @@ extension CoChannel {
         @inlinable public var bufferType: BufferType {
             channel.bufferType
         }
-        
     }
-    
 }
 
+/*
+ 各种操作, 都是放到了 Channel 里面, 实际的实现类, 其实是各种 Channel 对象. 
+ */
 extension CoChannel.Sender {
     
     /// Returns a number of elements in this channel.

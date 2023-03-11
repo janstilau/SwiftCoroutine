@@ -1,10 +1,17 @@
 
-// 这是一个链表 Stack.
+/*
+ 为什么一定要这种基础的数据结构呢.
+ 但是 Combine 里面, 都是自己定义的.
+ 
+ Array 的操作, 会引起复制???
+ Swfit 里面, 确实是没有链表这种数据结构 .
+ */
 internal struct CallbackStack<T> {
     
     private typealias Pointer = UnsafeMutablePointer<Node>
     
     private struct Node {
+        // T 的价值, 就体现在这里.
         let callback: (T) -> Void
         var next = 0
     }
@@ -53,7 +60,9 @@ internal struct CallbackStack<T> {
         var address = rawValue
         while address > 0, let pointer = Pointer(bitPattern: address) {
             address = pointer.pointee.next
+            // 在这里触发了真正的回调调用.
             pointer.pointee.callback(result)
+            // Deinit 必须调用, 不知道 Swfit 在里面的实现细节. 
             pointer.deinitialize(count: 1).deallocate()
         }
     }

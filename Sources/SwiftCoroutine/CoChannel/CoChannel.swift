@@ -8,18 +8,21 @@
 ///
 /// DispatchQueue.global().startCoroutine {
 ///    for i in 0..<100 {
+///    // 在这里生产数据, 然后发出, 如果在发出的过程中, 发现 Full 了, 就会停止当前的协程.
 ///        try channel.awaitSend(i)
 ///    }
 ///    channel.close()
 /// }
 ///
 /// DispatchQueue.global().startCoroutine {
+/// // 这里其实是 awaitReceive 的情况. 如果发现当前没有数据了, 就进行 await.
 ///     for i in channel.makeIterator() {
 ///         print("Receive", i)
 ///     }
 ///     print("Done")
 /// }
-/// ```
+///
+// 在两个协程里面, 进行wait 和 send.
 public final class CoChannel<Element> {
     
     /// `CoChannel` buffer type.
@@ -28,28 +31,35 @@ public final class CoChannel<Element> {
         ///
         /// An element is transferred from the sender to the receiver only when send and receive invocations meet in time,
         /// so `awaitSend(_:)` suspends until invokes receive, and `awaitReceive()` suspends until invokes send.
+        // 不会有缓存, 一个生成了, 一个消费.
         case none
         /// This channel have a buffer with the specified capacity.
         ///
         /// `awaitSend(_:)` suspends only when the buffer is full,
         /// and `awaitReceive()` suspends only when the buffer is empty.
+        // 会有缓存数据.
         case buffered(capacity: Int)
         /// This channel has a buffer with unlimited capacity.
         ///
         /// `awaitSend(_:)` to this channel never suspends, and offer always returns true.
         /// `awaitReceive()` suspends only when the buffer is empty.
+        // 会有缓存数据, 并且无限缓存. 就和 NSMutableArray 一样, 可以无限的进行扩容.
         case unlimited
+        // 会替换??? 只用最后一个, 所以其实没有 await send.
+        // 生产者永远不会陷入停滞的状态.
         /// This channel buffers at most one element and offer invocations,
         /// so that the receiver always gets the last element sent.
         ///
         /// Only the last sent element is received, while previously sent elements are lost.
         /// `awaitSend(_:)` to this channel never suspends, and offer always returns true.
         /// `awaitReceive()` suspends only when the buffer is empty.
+        // conflate 合并.
         case conflated
     }
         
-    // 使用一个抽象数据类型, 然后在 init 方法里面, 进行真正的变化.
-    // 这种方式, 要比里面来一个 type 要好的多了.
+    /*
+     这才是一个比较好的设计. 使用 Type 来进行内部抽象对象的构建工作, 而不是在内部, 使用 type 进行大量的 swiftch 判断.
+     */
     @usableFromInline internal let channel: _Channel<Element>
     
     /// Initializes a channel.
@@ -63,6 +73,9 @@ public final class CoChannel<Element> {
         case .unlimited:
             channel = _BufferedChannel(capacity: .max)
         case .none:
+            // None 就是没有缓存而已.
+            // 所以实际上, 大部分还是使用了 _BufferedChannel 这个内部的数据类型.
+            // 可以看到, 在通用的第三方库里面, 使用 _ 做前缀也是一个很常用的设计. 
             channel = _BufferedChannel(capacity: 0)
         }
     }
@@ -77,19 +90,11 @@ public final class CoChannel<Element> {
 }
 
 extension CoChannel {
-    
-    /// The type of channel buffer.
-    @inlinable public var bufferType: BufferType {
-        channel.bufferType
-    }
-    
-    /// Returns tuple of `Receiver` and `Sender`.
-    @inlinable public var pair: (receiver: Receiver, sender: Sender) {
-        (channel, sender)
-    }
-    
-    // MARK: - send
-    
+    /*
+     这是一个优秀的设计. 铁定是操作同一个对象, 不然怎么实现生产者和消费者之间的交互.
+     但是不能直接暴露这个对象给外界. 所以, 要使用一个代理对象将真正的 channel 藏起来.
+     暴露出去的代理对象, 就是 Sender 对象.
+     */
     /// A `CoChannel` wrapper that provides send-only functionality.
     @inlinable public var sender: Sender {
         Sender(channel: channel)
@@ -103,12 +108,14 @@ extension CoChannel {
         try channel.awaitSend(element)
     }
     
+    
     /// Adds the future's value to this channel when it will be available.
     /// - Parameter future: `CoFuture`'s value that will be sent to the channel.
     @inlinable public func sendFuture(_ future: CoFuture<Element>) {
         channel.sendFuture(future)
     }
     
+    // 这个是一个类似于 try 的设计
     /// Immediately adds the value to this channel, if this doesn’t violate its capacity restrictions, and returns true.
     /// Otherwise, just returns false.
     /// - Parameter element: Value that might be sent to the channel.
@@ -117,8 +124,9 @@ extension CoChannel {
         channel.offer(element)
     }
     
-    // MARK: - receive
-    
+}
+
+extension CoChannel {
     /// A `CoChannel` wrapper that provides receive-only functionality.
     @inlinable public var receiver: Receiver { channel }
     
@@ -137,6 +145,7 @@ extension CoChannel {
     
     /// Retrieves and removes an element from this channel.
     /// - Returns: Element from this channel if its not empty, or returns nill if the channel is empty or is closed or canceled.
+    // 这是一个类似于 poll 的设计.
     @inlinable public func poll() -> Element? {
         channel.poll()
     }
@@ -156,6 +165,21 @@ extension CoChannel {
     @inlinable public var isEmpty: Bool {
         channel.isEmpty
     }
+}
+
+extension CoChannel {
+    
+    /// The type of channel buffer.
+    @inlinable public var bufferType: BufferType {
+        channel.bufferType
+    }
+    
+    /// Returns tuple of `Receiver` and `Sender`.
+    @inlinable public var pair: (receiver: Receiver, sender: Sender) {
+        (channel, sender)
+    }
+    
+   
     
     // MARK: - map
     
@@ -163,6 +187,8 @@ extension CoChannel {
     /// - Parameter transform: A mapping closure.
     /// - returns: A `Receiver` with transformed values.
     @inlinable public func map<T>(_ transform: @escaping (Element) -> T) -> CoChannel<T>.Receiver {
+        // 就和 lazy, 或者 conbine 一样, 这种异步的 API, 只是将变形的逻辑, 存放到了一个盒子里面.
+        // 然后在这个盒子里面, 真正的数据, 产生后, 会先经过盒子. 
         channel.map(transform)
     }
     

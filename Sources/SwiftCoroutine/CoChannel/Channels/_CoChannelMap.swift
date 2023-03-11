@@ -1,16 +1,10 @@
-//
-//  _CoChannelMap.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 07.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 internal final class _CoChannelMap<Input, Output>: CoChannel<Output>.Receiver {
     
     private let receiver: CoChannel<Input>.Receiver
     private let transform: (Input) -> Output
     
+    // 一个中间的数据盒子.
+    // 所有的对于 Receiver 的实现, 都是交给了原本的 Receiver 对象. 自己仅仅是在数据传递的时候, 主动触发了 Transform 的逻辑 .
     internal init(receiver: CoChannel<Input>.Receiver, transform: @escaping (Input) -> Output) {
         self.receiver = receiver
         self.transform = transform

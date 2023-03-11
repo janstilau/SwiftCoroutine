@@ -1,11 +1,5 @@
-//
-//  _Channel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
+// 一个基类, 在里面定义了各种模板方法. 在子类里面, 定义各种模板方法的实际逻辑.
 @usableFromInline internal class _Channel<T>: CoChannel<T>.Receiver {
     
     private var completeBlocks = CallbackStack<CoChannelError?>()
@@ -21,7 +15,7 @@
     @usableFromInline internal func close() -> Bool { false }
     
     // MARK: - complete
-    
+    // 很多的第三方源码里面, 都习惯用 whenXXX 在进行收集的工作.
     internal final override func whenFinished(_ callback: @escaping (CoChannelError?) -> Void) {
         if !completeBlocks.append(callback) { callback(channelError) }
     }

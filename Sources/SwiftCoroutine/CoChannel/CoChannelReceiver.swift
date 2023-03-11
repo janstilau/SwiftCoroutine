@@ -1,14 +1,7 @@
-//
-//  CoChannelReceiver.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 04.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 extension CoChannel {
     
     /// A `CoChannel` wrapper that provides receive-only functionality.
+    // 这是一个抽象基类, 在 Channel 里面, 会进行真正的实现.
     public class Receiver {
         
         /// The type of channel buffer.
@@ -98,7 +91,10 @@ extension CoChannel.Receiver {
     /// then the coroutine will be suspended until a new element will be added to the channel or it will be closed or canceled.
     /// - Returns: Iterator for the channel elements.
     @inlinable public func makeIterator() -> AnyIterator<Element> {
-        // AnyIterator, 传入一个闭包, 每次 NEXT 的时候调用. 
-        AnyIterator { CoroutineStruct.isInsideCoroutine ? try? self.awaitReceive() : self.poll() }
+        // AnyIterator, 传入一个闭包, 每次 NEXT 的时候调用.
+        // 在每一次取值的时候, 如果当前在协程环境, 会触发等待的逻辑.
+        // 如果没有在协程环境, 会进行缓存的读取, 缓存读取完毕了, 就是真正的结束了. 
+        AnyIterator { CoroutineStruct.isInsideCoroutine ?
+            try? self.awaitReceive() : self.poll() }
     }
 }

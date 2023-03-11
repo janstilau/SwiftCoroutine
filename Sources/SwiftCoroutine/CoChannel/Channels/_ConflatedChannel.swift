@@ -1,10 +1,3 @@
-//
-//  _ConflatedChannel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 fileprivate struct Tag: OptionSet {
     let rawValue: Int

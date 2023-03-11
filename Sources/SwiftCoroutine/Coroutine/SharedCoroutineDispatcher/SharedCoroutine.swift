@@ -116,8 +116,7 @@ extension SharedCoroutine: CustomStringConvertible {
 
 extension SharedCoroutine: CoroutineProtocol {
     
-    // T 会是一个 Tuple.
-    // 这个函数会 throw, 主要是因为 cancel 机制的存在. 
+    // 这重要的一个函数. 因为这是协程, await, resume 实现的基础.
     internal func await<T>(_ asyncActionNeedCompletion: (@escaping (T) -> Void) -> Void) throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
         state = .suspending
@@ -164,6 +163,8 @@ extension SharedCoroutine: CoroutineProtocol {
         suspend()
     }
     
+    // 对于整个协程的 Cancel 来说, 它其实就是在协程唤醒的时候, 或者协程开启的时候, 抛出一个特定的错误, 来表示取消了.
+    // 根据 Swift 的设计, 其实 Throw 和 Return 没有太多的区别.
     internal func cancel() {
         // isCanceled 唯一的改变, 只是在这里.
         // 整个协程也会进行 cancel.

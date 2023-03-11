@@ -32,9 +32,14 @@ extension CoFuture {
         let timer = DispatchSource.makeTimerSource()
         timer.schedule(deadline: .now() + timeout)
         defer { timer.cancel() }
-        let result: Result<Value, Error> = try CoroutineStruct.current().await { callback in
-            self.addCallback(callback)
-            timer.setEventHandler { callback(.failure(CoFutureError.timeout)) }
+        let result: Result<Value, Error> = try CoroutineStruct.current().await { ResumeCallback in
+            /*
+             guard self.completionInvokeOnlyOnceTag == tag else { return }
+             之前在 ShareRoutine 里面, 还对于上面的逻辑感到奇怪.
+             下面两句话, 其实都会引起协程的唤醒操作. 这是正常的业务逻辑, 所以在 ShareRoutine 里面, 其实是有着只调用一次的判断的
+             */
+            self.addCallback(ResumeCallback)
+            timer.setEventHandler { ResumeCallback(.failure(CoFutureError.timeout)) }
             timer.start()
         }
         return try result.get()

@@ -137,6 +137,11 @@ extension CoFuture: _CoFutureCancellable {
     /// }
     /// ```
     /// - Parameter task: The closure that will be executed inside the coroutine.
+    /*
+     本来, Future 是和协程没有关系的.
+     我们可以生产一个 Future, 然后在协程里面进行 result 的设置.
+     这里是将 task 和生成协程的过程统一了. 
+     */
     @inlinable public convenience init(task: @escaping () throws -> Value) {
         self.init(_result: nil)
         // Future 的 Task, 是在一个新的协程里面进行了
@@ -164,6 +169,7 @@ extension CoFuture: _CoFutureCancellable {
     }
     
     @usableFromInline internal func setResult(_ result: _Result) {
+        // Result 的状态, 只能修改一次. 
         if atomicExchange(&resultState, with: 1) == 1 { return }
         _result = result
         parent = nil
