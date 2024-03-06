@@ -70,24 +70,18 @@
      :: "r"(stack), "r"(param), "r"(block)
  );
  */
-int __start(void* jumpBuffer, const void* routineStack, const void* param, const void (*routineStart)(const void*)) {
-    int n = _setjmp(jumpBuffer);
-    if (n) {
-        // n 不为 0, 则是跳转回来的操作.
-        return n;
-    }
-    
+int __start(void* ret, const void* stack, const void* param, const void (*block)(const void*)) {
+    int n = _setjmp(ret);
+    if (n) return n;
 #if defined(__x86_64__)
-    __asm__ ("movq %0, %%rsp" :: "g"(routineStack));
-    routineStart(param);
+    __asm__ ("movq %0, %%rsp" :: "g"(stack));
+    block(param);
 #elif defined(__arm64__)
     __asm__ (
              "mov sp, %0\n"
              "mov x0, %1\n"
              "blr %2" :: "r"(stack), "r"(param), "r"(block));
 #endif
-    // 这里的 return 没有意义, 只是为了编译正确.
-    // 上面的 __asm__ 其实已经完成了 _longjmp 的作用.
     return 0;
 }
 
