@@ -96,7 +96,7 @@ extension CoChannel {
     /// Must be called inside a coroutine.
     /// - Parameter element: Value that will be sent to the channel.
     /// - Throws: CoChannelError when canceled or closed.
-    // 这里用来产生值. 
+    // 这里用来产生值.
     @inlinable public func awaitSend(_ element: Element) throws {
         try channel.awaitSend(element)
     }

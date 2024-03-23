@@ -36,7 +36,8 @@ internal func atomicCAS(_ pointer: UnsafeMutablePointer<Int>, expected: Int, des
 
 @discardableResult @inlinable internal
 func atomicUpdate(_ pointer: UnsafeMutablePointer<Int>, transform: (Int) -> Int) -> (old: Int, new: Int) {
-    var oldValue = pointer.pointee, newValue: Int
+    var oldValue = pointer.pointee
+    var newValue: Int = -100
     repeat { newValue = transform(oldValue) }
         while __atomicCompareExchange(OpaquePointer(pointer), &oldValue, newValue) == 0
     return (oldValue, newValue)

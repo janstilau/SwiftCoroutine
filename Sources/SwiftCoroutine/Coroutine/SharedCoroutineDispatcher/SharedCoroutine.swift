@@ -20,6 +20,7 @@ internal final class SharedCoroutine {
     // 这里面, 存储了栈里面的数据
     private var stackBuffer: StackBuffer!
     
+    // isCanceled 在每次环境变化的时候使用了. 
     private var isCanceled = 0
     private var awaitTag = 0
     
