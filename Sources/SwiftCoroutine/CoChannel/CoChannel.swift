@@ -1,11 +1,3 @@
-//
-//  CoChannel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 02.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 /// Channel is a non-blocking primitive for communication between a sender and a receiver.
 /// Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty or on send if it is full.
 ///
@@ -104,6 +96,7 @@ extension CoChannel {
     /// Must be called inside a coroutine.
     /// - Parameter element: Value that will be sent to the channel.
     /// - Throws: CoChannelError when canceled or closed.
+    // 这里用来产生值. 
     @inlinable public func awaitSend(_ element: Element) throws {
         try channel.awaitSend(element)
     }

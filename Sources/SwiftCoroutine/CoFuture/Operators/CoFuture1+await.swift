@@ -1,11 +1,3 @@
-//
-//  CoFuture3+await.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 31.12.2019.
-//  Copyright © 2019 Alex Belozierov. All rights reserved.
-//
-
 import Dispatch
 
 extension CoFuture {
@@ -25,6 +17,7 @@ extension CoFuture {
     /// - Throws: The failed result of the `CoFuture`.
     /// - Returns: The value of the `CoFuture` when it is completed.
     @inlinable public func await() throws -> Value {
+        // get() 是 Result 的一个函数.
         try (result ?? CoroutineSpace.current().await(addCallback)).get()
     }
     

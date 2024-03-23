@@ -1,11 +1,3 @@
-//
-//  URLSession+CoFuture.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 14.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
@@ -38,6 +30,8 @@ extension URLSession {
             }
         }
         task.resume()
+        
+        // 这里是关键, 如果 promise cancel 了, 要引起原有功能模块的取消. 
         promise.whenCanceled(task.cancel)
         return promise
     }

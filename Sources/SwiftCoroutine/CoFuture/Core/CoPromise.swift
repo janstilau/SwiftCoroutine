@@ -1,16 +1,10 @@
-//
-//  CoPromise.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.02.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 /// A promise to provide a result later.
 ///
 /// `CoPromise` is a subclass of `CoFuture` that allows to deliver the result.
 /// You can set the result to `CoPromise` only once, other attempts will be ignored.
 ///
+
 public final class CoPromise<Value>: CoFuture<Value> {}
 
 extension CoPromise {
@@ -34,8 +28,8 @@ extension CoPromise {
         setResult(.failure(error))
     }
     
+    // 两个 future 之间, 进行了链接. 
     @inlinable public func complete(with future: CoFuture<Value>) {
         future.addCallback(setResult)
     }
-    
 }

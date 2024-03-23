@@ -114,7 +114,7 @@ extension CoroutineScheduler {
         _startCoroutine { [weak scope] in
             guard let coroutine = try? CoroutineSpace.current(),
                 let completion = scope?.add(coroutine.cancel) else { return }
-            // 前面可以认为是在准备环境.
+            // 这里直接就是 try?, 所以抛出错误没有什么问题. 
             try? task()
             completion()
         }

@@ -11,7 +11,6 @@ import Darwin
     func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T
     func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T) throws -> T
     func cancel()
-    
 }
 
 extension CoroutineProtocol {

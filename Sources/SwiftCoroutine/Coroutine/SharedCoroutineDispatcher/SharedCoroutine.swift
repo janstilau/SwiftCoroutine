@@ -50,6 +50,7 @@ internal final class SharedCoroutine {
         while true {
             switch state {
             case .suspending:
+                // 只有在这里, 将状态改写到了 suspended
                 if atomicCAS(&state, expected: .suspending, desired: .suspended) {
                     return .suspended
                 }
@@ -111,8 +112,14 @@ extension SharedCoroutine: CoroutineProtocol {
         let tag = awaitTag
         var result: T!
         // 这里, asyncAction 强引用了 routine 对象了.
+        /*
+         asyncAction 是一个异步函数, 在他的 Complete 的时候, 应该做点什么.
+         这里就是, 应该唤起停止的协程.
+         */
         asyncAction { value in
             while true {
+                // 在 future 的 timeout 那里, 我们看到了这里的价值
+                // 这里的闭包, 可能会触发好几次. 
                 guard self.awaitTag == tag else { return }
                 if atomicCAS(&self.awaitTag, expected: tag, desired: tag + 1) { break }
             }
@@ -126,7 +133,8 @@ extension SharedCoroutine: CoroutineProtocol {
         return result
     }
     
-    internal func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T) throws -> T {
+    internal func await<T>(on scheduler: CoroutineScheduler, 
+                           task: () throws -> T) throws -> T {
         if isCanceled == 1 { throw CoroutineError.canceled }
         let currentScheduler = self.scheduler
         setScheduler(scheduler)
@@ -144,6 +152,7 @@ extension SharedCoroutine: CoroutineProtocol {
     
     internal func cancel() {
         // 修改状态, 然后重新调度. 
+        // 里面都没有使用锁, 而是使用了原子函数. 
         atomicStore(&isCanceled, value: 1)
         resumeIfSuspended()
     }
@@ -158,6 +167,7 @@ extension SharedCoroutine: CoroutineProtocol {
                     return queue.resume(coroutine: self)
                 }
             default:
+                // 如果现在正在运行,根本就直接返回. 
                 return
             }
         }

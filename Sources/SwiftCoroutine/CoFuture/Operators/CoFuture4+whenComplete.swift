@@ -6,6 +6,7 @@
 //  Copyright © 2020 Alex Belozierov. All rights reserved.
 //
 
+// 用 when, 还是用 on 都是比较好的赋值语句. 
 extension CoFuture {
     
     // MARK: - whenComplete
@@ -36,6 +37,7 @@ extension CoFuture {
     /// - Parameter callback: The callback that is called when the `CoFuture` is canceled.
     @inlinable public func whenCanceled(_ callback: @escaping () -> Void) {
         addCallback { result in
+            // 如果是特殊的 error, 那么就触发里面的回调. 
             if case .failure(let error as CoFutureError) = result,
                 error == .canceled { callback() }
         }

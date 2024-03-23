@@ -47,6 +47,7 @@ internal struct CallbackStack<T> {
     }
     
     @inlinable internal mutating func close() -> Self? {
+        // 
         let old = atomicExchange(&rawValue, with: -1)
         return old > 0 ? CallbackStack(rawValue: old) : nil
     }

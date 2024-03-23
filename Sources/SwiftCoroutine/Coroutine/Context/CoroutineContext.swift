@@ -50,6 +50,7 @@ internal final class CoroutineContext {
             __longjmp(Unmanaged<CoroutineContext>
                 .fromOpaque($0!)
                 .takeUnretainedValue()
+                      // 只有 协程所携带的任务, 完整的做完之后, 才会是 finished
                 .performBlock(), .finished)
         } == .finished
     }

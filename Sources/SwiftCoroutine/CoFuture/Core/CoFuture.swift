@@ -1,15 +1,5 @@
-//
-//  CoFuture2.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 26.01.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 private protocol _CoFutureCancellable: AnyObject {
-
     func cancel()
-    
 }
 
 /// Holder for a result that will be provided later.
@@ -78,13 +68,80 @@ private protocol _CoFutureCancellable: AnyObject {
 ///     let data: Data = try future.await()
 /// }
 /// ```
+
+/// 一个稍后提供结果的结果持有者。
 ///
+/// `CoFuture` 及其子类 `CoPromise` 是实现 Future/Promise 方法的工具。
+/// 它们允许启动异步任务，并立即返回带有未来结果的 `CoFuture`。
+/// 可以通过 `whenComplete()` 回调或在协程内部使用 `await()` 来观察到可用的结果，而不会阻塞线程。
+///
+/// ```
+/// func makeFutureOne(args) -> CoFuture<Response> {
+///     let promise = CoPromise<Response>()
+///     someAsyncFuncWithCallback { response in
+///         . . . 进行一些工作 . . .
+///         promise.success(response)
+///     }
+///     return promise
+/// }
+///
+/// func makeFutureTwo(args) -> CoFuture<Response> {
+///     queue.coroutineFuture {
+///         let future = makeFutureOne(args)
+///         . . . 进行一些工作 . . .
+///         let response = try future.await()
+///         . . . 使用响应创建结果 . . .
+///         return result
+///     }
+///  }
+///
+/// func performSomeWork(args) {
+///     let future = makeFutureTwo(args)
+///     mainQueue.startCoroutine {
+///         . . . 进行一些工作 . . .
+///         let result = try future.await()
+///         . . . 使用结果进行一些工作 . . .
+///     }
+/// }
+/// ```
+///
+/// 对于协程错误处理，可以使用标准的 `do-catch` 语句，也可以使用 `CoFuture` 作为替代方法。
+///
+/// ```
+/// //执行协程并返回 CoFuture<Void>，我们将用它进行错误处理
+/// DispatchQueue.main.coroutineFuture {
+///     let result = try makeSomeFuture().await()
+///     . . . 使用结果 . . .
+/// }.whenFailure { error in
+///     . . . 处理错误 . . .
+/// }
+/// ```
+///
+/// Apple 引入了一个新的响应式编程框架 `Combine`，它使编写异步代码更容易，并包含许多方便和常见的功能。
+/// 我们可以通过将 `CoFuture` 作为订阅者来使用它，并等待其结果。
+///
+/// ```
+/// //创建 Combine 发布者
+/// let publisher = URLSession.shared.dataTaskPublisher(for: url).map(\.data)
+///
+/// //在主线程上执行协程
+/// DispatchQueue.main.startCoroutine {
+///     //将 CoFuture 订阅到发布者
+///     let future = publisher.subscribeCoFuture()
+///
+///     //在不阻塞线程的情况下等待数据
+///     let data: Data = try future.await()
+/// }
+/// ```
+
 public class CoFuture<Value> {
     
+    // 可能发生错误, 所以, 直接里面的 _result 是 Result类型的.
     @usableFromInline internal typealias _Result = Result<Value, Error>
     
     private var resultState: Int
     private var nodes: CallbackStack<_Result>
+    // 没有结果, 和发生错误是两回事.
     private var _result: Optional<_Result>
     private unowned(unsafe) var parent: _CoFutureCancellable?
     
@@ -102,9 +159,9 @@ public class CoFuture<Value> {
     
     deinit {
         if nodes.isEmpty { return }
+        // 如果, Future 没有触发 result 的确定, 就认为是取消了. 
         nodes.finish(with: .failure(CoFutureError.canceled))
     }
-    
 }
 
 extension CoFuture: _CoFutureCancellable {
@@ -160,6 +217,7 @@ extension CoFuture: _CoFutureCancellable {
     }
     
     @usableFromInline internal func setResult(_ result: _Result) {
+        // 返回 1, 就是原来就有值了.
         if atomicExchange(&resultState, with: 1) == 1 { return }
         _result = result
         parent = nil
@@ -184,6 +242,7 @@ extension CoFuture: _CoFutureCancellable {
     
     /// Cancels the current future.
     public func cancel() {
+        // parent 唯一的作用就是这里, 当自己取消的时候, 触发父节点的取消.
         parent?.cancel() ?? setResult(.failure(CoFutureError.canceled))
     }
     

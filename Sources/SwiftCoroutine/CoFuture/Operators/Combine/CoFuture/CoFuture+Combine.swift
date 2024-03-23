@@ -1,11 +1,3 @@
-//
-//  CoFuture+Combine.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 15.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 #if canImport(Combine)
 import Combine
 

@@ -69,6 +69,7 @@ internal final class SharedCoroutineQueue {
             coroutine = nil
             performNext(for: dispatcher)
         case .suspended:
+            // 如果当前暂停了, 会开启下一个协程任务.
             performNext(for: coroutine.dispatcher)
         case .restarting:
             // restart 的时候, 应该在哪个线程开启任务.

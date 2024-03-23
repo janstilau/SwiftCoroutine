@@ -9,6 +9,7 @@
 #if canImport(Combine)
 import Combine
 
+// 这是一个头, 所以它不用再去当 receiver 了. 
 @available(OSX 10.15, iOS 13.0, *)
 internal final class CoFutureSubscription<S: Subscriber, T>: Subscription where S.Input == T, S.Failure == Error {
     
