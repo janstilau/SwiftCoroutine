@@ -35,7 +35,7 @@ internal final class SharedCoroutine {
     }
     
     private func resumeContext() -> CompletionState {
-        perform { queue.context.resume(from: environment.pointee.stackTop) }
+        perform { queue.context.resume(from: environment.pointee.jmpBuf) }
     }
     
     private func perform(_ block: () -> Bool) -> CompletionState {
@@ -84,7 +84,7 @@ internal final class SharedCoroutine {
     }
     
     deinit {
-        environment?.pointee.stackTop.deallocate()
+        environment?.pointee.jmpBuf.deallocate()
         environment?.deallocate()
     }
     

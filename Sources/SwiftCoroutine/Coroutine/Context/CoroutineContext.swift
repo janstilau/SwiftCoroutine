@@ -64,7 +64,7 @@ internal final class CoroutineContext {
     // MARK: - Operations
     
     internal struct SuspendData {
-        let stackTop: UnsafeMutableRawPointer
+        let jmpBuf: UnsafeMutableRawPointer
         var sp: UnsafeMutableRawPointer!
     }
     
@@ -73,7 +73,7 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __suspend(data.pointee.stackTop, &data.pointee.sp, returnEnv, .suspended)
+        __suspend(data.pointee.jmpBuf, &data.pointee.sp, returnEnv, .suspended)
     }
     
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
@@ -100,7 +100,7 @@ extension Int32 {
 extension CoroutineContext.SuspendData {
     
     internal init() {
-        self = .init(stackTop: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
+        self = .init(jmpBuf: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
     }
     
 }
