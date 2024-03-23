@@ -39,8 +39,18 @@
  routineContext 作为函数的参数.
  调用 block 这个函数. 
  */
-int __start(void* ret, const void* routineStack, const void* routineContext, const void (*block)(const void*)) {
-    int n = _setjmp(ret);
+
+/*
+ _JBLEN 是用于保存以下内容所需的整数数量：
+ r21-r29，sp，fp，lr == 12 个寄存器，每个寄存器占用 8 个字节。d8-d15
+ 是另外 8 个寄存器，每个寄存器占用 8 个字节。 （aapcs64 规定只需保存 FP 寄存器的 64 位版本）。
+ 最后，还需要两个用于信号处理目的的 8 字节字段。
+ 
+ #define _JBLEN        ((14 + 8 + 2) * 2)
+ typedef int jmp_buf[_JBLEN];
+ */
+int __start(void* saveEnv, const void* routineStack, const void* routineContext, const void (*routineAction)(const void*)) {
+    int n = _setjmp(saveEnv);
     // 如果 n 不为 0, 就是从 longjump 跳转回来的.
     // 如果是 0, 那么就是在启动协程.
     if (n) return n;
@@ -61,7 +71,7 @@ int __start(void* ret, const void* routineStack, const void* routineContext, con
     __asm__ (
              "mov sp, %0\n"
              "mov x0, %1\n"
-             "blr %2" :: "r"(routineStack), "r"(routineContext), "r"(block));
+             "blr %2" :: "r"(routineStack), "r"(routineContext), "r"(routineAction));
 #endif
     return 0;
 }

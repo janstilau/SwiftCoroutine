@@ -8,9 +8,14 @@ import Glibc
 import Darwin
 #endif
 
+/*
+ 一个 Queue, 使用一个 CoroutineContext.
+ */
 internal final class CoroutineContext {
     
     internal let haveGuardPage: Bool
+    
+    
     // 栈大小.
     internal let stackSize: Int
     // 开辟的栈地址.
@@ -68,8 +73,8 @@ internal final class CoroutineContext {
         var stackTop: UnsafeMutableRawPointer!
     }
     
-    @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
-        __resume(env, returnEnv, .suspended) == .finished
+    @inlinable internal func resume(from resumeJmpBuffer: UnsafeMutableRawPointer) -> Bool {
+        __resume(resumeJmpBuffer, returnEnv, .suspended) == .finished
     }
     
     // SuspendData 中的 sp 在这里确定出来的.
@@ -77,6 +82,7 @@ internal final class CoroutineContext {
      将当前任务的jumpBuf, 栈顶指针 存储到 SuspendData 中.
      然后跳转回目前存储的 returnEnv 中. 
      */
+    // 只有在这里, 才确定了 stackTop 的值.
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
         __suspend(data.pointee.jmpBuf, &data.pointee.stackTop, returnEnv, .suspended)
     }

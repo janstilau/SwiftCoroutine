@@ -112,7 +112,7 @@ extension CoroutineScheduler {
     public func startCoroutine(in scope: CoScope? = nil, task: @escaping () throws -> Void) {
         guard let scope = scope else { return _startCoroutine { try? task() } }
         _startCoroutine { [weak scope] in
-            guard let coroutine = try? Coroutine.current(),
+            guard let coroutine = try? CoroutineSpace.current(),
                 let completion = scope?.add(coroutine.cancel) else { return }
             // 前面可以认为是在准备环境.
             try? task()
@@ -134,7 +134,7 @@ extension CoroutineScheduler {
     /// - Throws: Rethrows an error from the task or throws `CoroutineError`.
     /// - Returns: Returns the result of the task.
     @inlinable public func await<T>(_ task: () throws -> T) throws -> T {
-        try Coroutine.current().await(on: self, task: task)
+        try CoroutineSpace.current().await(on: self, task: task)
     }
     
     /// Starts a new coroutine and returns its future result.
@@ -158,7 +158,7 @@ extension CoroutineScheduler {
     @inlinable public func coroutineFuture<T>(_ task: @escaping () throws -> T) -> CoFuture<T> {
         let promise = CoPromise<T>()
         _startCoroutine {
-            if let coroutine = try? Coroutine.current() {
+            if let coroutine = try? CoroutineSpace.current() {
                 promise.whenCanceled(coroutine.cancel)
             }
             if promise.isCanceled { return }
@@ -214,7 +214,7 @@ extension CoroutineScheduler {
         -> CoChannel<T>.Sender {
             let (receiver, sender) = CoChannel<T>(bufferType: bufferType).pair
             _startCoroutine {
-                if let coroutine = try? Coroutine.current() {
+                if let coroutine = try? CoroutineSpace.current() {
                     receiver.whenCanceled { [weak coroutine] in coroutine?.cancel() }
                 }
                 if receiver.isCanceled { return }

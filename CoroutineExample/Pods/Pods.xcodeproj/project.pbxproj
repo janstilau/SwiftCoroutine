@@ -30,7 +30,7 @@
 		77C9ECA1E63AF7DF5ABEACEB0120CFCC /* CCoroutine.h in Headers */ = {isa = PBXBuildFile; fileRef = AA7906D7A60EDA1AC3B88614393A7CC1 /* CCoroutine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8323A71B049DCDBCF440E1273E657D32 /* CoroutineError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFE2E692B77B9646A0CFFBF87CF1AA5 /* CoroutineError.swift */; };
 		8339DB3AA64E50B922B04BEAA554981F /* SharedCoroutine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 962A4A38465E59EAB75E75934779EB30 /* SharedCoroutine.swift */; };
-		83A2BE558CBBA9BFD452F8051A1AFA0F /* Coroutine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B9265ECEB414D7C57E292AEC80B488 /* Coroutine.swift */; };
+		83A2BE558CBBA9BFD452F8051A1AFA0F /* CoroutineSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B9265ECEB414D7C57E292AEC80B488 /* CoroutineSpace.swift */; };
 		84C66F39F79F77CC73F2FBFF45D88615 /* Coroutine+StackSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32479023D0F9ED5E53BEF7629B72ED15 /* Coroutine+StackSize.swift */; };
 		8B2A350F7DC149D2EAA86456A23EFE91 /* _Channel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE429C21E25233DEC914473E51E85F /* _Channel.swift */; };
 		8D496BD1B8EDB975DC11C1032B089318 /* AtomicInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3AA7DC14331A0770E2D4024FA5FCC0 /* AtomicInt.swift */; };
@@ -75,187 +75,187 @@
 /* Begin PBXFileReference section */
 		035608C8283659AB371256506EB38BD6 /* CoFuturePublisher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoFuturePublisher.swift; sourceTree = "<group>"; };
 		04232406A6263008F426AB0A520766B0 /* CoFutureSubscription.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoFutureSubscription.swift; sourceTree = "<group>"; };
-		04BBB6C8C5D465B21104F1096EFC1B6E /* jazzy.js */ = {isa = PBXFileReference; includeInIndex = 1; name = jazzy.js; path = docs/js/jazzy.js; sourceTree = "<group>"; };
-		052B935DD04B06F89F2C2DA184737F56 /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
-		06D10957874F6AEF2A6CD2D8CEE2D70D /* AtomicInt.html */ = {isa = PBXFileReference; includeInIndex = 1; name = AtomicInt.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/AtomicInt.html; sourceTree = "<group>"; };
-		0B73D472EE2CC3C205883B42B8749ED5 /* CCoroutine.c */ = {isa = PBXFileReference; includeInIndex = 1; path = CCoroutine.c; sourceTree = "<group>"; };
+		04BBB6C8C5D465B21104F1096EFC1B6E /* jazzy.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = jazzy.js; path = docs/js/jazzy.js; sourceTree = "<group>"; };
+		052B935DD04B06F89F2C2DA184737F56 /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoroutineError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
+		06D10957874F6AEF2A6CD2D8CEE2D70D /* AtomicInt.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = AtomicInt.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/AtomicInt.html; sourceTree = "<group>"; };
+		0B73D472EE2CC3C205883B42B8749ED5 /* CCoroutine.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; path = CCoroutine.c; sourceTree = "<group>"; };
 		0B81C02A0A9BDF905C286BF94ED2EF11 /* URLSession+CoFuture.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "URLSession+CoFuture.swift"; sourceTree = "<group>"; };
-		0BCC4CC1CA3CB3EE93D967DDF3BC2C83 /* jquery.min.js */ = {isa = PBXFileReference; includeInIndex = 1; name = jquery.min.js; path = docs/js/jquery.min.js; sourceTree = "<group>"; };
-		1023DE9C08E8108F23113CC260B1050C /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; name = TaskScheduler.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/TaskScheduler.html; sourceTree = "<group>"; };
-		115BA11C4C87F5B5D17F27B5CE3FFF8E /* undocumented.json */ = {isa = PBXFileReference; includeInIndex = 1; name = undocumented.json; path = docs/undocumented.json; sourceTree = "<group>"; };
-		12B5AF849A6754ADE297E6D35C2D15DA /* CoCancellable.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoCancellable.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/CoCancellable.html; sourceTree = "<group>"; };
-		12B8F0800D3FE27A795B61D0451344A9 /* DispatchSpecificKey.html */ = {isa = PBXFileReference; includeInIndex = 1; name = DispatchSpecificKey.html; path = docs/Extensions/DispatchSpecificKey.html; sourceTree = "<group>"; };
+		0BCC4CC1CA3CB3EE93D967DDF3BC2C83 /* jquery.min.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = jquery.min.js; path = docs/js/jquery.min.js; sourceTree = "<group>"; };
+		1023DE9C08E8108F23113CC260B1050C /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = TaskScheduler.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/TaskScheduler.html; sourceTree = "<group>"; };
+		115BA11C4C87F5B5D17F27B5CE3FFF8E /* undocumented.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = undocumented.json; path = docs/undocumented.json; sourceTree = "<group>"; };
+		12B5AF849A6754ADE297E6D35C2D15DA /* CoCancellable.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoCancellable.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/CoCancellable.html; sourceTree = "<group>"; };
+		12B8F0800D3FE27A795B61D0451344A9 /* DispatchSpecificKey.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = DispatchSpecificKey.html; path = docs/Extensions/DispatchSpecificKey.html; sourceTree = "<group>"; };
 		132160A24AB5EB635B03CC92ECD916DE /* CallbackStack.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CallbackStack.swift; sourceTree = "<group>"; };
-		14EC7C6FDBB8D1B28F748BFF0539133E /* jazzy.css */ = {isa = PBXFileReference; includeInIndex = 1; name = jazzy.css; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/css/jazzy.css; sourceTree = "<group>"; };
+		14EC7C6FDBB8D1B28F748BFF0539133E /* jazzy.css */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.css; name = jazzy.css; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/css/jazzy.css; sourceTree = "<group>"; };
 		159F8CEFC9E3E2C9A83C53801C86E9A9 /* QueueNodeEraser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QueueNodeEraser.swift; sourceTree = "<group>"; };
 		165584E9B1B33A44A14D5D940B252E71 /* CoChannel+Combine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoChannel+Combine.swift"; sourceTree = "<group>"; };
 		183F63F45EF77D4EDC66B021AA8DEC5E /* CoroutineContext.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoroutineContext.swift; sourceTree = "<group>"; };
 		18FE429C21E25233DEC914473E51E85F /* _Channel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = _Channel.swift; sourceTree = "<group>"; };
-		1AFA856E02875D69E083A7C4F105AFC3 /* typeahead.jquery.js */ = {isa = PBXFileReference; includeInIndex = 1; name = typeahead.jquery.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/typeahead.jquery.js; sourceTree = "<group>"; };
+		1AFA856E02875D69E083A7C4F105AFC3 /* typeahead.jquery.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = typeahead.jquery.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/typeahead.jquery.js; sourceTree = "<group>"; };
 		1C6C4A7EE60D18469B5B892E2965BB97 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = docs/docsets/SwiftCoroutine.docset/Contents/Info.plist; sourceTree = "<group>"; };
-		1FF783E3557F8FD3599575BC03441193 /* lunr.min.js */ = {isa = PBXFileReference; includeInIndex = 1; name = lunr.min.js; path = docs/js/lunr.min.js; sourceTree = "<group>"; };
+		1FF783E3557F8FD3599575BC03441193 /* lunr.min.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = lunr.min.js; path = docs/js/lunr.min.js; sourceTree = "<group>"; };
 		207ABCC2D23D8E469C481D41E975D220 /* CoFuture+Combine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoFuture+Combine.swift"; sourceTree = "<group>"; };
 		21FC2690BF2E6672CCE5DC344A70C97E /* CoFuture2+map.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoFuture2+map.swift"; sourceTree = "<group>"; };
-		2312DC792E47847B6B9471B169123DF8 /* CoChannel.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoChannel.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel.html; sourceTree = "<group>"; };
-		2394FA108C6588C81FDF9D7D3FA2C5C9 /* CoFutureError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoFutureError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoFutureError.html; sourceTree = "<group>"; };
-		23B45659937A2192806D4DDF99618EF9 /* TaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; name = TaskExecutor.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/TaskExecutor.html; sourceTree = "<group>"; };
+		2312DC792E47847B6B9471B169123DF8 /* CoChannel.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoChannel.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel.html; sourceTree = "<group>"; };
+		2394FA108C6588C81FDF9D7D3FA2C5C9 /* CoFutureError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoFutureError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoFutureError.html; sourceTree = "<group>"; };
+		23B45659937A2192806D4DDF99618EF9 /* TaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = TaskExecutor.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/TaskExecutor.html; sourceTree = "<group>"; };
 		24238C25D6718B7FA2E634F9F7B923C6 /* spinner.gif */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.gif; name = spinner.gif; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/img/spinner.gif; sourceTree = "<group>"; };
-		2439B28358C8CA36DCE78F180A52B5EB /* CoFutureError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoFutureError.html; path = docs/Enums/CoFutureError.html; sourceTree = "<group>"; };
+		2439B28358C8CA36DCE78F180A52B5EB /* CoFutureError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoFutureError.html; path = docs/Enums/CoFutureError.html; sourceTree = "<group>"; };
 		25D8F2778DBC5F96F8E2824F418EC526 /* Pods-CoroutineExample-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-CoroutineExample-dummy.m"; sourceTree = "<group>"; };
 		270F0964352D77266A04E876AD37161F /* Pods-CoroutineExample.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-CoroutineExample.modulemap"; sourceTree = "<group>"; };
-		2A01AF85D4567D5110E05FBAF1E098F7 /* SwiftCoroutine.tgz */ = {isa = PBXFileReference; includeInIndex = 1; name = SwiftCoroutine.tgz; path = docs/docsets/SwiftCoroutine.tgz; sourceTree = "<group>"; };
+		2A01AF85D4567D5110E05FBAF1E098F7 /* SwiftCoroutine.tgz */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = SwiftCoroutine.tgz; path = docs/docsets/SwiftCoroutine.tgz; sourceTree = "<group>"; };
 		2BD65347255870F2E6F42546E9D32704 /* DispatchSourceTimer+extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "DispatchSourceTimer+extensions.swift"; sourceTree = "<group>"; };
-		2C0B52873F7E7AD945F82311648EF053 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Coroutine.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine.html; sourceTree = "<group>"; };
-		2D6D239446BE3229F708A71946791D2F /* CoFutureCancelPolicy.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoFutureCancelPolicy.html; path = docs/Enums/CoFutureCancelPolicy.html; sourceTree = "<group>"; };
+		2C0B52873F7E7AD945F82311648EF053 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Coroutine.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine.html; sourceTree = "<group>"; };
+		2D6D239446BE3229F708A71946791D2F /* CoFutureCancelPolicy.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoFutureCancelPolicy.html; path = docs/Enums/CoFutureCancelPolicy.html; sourceTree = "<group>"; };
 		2E7DF3F02C89FFEFE1C67D0F728D100A /* Pods-CoroutineExample-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-CoroutineExample-Info.plist"; sourceTree = "<group>"; };
-		2EA4D33D5D851219A89B99AF82BCC1E4 /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; name = TaskScheduler.html; path = docs/Protocols/TaskScheduler.html; sourceTree = "<group>"; };
-		2EC85D85CF53687CE315474743952655 /* Protocols.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Protocols.html; path = docs/Protocols.html; sourceTree = "<group>"; };
+		2EA4D33D5D851219A89B99AF82BCC1E4 /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = TaskScheduler.html; path = docs/Protocols/TaskScheduler.html; sourceTree = "<group>"; };
+		2EC85D85CF53687CE315474743952655 /* Protocols.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Protocols.html; path = docs/Protocols.html; sourceTree = "<group>"; };
 		2ED2C1F57B48DAC0D3F9EE049BD4BFF4 /* SwiftCoroutine.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftCoroutine.release.xcconfig; sourceTree = "<group>"; };
 		2EFE7FF553BA5CA8811086A04C81C643 /* gh.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = gh.png; path = docs/img/gh.png; sourceTree = "<group>"; };
-		306F09CD9666F8583AF534060DFA5F2C /* Structs.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Structs.html; path = docs/Structs.html; sourceTree = "<group>"; };
-		317DFCFB5C86B5089BA9FF422A3C7667 /* Receiver.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Receiver.html; path = docs/Classes/CoChannel/Receiver.html; sourceTree = "<group>"; };
+		306F09CD9666F8583AF534060DFA5F2C /* Structs.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Structs.html; path = docs/Structs.html; sourceTree = "<group>"; };
+		317DFCFB5C86B5089BA9FF422A3C7667 /* Receiver.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Receiver.html; path = docs/Classes/CoChannel/Receiver.html; sourceTree = "<group>"; };
 		32479023D0F9ED5E53BEF7629B72ED15 /* Coroutine+StackSize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Coroutine+StackSize.swift"; sourceTree = "<group>"; };
 		33181CCC7A64F636428D50EB605A12F4 /* dash.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = dash.png; path = docs/img/dash.png; sourceTree = "<group>"; };
-		34102E9E2572223EDB5DA717686E68E6 /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoPromise.html; path = docs/Classes/CoPromise.html; sourceTree = "<group>"; };
+		34102E9E2572223EDB5DA717686E68E6 /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoPromise.html; path = docs/Classes/CoPromise.html; sourceTree = "<group>"; };
 		343A20C4BB1DF61264659DA2EDE6EDAA /* CoScope.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoScope.swift; sourceTree = "<group>"; };
-		34F5B90EF80A0493A59671F311940086 /* SwiftCoroutine.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = SwiftCoroutine.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		34F5B90EF80A0493A59671F311940086 /* SwiftCoroutine.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = SwiftCoroutine.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		385B8611C092A5A7AC6498A5B393F0FF /* _CoChannelMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = _CoChannelMap.swift; sourceTree = "<group>"; };
-		39620A6B462277B0FF13671FC36A4BE1 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Coroutine.html; path = docs/Structs/Coroutine.html; sourceTree = "<group>"; };
-		39A07E5C145DC9A4332CC7C61172B2E3 /* search.json */ = {isa = PBXFileReference; includeInIndex = 1; name = search.json; path = docs/search.json; sourceTree = "<group>"; };
-		3AA50E094CE33A49398B66F7D635595C /* CoChannel.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoChannel.html; path = docs/Classes/CoChannel.html; sourceTree = "<group>"; };
-		3B08D3426318A071149F6A7499722B18 /* Sender.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Sender.html; path = docs/Classes/CoChannel/Sender.html; sourceTree = "<group>"; };
-		3B12B171D5F798A25CFCF7A244E7EFE4 /* Receiver.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Receiver.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel/Receiver.html; sourceTree = "<group>"; };
+		39620A6B462277B0FF13671FC36A4BE1 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Coroutine.html; path = docs/Structs/Coroutine.html; sourceTree = "<group>"; };
+		39A07E5C145DC9A4332CC7C61172B2E3 /* search.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = search.json; path = docs/search.json; sourceTree = "<group>"; };
+		3AA50E094CE33A49398B66F7D635595C /* CoChannel.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoChannel.html; path = docs/Classes/CoChannel.html; sourceTree = "<group>"; };
+		3B08D3426318A071149F6A7499722B18 /* Sender.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Sender.html; path = docs/Classes/CoChannel/Sender.html; sourceTree = "<group>"; };
+		3B12B171D5F798A25CFCF7A244E7EFE4 /* Receiver.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Receiver.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel/Receiver.html; sourceTree = "<group>"; };
 		3CF59C8C54A58E0F6089E6B0225F40C6 /* CoChannelSubscription.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoChannelSubscription.swift; sourceTree = "<group>"; };
-		3D6772F14EF438B90E2A23EF55188B71 /* Enums.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Enums.html; path = docs/Enums.html; sourceTree = "<group>"; };
-		3F580A3FC76B43647CF5E2E2E9A46DB1 /* Publisher.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Publisher.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/Publisher.html; sourceTree = "<group>"; };
+		3D6772F14EF438B90E2A23EF55188B71 /* Enums.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Enums.html; path = docs/Enums.html; sourceTree = "<group>"; };
+		3F580A3FC76B43647CF5E2E2E9A46DB1 /* Publisher.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Publisher.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/Publisher.html; sourceTree = "<group>"; };
 		3FD54AEFDA7198C3D6B8661EC7B8282B /* Pods-CoroutineExample-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-CoroutineExample-frameworks.sh"; sourceTree = "<group>"; };
-		3FE54B49284E45E8F9D638E40B1CAB9E /* jazzy.css */ = {isa = PBXFileReference; includeInIndex = 1; name = jazzy.css; path = docs/css/jazzy.css; sourceTree = "<group>"; };
+		3FE54B49284E45E8F9D638E40B1CAB9E /* jazzy.css */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.css; name = jazzy.css; path = docs/css/jazzy.css; sourceTree = "<group>"; };
 		40112B2CA3D10979174DA6BEB7F3028F /* _ConflatedChannel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = _ConflatedChannel.swift; sourceTree = "<group>"; };
-		42B7E9D340542AAE75FDC440F4AA7C9B /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineError.html; path = docs/Structs/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
+		42B7E9D340542AAE75FDC440F4AA7C9B /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoroutineError.html; path = docs/Structs/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
 		44F710FAD0F7023534CCB39A09A2DF8A /* _BufferedChannel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = _BufferedChannel.swift; sourceTree = "<group>"; };
-		458FB99A8B65F99F6504D657051399A8 /* Protocols.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Protocols.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols.html; sourceTree = "<group>"; };
+		458FB99A8B65F99F6504D657051399A8 /* Protocols.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Protocols.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols.html; sourceTree = "<group>"; };
 		4636326696BC0D1A1B105DCC3890D1B9 /* FifoQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FifoQueue.swift; sourceTree = "<group>"; };
 		488B6893162ED0972EF4042FB85F4D58 /* CoPromise.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoPromise.swift; sourceTree = "<group>"; };
-		4C8664F1765CF60523AC45EAAF5C4833 /* search.json */ = {isa = PBXFileReference; includeInIndex = 1; name = search.json; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/search.json; sourceTree = "<group>"; };
-		4DF746AFB0CB0CB22373636349080A94 /* CoroutineTaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineTaskExecutor.html; path = docs/Structs/CoroutineTaskExecutor.html; sourceTree = "<group>"; };
-		4E7E4B6D4C766ED37E03D53CE0D96DD5 /* CoAwaitable.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoAwaitable.html; path = docs/Protocols/CoAwaitable.html; sourceTree = "<group>"; };
-		504A59AD1017D2621DF49F43115DF463 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
-		552B7C71F625979883B0D36EA1E2FC36 /* CoFutureCancelPolicy.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoFutureCancelPolicy.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoFutureCancelPolicy.html; sourceTree = "<group>"; };
-		55432DDD85D6377B970F5AFEDE6B67B1 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; name = State.html; path = docs/Classes/Coroutine/State.html; sourceTree = "<group>"; };
-		56672A200DCAF8ED0E62A8BAC82C89DB /* URLSession.html */ = {isa = PBXFileReference; includeInIndex = 1; name = URLSession.html; path = docs/Extensions/URLSession.html; sourceTree = "<group>"; };
+		4C8664F1765CF60523AC45EAAF5C4833 /* search.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = search.json; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/search.json; sourceTree = "<group>"; };
+		4DF746AFB0CB0CB22373636349080A94 /* CoroutineTaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoroutineTaskExecutor.html; path = docs/Structs/CoroutineTaskExecutor.html; sourceTree = "<group>"; };
+		4E7E4B6D4C766ED37E03D53CE0D96DD5 /* CoAwaitable.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoAwaitable.html; path = docs/Protocols/CoAwaitable.html; sourceTree = "<group>"; };
+		504A59AD1017D2621DF49F43115DF463 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		552B7C71F625979883B0D36EA1E2FC36 /* CoFutureCancelPolicy.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoFutureCancelPolicy.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoFutureCancelPolicy.html; sourceTree = "<group>"; };
+		55432DDD85D6377B970F5AFEDE6B67B1 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = State.html; path = docs/Classes/Coroutine/State.html; sourceTree = "<group>"; };
+		56672A200DCAF8ED0E62A8BAC82C89DB /* URLSession.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = URLSession.html; path = docs/Extensions/URLSession.html; sourceTree = "<group>"; };
 		57792878972E04D308751D58C3F312C0 /* spinner.gif */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.gif; name = spinner.gif; path = docs/img/spinner.gif; sourceTree = "<group>"; };
 		5875BF9F4F8EDC1B0265CD912CA1014D /* CoFuture4+whenComplete.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoFuture4+whenComplete.swift"; sourceTree = "<group>"; };
-		5A033F865AB7451D70F3CEDA81FC04DD /* DispatchQueue.html */ = {isa = PBXFileReference; includeInIndex = 1; name = DispatchQueue.html; path = docs/Extensions/DispatchQueue.html; sourceTree = "<group>"; };
-		5D733A59503CCF7E07CCCED56FEF61FE /* Extensions.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Extensions.html; path = docs/Extensions.html; sourceTree = "<group>"; };
-		605CA1C5396350E6C271B3649F773847 /* CoCancellable.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoCancellable.html; path = docs/Protocols/CoCancellable.html; sourceTree = "<group>"; };
-		62CD067986642F462E404DFFD2912843 /* TaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; name = TaskExecutor.html; path = docs/Protocols/TaskExecutor.html; sourceTree = "<group>"; };
+		5A033F865AB7451D70F3CEDA81FC04DD /* DispatchQueue.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = DispatchQueue.html; path = docs/Extensions/DispatchQueue.html; sourceTree = "<group>"; };
+		5D733A59503CCF7E07CCCED56FEF61FE /* Extensions.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Extensions.html; path = docs/Extensions.html; sourceTree = "<group>"; };
+		605CA1C5396350E6C271B3649F773847 /* CoCancellable.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoCancellable.html; path = docs/Protocols/CoCancellable.html; sourceTree = "<group>"; };
+		62CD067986642F462E404DFFD2912843 /* TaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = TaskExecutor.html; path = docs/Protocols/TaskExecutor.html; sourceTree = "<group>"; };
 		65398BF0ADB63E9061CF66D1826D3C19 /* SwiftCoroutine-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftCoroutine-umbrella.h"; sourceTree = "<group>"; };
 		65BF72ADCC2474DD66F24F536581EF66 /* CoChannelReceiver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoChannelReceiver.swift; sourceTree = "<group>"; };
-		6A21876A6AEF23A14E07B568C75EEC27 /* Enums.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Enums.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums.html; sourceTree = "<group>"; };
-		6D14DBB0E446071095DCC947AF437B8D /* Classes.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Classes.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes.html; sourceTree = "<group>"; };
-		6D1FADB63E757374580B33A44B9528E1 /* CoScope.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoScope.html; path = docs/Classes/CoScope.html; sourceTree = "<group>"; };
-		6F5DC8BDF2969E0E41BC1F62540E38C9 /* highlight.css */ = {isa = PBXFileReference; includeInIndex = 1; name = highlight.css; path = docs/css/highlight.css; sourceTree = "<group>"; };
-		71B81E11E7C27E7E62C71C011D9A35CE /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; name = TaskScheduler.html; path = docs/Structs/TaskScheduler.html; sourceTree = "<group>"; };
+		6A21876A6AEF23A14E07B568C75EEC27 /* Enums.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Enums.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums.html; sourceTree = "<group>"; };
+		6D14DBB0E446071095DCC947AF437B8D /* Classes.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Classes.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes.html; sourceTree = "<group>"; };
+		6D1FADB63E757374580B33A44B9528E1 /* CoScope.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoScope.html; path = docs/Classes/CoScope.html; sourceTree = "<group>"; };
+		6F5DC8BDF2969E0E41BC1F62540E38C9 /* highlight.css */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.css; name = highlight.css; path = docs/css/highlight.css; sourceTree = "<group>"; };
+		71B81E11E7C27E7E62C71C011D9A35CE /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = TaskScheduler.html; path = docs/Structs/TaskScheduler.html; sourceTree = "<group>"; };
 		73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		74D11D94D933D5FE29BC69455E94680B /* CoFutureError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoFutureError.swift; sourceTree = "<group>"; };
 		7B29858E55D7FB5B469B8790BA4BB3FE /* CoFuture3+flatMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoFuture3+flatMap.swift"; sourceTree = "<group>"; };
-		8016B05EBC539CF20C008E71D3A041AA /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoroutineError.html; sourceTree = "<group>"; };
+		8016B05EBC539CF20C008E71D3A041AA /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoroutineError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoroutineError.html; sourceTree = "<group>"; };
 		82E619A838B02A039BE651A4F04A9662 /* SwiftCoroutine-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "SwiftCoroutine-Info.plist"; sourceTree = "<group>"; };
-		833D42991CFD3443CF965E6A61EF65B5 /* Classes.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Classes.html; path = docs/Classes.html; sourceTree = "<group>"; };
-		8412D06CEC6271EE5C8466D81B92EEB0 /* CoAwaitable.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoAwaitable.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/CoAwaitable.html; sourceTree = "<group>"; };
+		833D42991CFD3443CF965E6A61EF65B5 /* Classes.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Classes.html; path = docs/Classes.html; sourceTree = "<group>"; };
+		8412D06CEC6271EE5C8466D81B92EEB0 /* CoAwaitable.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoAwaitable.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/CoAwaitable.html; sourceTree = "<group>"; };
 		85635FF7A52CF43ED20E9236359045F1 /* Pods-CoroutineExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-CoroutineExample.debug.xcconfig"; sourceTree = "<group>"; };
-		86570798F2B54746537D5D4B46307947 /* Publisher.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Publisher.html; path = docs/Extensions/Publisher.html; sourceTree = "<group>"; };
-		865E6E83A1D199D65196AFFB509E92A8 /* DispatchSource.html */ = {isa = PBXFileReference; includeInIndex = 1; name = DispatchSource.html; path = docs/Extensions/DispatchSource.html; sourceTree = "<group>"; };
-		871DAC27D235DC0BEEFBC7ECC7C023C2 /* AtomicIntRepresentable.html */ = {isa = PBXFileReference; includeInIndex = 1; name = AtomicIntRepresentable.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/AtomicIntRepresentable.html; sourceTree = "<group>"; };
+		86570798F2B54746537D5D4B46307947 /* Publisher.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Publisher.html; path = docs/Extensions/Publisher.html; sourceTree = "<group>"; };
+		865E6E83A1D199D65196AFFB509E92A8 /* DispatchSource.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = DispatchSource.html; path = docs/Extensions/DispatchSource.html; sourceTree = "<group>"; };
+		871DAC27D235DC0BEEFBC7ECC7C023C2 /* AtomicIntRepresentable.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = AtomicIntRepresentable.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/AtomicIntRepresentable.html; sourceTree = "<group>"; };
 		8724C71D1ED04944052DDD07C9341952 /* dash.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = dash.png; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/img/dash.png; sourceTree = "<group>"; };
 		8980F6324B8A35CB9092FCDBE863F84F /* Constants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		89AF6D071308F4581C5B2AB455B56801 /* CoroutineTaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineTaskExecutor.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/CoroutineTaskExecutor.html; sourceTree = "<group>"; };
+		89AF6D071308F4581C5B2AB455B56801 /* CoroutineTaskExecutor.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoroutineTaskExecutor.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/CoroutineTaskExecutor.html; sourceTree = "<group>"; };
 		8E1D0B881DCE979905C77495E456D8F1 /* Pods-CoroutineExample-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-CoroutineExample-acknowledgements.plist"; sourceTree = "<group>"; };
-		8FEDC1EF7FF28FF6A933A332D36CAFC9 /* BufferType.html */ = {isa = PBXFileReference; includeInIndex = 1; name = BufferType.html; path = docs/Classes/CoChannel/BufferType.html; sourceTree = "<group>"; };
+		8FEDC1EF7FF28FF6A933A332D36CAFC9 /* BufferType.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = BufferType.html; path = docs/Classes/CoChannel/BufferType.html; sourceTree = "<group>"; };
 		904CA2CEF1EEFB1A8B9F989656B247BC /* AtomicTuple.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AtomicTuple.swift; sourceTree = "<group>"; };
-		916A06F6EAD0C4295E215DE1805DFE64 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; name = StackSize.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine/StackSize.html; sourceTree = "<group>"; };
+		916A06F6EAD0C4295E215DE1805DFE64 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = StackSize.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine/StackSize.html; sourceTree = "<group>"; };
 		91B46D7CF32FAA9D7EA8116B0E50C48A /* CoChannelPublisher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoChannelPublisher.swift; sourceTree = "<group>"; };
-		93B9265ECEB414D7C57E292AEC80B488 /* Coroutine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Coroutine.swift; sourceTree = "<group>"; };
-		94622CDF2BC55351ABB1499094F4A277 /* index.html */ = {isa = PBXFileReference; includeInIndex = 1; name = index.html; path = docs/index.html; sourceTree = "<group>"; };
+		93B9265ECEB414D7C57E292AEC80B488 /* CoroutineSpace.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoroutineSpace.swift; sourceTree = "<group>"; };
+		94622CDF2BC55351ABB1499094F4A277 /* index.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = index.html; path = docs/index.html; sourceTree = "<group>"; };
 		962A4A38465E59EAB75E75934779EB30 /* SharedCoroutine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedCoroutine.swift; sourceTree = "<group>"; };
-		965450F51B117A9929879BD22DC27B56 /* typeahead.jquery.js */ = {isa = PBXFileReference; includeInIndex = 1; name = typeahead.jquery.js; path = docs/js/typeahead.jquery.js; sourceTree = "<group>"; };
+		965450F51B117A9929879BD22DC27B56 /* typeahead.jquery.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = typeahead.jquery.js; path = docs/js/typeahead.jquery.js; sourceTree = "<group>"; };
 		96A401546E955454097591FFCC9FC62C /* CoChannelError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoChannelError.swift; sourceTree = "<group>"; };
 		998E11F0364D0C271862548B250AF9AE /* SharedCoroutineDispatcher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedCoroutineDispatcher.swift; sourceTree = "<group>"; };
-		99F75CBE49064A3784D50F253E35AE63 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Coroutine.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine.html; sourceTree = "<group>"; };
-		9A4252466D27D64AFBA07AFF770E4BEE /* CoroutineDispatcher.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineDispatcher.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/CoroutineDispatcher.html; sourceTree = "<group>"; };
-		9BE1A72FB19B5297FF97C893F52BE327 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; name = StackSize.html; path = docs/Classes/Coroutine/StackSize.html; sourceTree = "<group>"; };
+		99F75CBE49064A3784D50F253E35AE63 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Coroutine.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine.html; sourceTree = "<group>"; };
+		9A4252466D27D64AFBA07AFF770E4BEE /* CoroutineDispatcher.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoroutineDispatcher.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/CoroutineDispatcher.html; sourceTree = "<group>"; };
+		9BE1A72FB19B5297FF97C893F52BE327 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = StackSize.html; path = docs/Classes/Coroutine/StackSize.html; sourceTree = "<group>"; };
 		9CFE2E692B77B9646A0CFFBF87CF1AA5 /* CoroutineError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoroutineError.swift; sourceTree = "<group>"; };
-		9D81915B3A718ECC85BAD4EFA300C3F3 /* jquery.min.js */ = {isa = PBXFileReference; includeInIndex = 1; name = jquery.min.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/jquery.min.js; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		A0FD77C2A885D43CF5B51D5B855577A8 /* jazzy.js */ = {isa = PBXFileReference; includeInIndex = 1; name = jazzy.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/jazzy.js; sourceTree = "<group>"; };
-		A13B68DAD052ADFB71188D5FC4FDA788 /* badge.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = badge.svg; path = docs/badge.svg; sourceTree = "<group>"; };
+		9D81915B3A718ECC85BAD4EFA300C3F3 /* jquery.min.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = jquery.min.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/jquery.min.js; sourceTree = "<group>"; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		A0FD77C2A885D43CF5B51D5B855577A8 /* jazzy.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = jazzy.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/jazzy.js; sourceTree = "<group>"; };
+		A13B68DAD052ADFB71188D5FC4FDA788 /* badge.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = badge.svg; path = docs/badge.svg; sourceTree = "<group>"; };
 		A2EDFA0719602E749C608963EAA79BE8 /* Pods-CoroutineExample-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-CoroutineExample-umbrella.h"; sourceTree = "<group>"; };
-		A55996759E3B1EDC8219F952DE06DC9E /* CoroutineScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineScheduler.html; path = docs/Protocols/CoroutineScheduler.html; sourceTree = "<group>"; };
+		A55996759E3B1EDC8219F952DE06DC9E /* CoroutineScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoroutineScheduler.html; path = docs/Protocols/CoroutineScheduler.html; sourceTree = "<group>"; };
 		AA7906D7A60EDA1AC3B88614393A7CC1 /* CCoroutine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CCoroutine.h; sourceTree = "<group>"; };
 		ACAF76380B91367F4B6ABD4B9B21AC1E /* SwiftCoroutine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SwiftCoroutine.h; path = Sources/SwiftCoroutine.h; sourceTree = "<group>"; };
-		AD7F2FCE64DEE24437AC6480A75D664A /* DispatchSpecificKey.html */ = {isa = PBXFileReference; includeInIndex = 1; name = DispatchSpecificKey.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/DispatchSpecificKey.html; sourceTree = "<group>"; };
-		ADB4DBC57C73143532716E3395BE058D /* AtomicIntRepresentable.html */ = {isa = PBXFileReference; includeInIndex = 1; name = AtomicIntRepresentable.html; path = docs/Structs/AtomicIntRepresentable.html; sourceTree = "<group>"; };
+		AD7F2FCE64DEE24437AC6480A75D664A /* DispatchSpecificKey.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = DispatchSpecificKey.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/DispatchSpecificKey.html; sourceTree = "<group>"; };
+		ADB4DBC57C73143532716E3395BE058D /* AtomicIntRepresentable.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = AtomicIntRepresentable.html; path = docs/Structs/AtomicIntRepresentable.html; sourceTree = "<group>"; };
 		ADD8465B1D6ACCB8F65F898DA28380CD /* CoFuture5+hashable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoFuture5+hashable.swift"; sourceTree = "<group>"; };
-		B28E124872969B8F0C734E4D43DAAB87 /* undocumented.json */ = {isa = PBXFileReference; includeInIndex = 1; name = undocumented.json; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/undocumented.json; sourceTree = "<group>"; };
-		B34C9F528527D11A60FA03B4BA4B6105 /* LICENCE */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENCE; sourceTree = "<group>"; };
-		B4AAAE0354393FE783E8DD3EC30BAB3B /* CoroutineScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineScheduler.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/CoroutineScheduler.html; sourceTree = "<group>"; };
-		B5C003F1BBDE76CEAB30B1308CDF63DB /* AtomicInt.html */ = {isa = PBXFileReference; includeInIndex = 1; name = AtomicInt.html; path = docs/Structs/AtomicInt.html; sourceTree = "<group>"; };
+		B28E124872969B8F0C734E4D43DAAB87 /* undocumented.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = undocumented.json; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/undocumented.json; sourceTree = "<group>"; };
+		B34C9F528527D11A60FA03B4BA4B6105 /* LICENCE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENCE; sourceTree = "<group>"; };
+		B4AAAE0354393FE783E8DD3EC30BAB3B /* CoroutineScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoroutineScheduler.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Protocols/CoroutineScheduler.html; sourceTree = "<group>"; };
+		B5C003F1BBDE76CEAB30B1308CDF63DB /* AtomicInt.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = AtomicInt.html; path = docs/Structs/AtomicInt.html; sourceTree = "<group>"; };
 		B85DF380784DA95E558B57C91E6E2883 /* CoFuture.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoFuture.swift; sourceTree = "<group>"; };
 		B90323ECC28A2BEB2FA8F8484AADD3A0 /* carat.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = carat.png; path = docs/img/carat.png; sourceTree = "<group>"; };
-		B93F0280394713A39FCA75A8E3109298 /* Int.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Int.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/Int.html; sourceTree = "<group>"; };
+		B93F0280394713A39FCA75A8E3109298 /* Int.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Int.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/Int.html; sourceTree = "<group>"; };
 		BAC68C5A300948871FC54C54C4E0A2B6 /* SwiftCoroutine-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SwiftCoroutine-prefix.pch"; sourceTree = "<group>"; };
-		BC28488058C3080592051BDB7C2EF37B /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoPromise.html; path = docs/Structs/CoPromise.html; sourceTree = "<group>"; };
+		BC28488058C3080592051BDB7C2EF37B /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoPromise.html; path = docs/Structs/CoPromise.html; sourceTree = "<group>"; };
 		BC8543B4D5387323B6724FEE54BC4DDF /* SwiftCoroutine.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SwiftCoroutine.modulemap; sourceTree = "<group>"; };
-		BD20A3B0D8BF6FDE8911D6D520F0A24C /* Structs.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Structs.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs.html; sourceTree = "<group>"; };
+		BD20A3B0D8BF6FDE8911D6D520F0A24C /* Structs.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Structs.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs.html; sourceTree = "<group>"; };
 		BE43E725C81E55D4D972765717608EC8 /* Pods-CoroutineExample-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-CoroutineExample-acknowledgements.markdown"; sourceTree = "<group>"; };
-		BFE8F5BFB6057D45EAD4395676A3CD68 /* docSet.dsidx */ = {isa = PBXFileReference; includeInIndex = 1; name = docSet.dsidx; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/docSet.dsidx; sourceTree = "<group>"; };
+		BFE8F5BFB6057D45EAD4395676A3CD68 /* docSet.dsidx */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; name = docSet.dsidx; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/docSet.dsidx; sourceTree = "<group>"; };
 		C16170C3030F10BA26F580F9E443FE70 /* SwiftCoroutine */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = SwiftCoroutine; path = SwiftCoroutine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C1A0124F915EACF9EFA592E6F5562F46 /* Int.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Int.html; path = docs/Extensions/Int.html; sourceTree = "<group>"; };
-		C3BFC08E91928097B959DDA87777D7D6 /* BufferType.html */ = {isa = PBXFileReference; includeInIndex = 1; name = BufferType.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel/BufferType.html; sourceTree = "<group>"; };
-		C46876F65ECC67AEE42933FC722493BF /* DispatchSource.html */ = {isa = PBXFileReference; includeInIndex = 1; name = DispatchSource.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/DispatchSource.html; sourceTree = "<group>"; };
+		C1A0124F915EACF9EFA592E6F5562F46 /* Int.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Int.html; path = docs/Extensions/Int.html; sourceTree = "<group>"; };
+		C3BFC08E91928097B959DDA87777D7D6 /* BufferType.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = BufferType.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel/BufferType.html; sourceTree = "<group>"; };
+		C46876F65ECC67AEE42933FC722493BF /* DispatchSource.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = DispatchSource.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/DispatchSource.html; sourceTree = "<group>"; };
 		C5DC84FB1434C766088F3505CC06AE56 /* CoFuture1+await.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoFuture1+await.swift"; sourceTree = "<group>"; };
-		C831D05E36BF709CFF6B474E319D23C5 /* CoChannelError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoChannelError.html; path = docs/Enums/CoChannelError.html; sourceTree = "<group>"; };
-		C9F40128B58C477F4EC119980694CC55 /* Sender.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Sender.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel/Sender.html; sourceTree = "<group>"; };
-		CA294FF758F76B2E053EA0F7D69D3ED0 /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoPromise.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoPromise.html; sourceTree = "<group>"; };
-		CB5020A5A2CED976073E4A03507931F1 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; name = StackSize.html; path = docs/Structs/Coroutine/StackSize.html; sourceTree = "<group>"; };
+		C831D05E36BF709CFF6B474E319D23C5 /* CoChannelError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoChannelError.html; path = docs/Enums/CoChannelError.html; sourceTree = "<group>"; };
+		C9F40128B58C477F4EC119980694CC55 /* Sender.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Sender.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoChannel/Sender.html; sourceTree = "<group>"; };
+		CA294FF758F76B2E053EA0F7D69D3ED0 /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoPromise.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoPromise.html; sourceTree = "<group>"; };
+		CB5020A5A2CED976073E4A03507931F1 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = StackSize.html; path = docs/Structs/Coroutine/StackSize.html; sourceTree = "<group>"; };
 		CD11A42A8B0F1A896266177327E004F1 /* CoChannelSender.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoChannelSender.swift; sourceTree = "<group>"; };
-		CD691399909AEFB0E9C873EBECEFCEBA /* lunr.min.js */ = {isa = PBXFileReference; includeInIndex = 1; name = lunr.min.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/lunr.min.js; sourceTree = "<group>"; };
-		CE167AB0486976F9969B5C389D4D224B /* CoroutineDispatcher.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineDispatcher.html; path = docs/Structs/CoroutineDispatcher.html; sourceTree = "<group>"; };
+		CD691399909AEFB0E9C873EBECEFCEBA /* lunr.min.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = lunr.min.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/lunr.min.js; sourceTree = "<group>"; };
+		CE167AB0486976F9969B5C389D4D224B /* CoroutineDispatcher.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoroutineDispatcher.html; path = docs/Structs/CoroutineDispatcher.html; sourceTree = "<group>"; };
 		CF3AA7DC14331A0770E2D4024FA5FCC0 /* AtomicInt.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AtomicInt.swift; sourceTree = "<group>"; };
 		D0F68B7BACF2A28DC6460CD6BE882D25 /* CoChannel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoChannel.swift; sourceTree = "<group>"; };
-		D4FDED6834CA828957DCDCEE997419E3 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; name = State.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine/State.html; sourceTree = "<group>"; };
-		D5E7E1F702FE07F16934B0BC9635AFD0 /* index.html */ = {isa = PBXFileReference; includeInIndex = 1; name = index.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/index.html; sourceTree = "<group>"; };
-		D6026F155494E1DB3F8460C5F41F1BDD /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
+		D4FDED6834CA828957DCDCEE997419E3 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = State.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine/State.html; sourceTree = "<group>"; };
+		D5E7E1F702FE07F16934B0BC9635AFD0 /* index.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = index.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/index.html; sourceTree = "<group>"; };
+		D6026F155494E1DB3F8460C5F41F1BDD /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoroutineError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
 		D64533E8E7D9B26344F41196973EC05C /* Pods-CoroutineExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-CoroutineExample.release.xcconfig"; sourceTree = "<group>"; };
-		D71887577A320BD7CEDF8F9212E50FAF /* CoFuture.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoFuture.html; path = docs/Classes/CoFuture.html; sourceTree = "<group>"; };
+		D71887577A320BD7CEDF8F9212E50FAF /* CoFuture.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoFuture.html; path = docs/Classes/CoFuture.html; sourceTree = "<group>"; };
 		D7B98D299FACA8F4D652B11B0CC8B572 /* CoCancellable.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoCancellable.swift; sourceTree = "<group>"; };
-		D83975D4573BC32E5BE00B87D4785975 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; name = StackSize.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine/StackSize.html; sourceTree = "<group>"; };
-		DA0D9E039EF7A558B4F8E9C5723987A4 /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoPromise.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/CoPromise.html; sourceTree = "<group>"; };
-		DB0D4B34323CF3BA937FD36812ACEB16 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; name = State.html; path = docs/Structs/Coroutine/State.html; sourceTree = "<group>"; };
+		D83975D4573BC32E5BE00B87D4785975 /* StackSize.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = StackSize.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/Coroutine/StackSize.html; sourceTree = "<group>"; };
+		DA0D9E039EF7A558B4F8E9C5723987A4 /* CoPromise.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoPromise.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/CoPromise.html; sourceTree = "<group>"; };
+		DB0D4B34323CF3BA937FD36812ACEB16 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = State.html; path = docs/Structs/Coroutine/State.html; sourceTree = "<group>"; };
 		DF297D68443C5420AB8AA81276C81304 /* carat.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = carat.png; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/img/carat.png; sourceTree = "<group>"; };
 		DF836EB3F33877500C6674A13BF5E53E /* SwiftCoroutine-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SwiftCoroutine-dummy.m"; sourceTree = "<group>"; };
-		E0595A4A3F6A3D237E8BC99D3EFDD294 /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineError.html; path = docs/Classes/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
-		E0F60B7D751AE496C2E769EA88BA73AA /* Extensions.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Extensions.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions.html; sourceTree = "<group>"; };
-		E2D4CBE01374BBD33543FAD15CBB0852 /* CoFuture.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoFuture.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoFuture.html; sourceTree = "<group>"; };
-		E58C054A495DB5E8D0A6C4A02B2AB4F6 /* jazzy.search.js */ = {isa = PBXFileReference; includeInIndex = 1; name = jazzy.search.js; path = docs/js/jazzy.search.js; sourceTree = "<group>"; };
+		E0595A4A3F6A3D237E8BC99D3EFDD294 /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoroutineError.html; path = docs/Classes/Coroutine/CoroutineError.html; sourceTree = "<group>"; };
+		E0F60B7D751AE496C2E769EA88BA73AA /* Extensions.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = Extensions.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions.html; sourceTree = "<group>"; };
+		E2D4CBE01374BBD33543FAD15CBB0852 /* CoFuture.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoFuture.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoFuture.html; sourceTree = "<group>"; };
+		E58C054A495DB5E8D0A6C4A02B2AB4F6 /* jazzy.search.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = jazzy.search.js; path = docs/js/jazzy.search.js; sourceTree = "<group>"; };
 		E71F104CEA86AAF1C3EAD381B8B1ACF0 /* SharedCoroutineQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedCoroutineQueue.swift; sourceTree = "<group>"; };
-		E7C653295CBCCB13B20F187A42042249 /* highlight.css */ = {isa = PBXFileReference; includeInIndex = 1; name = highlight.css; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/css/highlight.css; sourceTree = "<group>"; };
+		E7C653295CBCCB13B20F187A42042249 /* highlight.css */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.css; name = highlight.css; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/css/highlight.css; sourceTree = "<group>"; };
 		EA17A920C9CE69D3DD401C0D22BAF444 /* CoroutineScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoroutineScheduler.swift; sourceTree = "<group>"; };
 		EA54D9B7A6C6BA74AEF8A01691628DDF /* SwiftCoroutine.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SwiftCoroutine.debug.xcconfig; sourceTree = "<group>"; };
-		EA9FB949FB805181703E48E5D3A83D0B /* CoChannelError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoChannelError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoChannelError.html; sourceTree = "<group>"; };
-		EAE7430DA9C57450923FA162CD892A91 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; name = State.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine/State.html; sourceTree = "<group>"; };
+		EA9FB949FB805181703E48E5D3A83D0B /* CoChannelError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoChannelError.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Enums/CoChannelError.html; sourceTree = "<group>"; };
+		EAE7430DA9C57450923FA162CD892A91 /* State.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = State.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/Coroutine/State.html; sourceTree = "<group>"; };
 		EBBAF7E09E4BBCE118F16D47AF496175 /* Pods-CoroutineExample */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-CoroutineExample"; path = Pods_CoroutineExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EBDC6032D90FE8655D056D5B679DE7E5 /* jazzy.search.js */ = {isa = PBXFileReference; includeInIndex = 1; name = jazzy.search.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/jazzy.search.js; sourceTree = "<group>"; };
-		EDB7D5D8971A9382DBF00A56FBA629F3 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; name = Coroutine.html; path = docs/Classes/Coroutine.html; sourceTree = "<group>"; };
+		EBDC6032D90FE8655D056D5B679DE7E5 /* jazzy.search.js */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.javascript; name = jazzy.search.js; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/js/jazzy.search.js; sourceTree = "<group>"; };
+		EDB7D5D8971A9382DBF00A56FBA629F3 /* Coroutine.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = Coroutine.html; path = docs/Classes/Coroutine.html; sourceTree = "<group>"; };
 		EDFC30C91207677B487CAEE3A2600793 /* Storage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		EFAB1FE46C5F42C72D166CE57DEAEC28 /* CoroutineProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoroutineProtocol.swift; sourceTree = "<group>"; };
-		F2AF72C6DC284B9DB6D51D9A9D76C053 /* DispatchQueue.html */ = {isa = PBXFileReference; includeInIndex = 1; name = DispatchQueue.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/DispatchQueue.html; sourceTree = "<group>"; };
-		F47ECFB5A92896859C1C2F8BA4236ECE /* URLSession.html */ = {isa = PBXFileReference; includeInIndex = 1; name = URLSession.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/URLSession.html; sourceTree = "<group>"; };
-		F66DA4358206976CF26C877E661257D4 /* CoScope.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoScope.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoScope.html; sourceTree = "<group>"; };
-		F8A2A73666BD831C4AC03D5C5DA2D020 /* badge.svg */ = {isa = PBXFileReference; includeInIndex = 1; name = badge.svg; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/badge.svg; sourceTree = "<group>"; };
+		F2AF72C6DC284B9DB6D51D9A9D76C053 /* DispatchQueue.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = DispatchQueue.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/DispatchQueue.html; sourceTree = "<group>"; };
+		F47ECFB5A92896859C1C2F8BA4236ECE /* URLSession.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = URLSession.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Extensions/URLSession.html; sourceTree = "<group>"; };
+		F66DA4358206976CF26C877E661257D4 /* CoScope.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = CoScope.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Classes/CoScope.html; sourceTree = "<group>"; };
+		F8A2A73666BD831C4AC03D5C5DA2D020 /* badge.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = badge.svg; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/badge.svg; sourceTree = "<group>"; };
 		F9106597B26574999DD8BFEB8A7F2EEA /* CoroutineScheduler+DispatchQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "CoroutineScheduler+DispatchQueue.swift"; sourceTree = "<group>"; };
-		FAB782505E97DA635137C220C9846D78 /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; name = TaskScheduler.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/TaskScheduler.html; sourceTree = "<group>"; };
-		FAE84D2711415896AE480BB2EB06C1D5 /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; name = CoroutineError.html; path = docs/Enums/CoroutineError.html; sourceTree = "<group>"; };
+		FAB782505E97DA635137C220C9846D78 /* TaskScheduler.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html.documentation; name = TaskScheduler.html; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/Structs/TaskScheduler.html; sourceTree = "<group>"; };
+		FAE84D2711415896AE480BB2EB06C1D5 /* CoroutineError.html */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.html; name = CoroutineError.html; path = docs/Enums/CoroutineError.html; sourceTree = "<group>"; };
 		FC9CAC813B1B218830D427305CC1675A /* TaggedPointer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaggedPointer.swift; sourceTree = "<group>"; };
 		FF8057D3B7E2062DA47A5DB06BB8E0B6 /* gh.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = gh.png; path = docs/docsets/SwiftCoroutine.docset/Contents/Resources/Documents/img/gh.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -288,7 +288,6 @@
 				385B8611C092A5A7AC6498A5B393F0FF /* _CoChannelMap.swift */,
 				40112B2CA3D10979174DA6BEB7F3028F /* _ConflatedChannel.swift */,
 			);
-			name = Channels;
 			path = Channels;
 			sourceTree = "<group>";
 		};
@@ -298,7 +297,6 @@
 				B85DF380784DA95E558B57C91E6E2883 /* CoFuture.swift */,
 				488B6893162ED0972EF4042FB85F4D58 /* CoPromise.swift */,
 			);
-			name = Core;
 			path = Core;
 			sourceTree = "<group>";
 		};
@@ -309,7 +307,6 @@
 				998E11F0364D0C271862548B250AF9AE /* SharedCoroutineDispatcher.swift */,
 				E71F104CEA86AAF1C3EAD381B8B1ACF0 /* SharedCoroutineQueue.swift */,
 			);
-			name = SharedCoroutineDispatcher;
 			path = SharedCoroutineDispatcher;
 			sourceTree = "<group>";
 		};
@@ -327,7 +324,6 @@
 				EA17A920C9CE69D3DD401C0D22BAF444 /* CoroutineScheduler.swift */,
 				F9106597B26574999DD8BFEB8A7F2EEA /* CoroutineScheduler+DispatchQueue.swift */,
 			);
-			name = TaskScheduler;
 			path = TaskScheduler;
 			sourceTree = "<group>";
 		};
@@ -351,7 +347,6 @@
 				91B46D7CF32FAA9D7EA8116B0E50C48A /* CoChannelPublisher.swift */,
 				3CF59C8C54A58E0F6089E6B0225F40C6 /* CoChannelSubscription.swift */,
 			);
-			name = CoChannel;
 			path = CoChannel;
 			sourceTree = "<group>";
 		};
@@ -372,7 +367,6 @@
 				CD11A42A8B0F1A896266177327E004F1 /* CoChannelSender.swift */,
 				0167FF7FF2AAD364F08838680A901CE2 /* Channels */,
 			);
-			name = CoChannel;
 			path = CoChannel;
 			sourceTree = "<group>";
 		};
@@ -382,7 +376,6 @@
 				4550B885264D98C8CBE1D67474D5A651 /* CoChannel */,
 				65DDB7F62A074FE8F337F5363A35E22A /* CoFuture */,
 			);
-			name = Combine;
 			path = Combine;
 			sourceTree = "<group>";
 		};
@@ -391,7 +384,6 @@
 			children = (
 				AA7906D7A60EDA1AC3B88614393A7CC1 /* CCoroutine.h */,
 			);
-			name = include;
 			path = include;
 			sourceTree = "<group>";
 		};
@@ -402,7 +394,6 @@
 				035608C8283659AB371256506EB38BD6 /* CoFuturePublisher.swift */,
 				04232406A6263008F426AB0A520766B0 /* CoFutureSubscription.swift */,
 			);
-			name = CoFuture;
 			path = CoFuture;
 			sourceTree = "<group>";
 		};
@@ -411,7 +402,6 @@
 			children = (
 				EFAB1FE46C5F42C72D166CE57DEAEC28 /* CoroutineProtocol.swift */,
 			);
-			name = CoroutineProtocol;
 			path = CoroutineProtocol;
 			sourceTree = "<group>";
 		};
@@ -443,7 +433,6 @@
 				EDFC30C91207677B487CAEE3A2600793 /* Storage.swift */,
 				FC9CAC813B1B218830D427305CC1675A /* TaggedPointer.swift */,
 			);
-			name = Atomic;
 			path = Atomic;
 			sourceTree = "<group>";
 		};
@@ -590,7 +579,6 @@
 				ADD8465B1D6ACCB8F65F898DA28380CD /* CoFuture5+hashable.swift */,
 				610EDDCB123A8DB526CFE762081754AA /* Combine */,
 			);
-			name = Operators;
 			path = Operators;
 			sourceTree = "<group>";
 		};
@@ -616,18 +604,16 @@
 				2BD65347255870F2E6F42546E9D32704 /* DispatchSourceTimer+extensions.swift */,
 				72D807A9B5DF376FD88EE9132085CF4A /* Atomic */,
 			);
-			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
 		BD3146505E0B82DD929A66ADB27508C3 /* Coroutine */ = {
 			isa = PBXGroup;
 			children = (
-				93B9265ECEB414D7C57E292AEC80B488 /* Coroutine.swift */,
+				93B9265ECEB414D7C57E292AEC80B488 /* CoroutineSpace.swift */,
 				32479023D0F9ED5E53BEF7629B72ED15 /* Coroutine+StackSize.swift */,
 				9CFE2E692B77B9646A0CFFBF87CF1AA5 /* CoroutineError.swift */,
 			);
-			name = Coroutine;
 			path = Coroutine;
 			sourceTree = "<group>";
 		};
@@ -639,7 +625,6 @@
 				ED62CDE38A48231E1DA795BEA98E3DD5 /* Extensions */,
 				9E3B4EC8FD255F573BE726E4735E5FBE /* Operators */,
 			);
-			name = CoFuture;
 			path = CoFuture;
 			sourceTree = "<group>";
 		};
@@ -648,7 +633,6 @@
 			children = (
 				183F63F45EF77D4EDC66B021AA8DEC5E /* CoroutineContext.swift */,
 			);
-			name = Context;
 			path = Context;
 			sourceTree = "<group>";
 		};
@@ -699,7 +683,6 @@
 				1E19C5DEB22DF66ACD1B18AA98B1C674 /* SharedCoroutineDispatcher */,
 				403658DCE66F0A4ECE547F7185C00979 /* TaskScheduler */,
 			);
-			name = Coroutine;
 			path = Coroutine;
 			sourceTree = "<group>";
 		};
@@ -721,7 +704,6 @@
 			children = (
 				0B81C02A0A9BDF905C286BF94ED2EF11 /* URLSession+CoFuture.swift */,
 			);
-			name = Extensions;
 			path = Extensions;
 			sourceTree = "<group>";
 		};
@@ -731,7 +713,6 @@
 				D7B98D299FACA8F4D652B11B0CC8B572 /* CoCancellable.swift */,
 				343A20C4BB1DF61264659DA2EDE6EDAA /* CoScope.swift */,
 			);
-			name = CoScope;
 			path = CoScope;
 			sourceTree = "<group>";
 		};
@@ -874,7 +855,7 @@
 				F6ABD6B51DB69A87F8589D565A21C091 /* CoFutureSubscription.swift in Sources */,
 				267F182ADD4FE6ECCEE743D63905DCFF /* Constants.swift in Sources */,
 				935E7C87D193967BE42F8E8A6CF23ED2 /* CoPromise.swift in Sources */,
-				83A2BE558CBBA9BFD452F8051A1AFA0F /* Coroutine.swift in Sources */,
+				83A2BE558CBBA9BFD452F8051A1AFA0F /* CoroutineSpace.swift in Sources */,
 				84C66F39F79F77CC73F2FBFF45D88615 /* Coroutine+StackSize.swift in Sources */,
 				23AF3F0719BA8B2545D2BAEF6FB2618B /* CoroutineContext.swift in Sources */,
 				8323A71B049DCDBCF440E1273E657D32 /* CoroutineError.swift in Sources */,

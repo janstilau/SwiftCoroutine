@@ -37,20 +37,23 @@ class ViewController: UIViewController {
     }
     
     func btn_1_didClicked() {
+        // startCoroutine 里面的闭包, 直到处理完成, 其实一直被强引用.
+        // 所以, 如果协程一直不能完毕, 这里的代码就一直会影响到内存管理. 
         DispatchQueue.main.startCoroutine {
-            let (data, response, error) = try Coroutine.await { callback in
+            
+            let (data, response, error) = try CoroutineSpace.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
-            let (data_1, response_1, error_1) = try Coroutine.await { callback in
+            let (data_1, response_1, error_1) = try CoroutineSpace.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov?tab=repositories")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
-            let (data_2, response_2, error_2) = try Coroutine.await { callback in
+            let (data_2, response_2, error_2) = try CoroutineSpace.await { callback in
                 let url = URL.init(string: "https://github.com/belozierov/SwiftCoroutine")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }
-            let (data_3, response_3, error_3) = try Coroutine.await { callback in
+            let (data_3, response_3, error_3) = try CoroutineSpace.await { callback in
                 let url = URL.init(string: "https://www.baidu.com")!
                 URLSession.shared.dataTask(with: url, completionHandler: callback).resume()
             }

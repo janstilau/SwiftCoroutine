@@ -63,6 +63,9 @@ internal final class SharedCoroutine {
         }
     }
     
+    /*
+     在 await 中触发.
+     */
     private func suspend() {
         if suspendEnv == nil {
             suspendEnv = .allocate(capacity: 1)

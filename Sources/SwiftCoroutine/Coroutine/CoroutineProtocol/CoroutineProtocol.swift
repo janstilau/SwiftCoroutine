@@ -1,11 +1,3 @@
-//
-//  CoroutineProtocol.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 07.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 #if os(Linux)
 import Glibc
 #else
@@ -14,7 +6,7 @@ import Darwin
 
 @usableFromInline internal protocol CoroutineProtocol: AnyObject {
     
-    typealias StackSize = Coroutine.StackSize
+    typealias StackSize = CoroutineSpace.StackSize
     
     func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T
     func await<T>(on scheduler: CoroutineScheduler, task: () throws -> T) throws -> T
@@ -35,13 +27,13 @@ extension CoroutineProtocol {
         let caller = pthread_getspecific(.coroutine)
         pthread_setspecific(.coroutine, Unmanaged.passUnretained(self).toOpaque())
         defer { pthread_setspecific(.coroutine, caller) }
-        // 只有在 block 运行结束后, 才会调用 defer 里面的方法. 
+        // 只有在 block 运行结束后, 才会调用 defer 里面的方法.
         return block()
     }
     
 }
 
-extension Coroutine {
+extension CoroutineSpace {
     
     @inlinable internal static var currentPointer: UnsafeMutableRawPointer? {
         pthread_getspecific(.coroutine)
@@ -49,8 +41,8 @@ extension Coroutine {
     
     @inlinable internal static func current() throws -> CoroutineProtocol {
         if let pointer = currentPointer,
-            let coroutine = Unmanaged<AnyObject>.fromOpaque(pointer)
-                .takeUnretainedValue() as? CoroutineProtocol {
+           let coroutine = Unmanaged<AnyObject>.fromOpaque(pointer)
+            .takeUnretainedValue() as? CoroutineProtocol {
             return coroutine
         }
         throw CoroutineError.calledOutsideCoroutine

@@ -44,7 +44,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         case (let count, _) where count < capacity:
             sendBlocks.push(.init(element: element, resumeBlock: nil))
         default:
-            try Coroutine.await {
+            try CoroutineSpace.await {
                 sendBlocks.push(.init(element: element, resumeBlock: $0))
             }.map { throw $0 }
         }
@@ -91,7 +91,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             defer { if count == 1, state == 1 { finish() } }
             return getValue()
         case (_, 0):
-            return try Coroutine.await { receiveCallbacks.push($0) }.get()
+            return try CoroutineSpace.await { receiveCallbacks.push($0) }.get()
         case (_, 1):
             throw CoChannelError.closed
         default:

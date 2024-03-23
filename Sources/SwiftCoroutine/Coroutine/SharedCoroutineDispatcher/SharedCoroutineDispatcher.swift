@@ -4,11 +4,13 @@
     static let `default` = SharedCoroutineDispatcher(capacity: .processorsNumber * 2,
                                                      stackSize: .recommended)
     
-    private let stackSize, capacity: Int
+    private let stackSize: Int
+    // capacity 用来控制了下, SharedCoroutineQueue 的数量
+    private let capacity: Int
     private var queues = FifoQueue<SharedCoroutineQueue>()
     private var queuesCount = 0
     
-    internal init(capacity: Int, stackSize: Coroutine.StackSize) {
+    internal init(capacity: Int, stackSize: CoroutineSpace.StackSize) {
         self.stackSize = stackSize.size
         self.capacity = capacity
     }

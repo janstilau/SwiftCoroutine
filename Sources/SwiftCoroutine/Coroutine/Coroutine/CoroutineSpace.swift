@@ -24,7 +24,15 @@ import Dispatch
 /// In -Ounchecked builds, where preconditions are not evaluated to avoid any crashes,
 /// a thread-blocking mechanism is used for waiting the result.
 ///
-public struct Coroutine {
+/// 附加的结构体，带有用于处理协程的实用方法。
+///
+/// - 重要提示: 所有的 await() 方法必须在协程内部调用。
+///
+/// 要检查是否在协程内部，使用 Coroutine.isInsideCoroutine。
+/// 如果在协程外部调用 await()，则这些方法内部的前提条件将失败，并且会得到一个错误。
+/// 在 -Ounchecked 构建中，前提条件不会被评估以避免任何崩溃，将使用线程阻塞机制等待结果。
+// 这是一个命名空间的概念, 不会有实例被创建出来.
+public struct CoroutineSpace {
     
     /// Returns `true` if this property is called inside a coroutine.
     /// ```

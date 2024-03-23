@@ -9,6 +9,7 @@ internal final class SharedCoroutineQueue {
     }
     
     internal let context: CoroutineContext
+    // 在一个 SharedCoroutineQueue 中, 只会有一个协程在运转. 
     private var coroutine: SharedCoroutine!
     
     internal var inQueue = false

@@ -6,7 +6,7 @@
 //  Copyright © 2019 Alex Belozierov. All rights reserved.
 //
 
-extension Coroutine {
+extension CoroutineSpace {
     
     @usableFromInline internal struct StackSize {
         internal let size: Int
@@ -14,11 +14,11 @@ extension Coroutine {
     
 }
 
-extension Coroutine.StackSize {
+extension CoroutineSpace.StackSize {
     
-    internal static let recommended = Coroutine.StackSize(size: 192 * 1024)
+    internal static let recommended = CoroutineSpace.StackSize(size: 192 * 1024)
     
-    internal static func pages(_ number: Int) -> Coroutine.StackSize {
+    internal static func pages(_ number: Int) -> CoroutineSpace.StackSize {
         .init(size: number * .pageSize)
     }
     

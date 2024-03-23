@@ -25,7 +25,7 @@ extension CoFuture {
     /// - Throws: The failed result of the `CoFuture`.
     /// - Returns: The value of the `CoFuture` when it is completed.
     @inlinable public func await() throws -> Value {
-        try (result ?? Coroutine.current().await(addCallback)).get()
+        try (result ?? CoroutineSpace.current().await(addCallback)).get()
     }
     
     /// Await for the result of this `CoFuture` without blocking the current thread. Must be called inside a coroutine.
@@ -37,7 +37,7 @@ extension CoFuture {
         let timer = DispatchSource.makeTimerSource()
         timer.schedule(deadline: .now() + timeout)
         defer { timer.cancel() }
-        let result: Result<Value, Error> = try Coroutine.current().await { callback in
+        let result: Result<Value, Error> = try CoroutineSpace.current().await { callback in
             self.addCallback(callback)
             timer.setEventHandler { callback(.failure(CoFutureError.timeout)) }
             timer.start()
