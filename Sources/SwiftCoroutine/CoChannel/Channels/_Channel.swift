@@ -1,10 +1,3 @@
-//
-//  _Channel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 @usableFromInline internal class _Channel<T>: CoChannel<T>.Receiver {
     
@@ -39,5 +32,4 @@
     deinit {
         finish()
     }
-    
 }

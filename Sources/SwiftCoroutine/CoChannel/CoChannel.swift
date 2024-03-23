@@ -1,6 +1,11 @@
 /// Channel is a non-blocking primitive for communication between a sender and a receiver.
 /// Conceptually, a channel is similar to a queue that allows to suspend a coroutine on receive if it is empty or on send if it is full.
+
+/// 通道是用于发送者和接收者之间通信的非阻塞原语。
+/// 从概念上讲，通道类似于队列，允许在接收时挂起协程（如果它为空）或在发送时挂起协程（如果它已满）。
 ///
+/// - 重要提示: 当使用完毕时，始终要通过 close() 或 cancel() 方法关闭通道，以恢复通道挂起的所有协程。
+
 /// - Important: Always `close()` or `cancel()` a channel when you are done to resume all suspended coroutines by the channel.
 ///
 /// ```
@@ -22,31 +27,57 @@
 /// ```
 public final class CoChannel<Element> {
     
-    /// `CoChannel` buffer type.
+    /// `CoChannel` 缓冲区类型。
     public enum BufferType: Equatable {
-        /// This channel does not have any buffer.
+        /// 此通道没有任何缓冲区。
         ///
-        /// An element is transferred from the sender to the receiver only when send and receive invocations meet in time,
-        /// so `awaitSend(_:)` suspends until invokes receive, and `awaitReceive()` suspends until invokes send.
+        /// 只有在发送和接收调用在时间上满足时，元素才会从发送者传递到接收者，
+        /// 因此 `awaitSend(_:)` 在调用接收时挂起，`awaitReceive()` 在调用发送时挂起。
         case none
-        /// This channel have a buffer with the specified capacity.
+        /// 此通道具有指定容量的缓冲区。
         ///
-        /// `awaitSend(_:)` suspends only when the buffer is full,
-        /// and `awaitReceive()` suspends only when the buffer is empty.
+        /// `awaitSend(_:)` 仅在缓冲区已满时挂起，
+        /// 而 `awaitReceive()` 仅在缓冲区为空时挂起。
         case buffered(capacity: Int)
-        /// This channel has a buffer with unlimited capacity.
+        /// 此通道具有无限容量的缓冲区。
         ///
-        /// `awaitSend(_:)` to this channel never suspends, and offer always returns true.
-        /// `awaitReceive()` suspends only when the buffer is empty.
+        /// 对此通道的 `awaitSend(_:)` 永远不会挂起，并且 `offer` 总是返回 true。
+        /// `awaitReceive()` 仅在缓冲区为空时挂起。
         case unlimited
-        /// This channel buffers at most one element and offer invocations,
-        /// so that the receiver always gets the last element sent.
+        /// 此通道缓冲区最多包含一个元素和 offer 调用，
+        /// 以便接收者始终获取到最后发送的元素。
         ///
-        /// Only the last sent element is received, while previously sent elements are lost.
-        /// `awaitSend(_:)` to this channel never suspends, and offer always returns true.
-        /// `awaitReceive()` suspends only when the buffer is empty.
+        /// 只接收到最后发送的元素，而之前发送的元素将丢失。
+        /// 对此通道的 `awaitSend(_:)` 永远不会挂起，并且 `offer` 总是返回 true。
+        /// `awaitReceive()` 仅在缓冲区为空时挂起。
         case conflated
     }
+//
+//    /// `CoChannel` buffer type.
+//    public enum BufferType: Equatable {
+//        /// This channel does not have any buffer.
+//        ///
+//        /// An element is transferred from the sender to the receiver only when send and receive invocations meet in time,
+//        /// so `awaitSend(_:)` suspends until invokes receive, and `awaitReceive()` suspends until invokes send.
+//        case none
+//        /// This channel have a buffer with the specified capacity.
+//        ///
+//        /// `awaitSend(_:)` suspends only when the buffer is full,
+//        /// and `awaitReceive()` suspends only when the buffer is empty.
+//        case buffered(capacity: Int)
+//        /// This channel has a buffer with unlimited capacity.
+//        ///
+//        /// `awaitSend(_:)` to this channel never suspends, and offer always returns true.
+//        /// `awaitReceive()` suspends only when the buffer is empty.
+//        case unlimited
+//        /// This channel buffers at most one element and offer invocations,
+//        /// so that the receiver always gets the last element sent.
+//        ///
+//        /// Only the last sent element is received, while previously sent elements are lost.
+//        /// `awaitSend(_:)` to this channel never suspends, and offer always returns true.
+//        /// `awaitReceive()` suspends only when the buffer is empty.
+//        case conflated
+//    }
     
     @usableFromInline internal let channel: _Channel<Element>
     
@@ -217,5 +248,4 @@ extension CoChannel {
     @inlinable public func makeIterator() -> AnyIterator<Element> {
         channel.makeIterator()
     }
-    
 }

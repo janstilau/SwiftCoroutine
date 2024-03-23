@@ -79,8 +79,8 @@ public struct CoroutineSpace {
     /// - Parameter callback: The callback for resuming a coroutine. Must be called inside a coroutine.
     /// - Returns: The result which is passed to callback.
     /// - Throws: `CoroutineError`.
-    @inlinable public static func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T {
-        try current().await(callback)
+    @inlinable public static func await<T>(_ asyncAction: (@escaping (T) -> Void) -> Void) throws -> T {
+        try current().await(asyncAction)
     }
     
     /// Suspends a coroutine and resumes it on callback. Must be called inside a coroutine.
@@ -94,8 +94,8 @@ public struct CoroutineSpace {
     /// - Parameter callback: The callback для resume coroutine.
     /// - Returns: The result which is passed to callback.
     /// - Throws: `CoroutineError`.
-    @inlinable public static func await<T, N>(_ callback: (@escaping (T, N) -> Void) -> Void) throws -> (T, N) {
-        try current().await { completion in callback { a, b in completion((a, b)) } }
+    @inlinable public static func await<T, N>(_ asyncAction: (@escaping (T, N) -> Void) -> Void) throws -> (T, N) {
+        try current().await { completion in asyncAction { a, b in completion((a, b)) } }
     }
     
     /// Suspends a coroutine and resumes it on callback.
@@ -109,8 +109,8 @@ public struct CoroutineSpace {
     /// - Parameter callback: The callback для resume coroutine. Must be called inside a coroutine.
     /// - Returns: The result which is passed to callback.
     /// - Throws: `CoroutineError`.
-    @inlinable public static func await<T, N, M>(_ callback: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {
-        try current().await { completion in callback { a, b, c in completion((a, b, c)) } }
+    @inlinable public static func await<T, N, M>(_ asyncAction: (@escaping (T, N, M) -> Void) -> Void) throws -> (T, N, M) {
+        try current().await { completion in asyncAction { a, b, c in completion((a, b, c)) } }
     }
     
     // MARK: - delay

@@ -122,7 +122,9 @@ internal final class _ConflatedChannel<T>: _Channel<T> {
                 tagged.counter += 1
                 tagged[.hasWaiting] = true
                 if !cas(oldValue: rawValue, tagged: tagged) { continue }
-                return try CoroutineSpace.await { receiveCallbacks.push($0) }.get()
+                return try CoroutineSpace.await { routineResult in
+                    receiveCallbacks.push(routineResult)
+                }.get()
             }
             tagged.pointer = nil
             if !cas(oldValue: rawValue, tagged: tagged) { continue }

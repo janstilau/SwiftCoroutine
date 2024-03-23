@@ -1,15 +1,10 @@
-//
-//  _BufferedChannel.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 07.06.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 internal final class _BufferedChannel<T>: _Channel<T> {
     
     private typealias ReceiveCallback = (Result<T, CoChannelError>) -> Void
-    private struct SendBlock { let element: T, resumeBlock: ((CoChannelError?) -> Void)? }
+    private struct SendBlock {
+        let element: T
+        let resumeBlock: ((CoChannelError?) -> Void)?
+    }
     
     private let capacity: Int
     private var receiveCallbacks = FifoQueue<ReceiveCallback>()
@@ -29,7 +24,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     }
     
     // MARK: - send
-    
+    // 向 channel 里面, 填充数据.
     internal override func awaitSend(_ element: T) throws {
         switch atomic.update ({ count, state in
             if state != 0 { return (count, state) }
@@ -39,14 +34,22 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             throw CoChannelError.closed
         case (_, 2):
             throw CoChannelError.canceled
+            /*
+             count 代表着队列先有存货. 如果 < 0, 就是有等的.
+             如果大于零, 就是没等的, 有富裕.
+             */
         case (let count, _) where count < 0:
+            // 触发停止的协程, 有数据了.
             receiveCallbacks.blockingPop()(.success(element))
         case (let count, _) where count < capacity:
+            // 如果还没有达到 capacity, 那么就是存起来,
             sendBlocks.push(.init(element: element, resumeBlock: nil))
         default:
-            try CoroutineSpace.await {
-                sendBlocks.push(.init(element: element, resumeBlock: $0))
-            }.map { throw $0 }
+            // 已经冒了, 就让现在的协程停止. 当有读取的时候, 才会重新开启.
+            let result = try CoroutineSpace.await { routineResume in
+                sendBlocks.push(.init(element: element, resumeBlock: routineResume))
+            }
+            try result.map { throw $0 }
         }
     }
     
@@ -59,8 +62,8 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             }.old
             guard state == 0 else { return }
             count < 0
-                ? self.receiveCallbacks.blockingPop()(.success($0))
-                : self.sendBlocks.push(.init(element: $0, resumeBlock: nil))
+            ? self.receiveCallbacks.blockingPop()(.success($0))
+            : self.sendBlocks.push(.init(element: $0, resumeBlock: nil))
         }
     }
     
@@ -91,7 +94,9 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             defer { if count == 1, state == 1 { finish() } }
             return getValue()
         case (_, 0):
-            return try CoroutineSpace.await { receiveCallbacks.push($0) }.get()
+            return try CoroutineSpace.await { routineResume in
+                receiveCallbacks.push(routineResume)
+            }.get()
         case (_, 1):
             throw CoChannelError.closed
         default:
@@ -99,21 +104,25 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         }
     }
     
+    // 同步方法, 当前没有不停止. 
     internal override func poll() -> T? {
         let (count, state) = atomic.update { count, state in
             (Swift.max(0, count - 1), state)
         }.old
         guard count > 0 else { return nil }
+        
         defer { if count == 1, state == 1 { finish() } }
         return getValue()
     }
     
+    // 
     internal override func whenReceive(_ callback: @escaping (Result<T, CoChannelError>) -> Void) {
         switch atomic.update({ count, state in
             if state == 0 { return (count - 1, 0) }
             return (Swift.max(0, count - 1), state)
         }).old {
         case (let count, let state) where count > 0:
+            // 每次消耗值之后, 才会触发 finish.
             callback(.success(getValue()))
             if count == 1, state == 1 { finish() }
         case (_, 0):
@@ -151,6 +160,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
                 receiveCallbacks.blockingPop()(.failure(.closed))
             }
         } else if count > 0 {
+            // close 了, 要向还在等待的协程, 发送对应的 error.
             sendBlocks.forEach { $0.resumeBlock?(.closed) }
         } else {
             finish()
