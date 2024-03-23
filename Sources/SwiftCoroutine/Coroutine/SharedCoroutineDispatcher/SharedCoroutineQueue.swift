@@ -26,13 +26,15 @@ internal final class SharedCoroutineQueue {
     
     // MARK: - Actions
     
-    internal func start(dispatcher: SharedCoroutineDispatcher, scheduler: CoroutineScheduler, task: @escaping () -> Void) {
+    internal func start(dispatcher: SharedCoroutineDispatcher, 
+                        scheduler: CoroutineScheduler,
+                        task: @escaping () -> Void) {
         coroutine?.saveStack()
         coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
         // 在这里, 才会给协程环境, 添加任务. 
         context.block = task
-        complete(with: coroutine.start())
+        reschedule(with: coroutine.start())
     }
     
     internal func resume(coroutine: SharedCoroutine) {
@@ -53,11 +55,11 @@ internal final class SharedCoroutineQueue {
             self.coroutine = coroutine
         }
         coroutine.scheduler.scheduleTask {
-            self.complete(with: coroutine.resume())
+            self.reschedule(with: coroutine.resume())
         }
     }
     
-    private func complete(with state: CompletionState) {
+    private func reschedule(with state: CompletionState) {
         switch state {
         case .finished:
             started -= 1
@@ -68,7 +70,7 @@ internal final class SharedCoroutineQueue {
             performNext(for: coroutine.dispatcher)
         case .restarting:
             coroutine.scheduler.scheduleTask {
-                self.complete(with: self.coroutine.resume())
+                self.reschedule(with: self.coroutine.resume())
             }
         }
     }

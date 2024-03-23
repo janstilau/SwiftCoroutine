@@ -30,6 +30,7 @@
 ///
 /// }
 /// ```
+
 /// 一个定义了如何执行任务的协议。
 ///
 /// 该协议具有扩展方法，允许在当前调度器上启动协程。
@@ -110,7 +111,7 @@ extension CoroutineScheduler {
         _startCoroutine { [weak scope] in
             guard let coroutine = try? Coroutine.current(),
                 let completion = scope?.add(coroutine.cancel) else { return }
-            // 前面可以认为是在准备环境. 
+            // 前面可以认为是在准备环境.
             try? task()
             completion()
         }

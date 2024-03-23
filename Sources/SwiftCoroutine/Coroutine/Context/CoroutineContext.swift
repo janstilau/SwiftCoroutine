@@ -65,15 +65,20 @@ internal final class CoroutineContext {
     
     internal struct SuspendData {
         let jmpBuf: UnsafeMutableRawPointer
-        var sp: UnsafeMutableRawPointer!
+        var stackTop: UnsafeMutableRawPointer!
     }
     
     @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
         __save(env, returnEnv, .suspended) == .finished
     }
     
+    // SuspendData 中的 sp 在这里确定出来的.
+    /*
+     将当前任务的jumpBuf, 栈顶指针 存储到 SuspendData 中.
+     然后跳转回目前存储的 returnEnv 中. 
+     */
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __suspend(data.pointee.jmpBuf, &data.pointee.sp, returnEnv, .suspended)
+        __suspend(data.pointee.jmpBuf, &data.pointee.stackTop, returnEnv, .suspended)
     }
     
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
@@ -100,7 +105,7 @@ extension Int32 {
 extension CoroutineContext.SuspendData {
     
     internal init() {
-        self = .init(jmpBuf: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
+        self = .init(jmpBuf: .allocate(byteCount: .environmentSize, alignment: 16), stackTop: nil)
     }
     
 }

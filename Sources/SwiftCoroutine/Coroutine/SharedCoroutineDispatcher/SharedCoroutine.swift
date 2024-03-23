@@ -12,7 +12,7 @@ internal final class SharedCoroutine {
     private(set) var scheduler: CoroutineScheduler
     
     private var state: Int = .running
-    private var environment: UnsafeMutablePointer<CoroutineContext.SuspendData>!
+    private var suspendEnv: UnsafeMutablePointer<CoroutineContext.SuspendData>!
     private var stackBuffer: StackBuffer!
     private var isCanceled = 0
     private var awaitTag = 0
@@ -35,7 +35,7 @@ internal final class SharedCoroutine {
     }
     
     private func resumeContext() -> CompletionState {
-        perform { queue.context.resume(from: environment.pointee.jmpBuf) }
+        perform { queue.context.resume(from: suspendEnv.pointee.jmpBuf) }
     }
     
     private func perform(_ block: () -> Bool) -> CompletionState {
@@ -57,35 +57,37 @@ internal final class SharedCoroutine {
     }
     
     private func suspend() {
-        if environment == nil {
-            environment = .allocate(capacity: 1)
-            environment.initialize(to: .init())
+        if suspendEnv == nil {
+            suspendEnv = .allocate(capacity: 1)
+            suspendEnv.initialize(to: .init())
         }
-        queue.context.suspend(to: environment)
+        queue.context.suspend(to: suspendEnv)
     }
     
     // MARK: - Stack
     
+    // 这里怎么确保, stackTop 的值已经确定下来了呢.
     internal func saveStack() {
         /*
          从这里来看, 一个 queue 里面, 只有一个 CoroutineContext, 而这个 Context 的栈空间是共享的.
-         当前的协程,
+         这里只存储了, 当前任务所使用到的栈顶到栈底的空间. 存到了 stackBuffer 中. 
          */
-        let size = environment.pointee.sp.distance(to: queue.context.stackBottom)
+        let size = suspendEnv.pointee.stackTop.distance(to: queue.context.stackBottom)
         let stack = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-        stack.copyMemory(from: environment.pointee.sp, byteCount: size)
+        stack.copyMemory(from: suspendEnv.pointee.stackTop, byteCount: size)
         stackBuffer = .init(stack: stack, size: size)
     }
     
+    // 这里怎么确保, stackTop 的值已经确定下来了呢.
     internal func restoreStack() {
-        environment.pointee.sp.copyMemory(from: stackBuffer.stack, byteCount: stackBuffer.size)
+        suspendEnv.pointee.stackTop.copyMemory(from: stackBuffer.stack, byteCount: stackBuffer.size)
         stackBuffer.stack.deallocate()
         stackBuffer = nil
     }
     
     deinit {
-        environment?.pointee.jmpBuf.deallocate()
-        environment?.deallocate()
+        suspendEnv?.pointee.jmpBuf.deallocate()
+        suspendEnv?.deallocate()
     }
     
 }
