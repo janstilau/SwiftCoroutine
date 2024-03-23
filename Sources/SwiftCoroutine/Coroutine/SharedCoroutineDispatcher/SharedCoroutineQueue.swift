@@ -1,11 +1,3 @@
-//
-//  SharedCoroutineQueue.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 03.04.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 internal final class SharedCoroutineQueue {
     
     private struct Task {
@@ -38,6 +30,7 @@ internal final class SharedCoroutineQueue {
         coroutine?.saveStack()
         coroutine = SharedCoroutine(dispatcher: dispatcher, queue: self, scheduler: scheduler)
         started += 1
+        // 在这里, 才会给协程环境, 添加任务. 
         context.block = task
         complete(with: coroutine.start())
     }

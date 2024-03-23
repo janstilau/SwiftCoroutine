@@ -26,6 +26,7 @@ internal final class SharedCoroutine {
     // MARK: - Actions
     
     internal func start() -> CompletionState {
+        // context 的 start 方法, 只有这里使用了
         performAsCurrent { perform(queue.context.start) }
     }
     

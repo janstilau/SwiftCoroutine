@@ -1,11 +1,3 @@
-//
-//  CoroutineContext.swift
-//  SwiftCoroutine iOS
-//
-//  Created by Alex Belozierov on 08.12.2019.
-//  Copyright © 2019 Alex Belozierov. All rights reserved.
-//
-
 #if SWIFT_PACKAGE
 import CCoroutine
 #endif
@@ -19,9 +11,13 @@ import Darwin
 internal final class CoroutineContext {
     
     internal let haveGuardPage: Bool
+    // 栈大小.
     internal let stackSize: Int
-    private let stack: UnsafeMutableRawPointer
+    // 开辟的栈地址.
+    private let stackAddress: UnsafeMutableRawPointer
+    // 协程跳转前的环境, jumpbuffer
     private let returnEnv: UnsafeMutableRawPointer
+    // 协程真正的任务.
     internal var block: (() -> Void)?
     
     internal init(stackSize: Int, guardPage: Bool = true) {
@@ -29,28 +25,36 @@ internal final class CoroutineContext {
         returnEnv = .allocate(byteCount: .environmentSize, alignment: 16)
         haveGuardPage = guardPage
         if guardPage {
-            stack = .allocate(byteCount: stackSize + .pageSize, alignment: .pageSize)
-            mprotect(stack, .pageSize, PROT_READ)
+            stackAddress = .allocate(byteCount: stackSize + .pageSize, alignment: .pageSize)
+            mprotect(stackAddress, .pageSize, PROT_READ)
         } else {
-            stack = .allocate(byteCount: stackSize, alignment: .pageSize)
+            stackAddress = .allocate(byteCount: stackSize, alignment: .pageSize)
         }
     }
     
     @inlinable internal var stackTop: UnsafeMutableRawPointer {
-        .init(stack + stackSize)
+        .init(stackAddress + stackSize)
     }
     
     // MARK: - Start
     
     @inlinable internal func start() -> Bool {
-       __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
-           __longjmp(Unmanaged<CoroutineContext>
-               .fromOpaque($0!)
-               .takeUnretainedValue()
-               .performBlock(), .finished)
-       } == .finished
+        __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
+            // performBlock 返回了之前存储的 returnEnv, 然后给 __longjmp 传递 finished
+            // 这也就是 start 方法的返回值了
+            __longjmp(Unmanaged<CoroutineContext>
+                .fromOpaque($0!)
+                .takeUnretainedValue()
+                .performBlock(), .finished)
+        } == .finished
     }
     
+    // 上面 __longjmp 的返回值是 returnEnv, 是在 _start 里面, 存储的 returnEnv
+    /*
+     __start(returnEnv 方法, 保存当前的环境, 然后调用 performBlock
+     所以, start 的真实作用是, 保存当前的环境, 然后开启一个协程环境, 调用传递过来的闭包. 最后, 闭包调用结束之后, 会跳转回原来的环境.
+     并且, 闭包会在执行完毕之后, 主动进行 = nil 的操作, 清空引用.
+     */
     private func performBlock() -> UnsafeMutableRawPointer {
         block?()
         block = nil
@@ -78,10 +82,10 @@ internal final class CoroutineContext {
     
     deinit {
         if haveGuardPage {
-            mprotect(stack, .pageSize, PROT_READ | PROT_WRITE)
+            mprotect(stackAddress, .pageSize, PROT_READ | PROT_WRITE)
         }
         returnEnv.deallocate()
-        stack.deallocate()
+        stackAddress.deallocate()
     }
     
 }

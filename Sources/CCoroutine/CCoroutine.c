@@ -32,17 +32,36 @@
  需要注意的是，_setjmp 和 _longjmp 只保存和恢复执行环境，不包括堆栈中的数据。因此，在跳转之后，原来函数中的局部变量可能会丢失或被破坏。
  */
 
-int __start(void* ret, const void* stack, const void* param, const void (*block)(const void*)) {
+
+/*
+ 保存, 当前的环境.
+ 然后 routineStack 作为新的函数栈.
+ routineContext 作为函数的参数.
+ 调用 block 这个函数. 
+ */
+int __start(void* ret, const void* routineStack, const void* routineContext, const void (*block)(const void*)) {
     int n = _setjmp(ret);
+    // 如果 n 不为 0, 就是从 longjump 跳转回来的.
+    // 如果是 0, 那么就是在启动协程.
     if (n) return n;
 #if defined(__x86_64__)
     __asm__ ("movq %0, %%rsp" :: "g"(stack));
     block(param);
+    
+/*
+ "mov sp, %0\n"：这行代码将 stack 的值（即新的协程的栈顶地址）移动到栈指针 sp 中。这样，新的协程就可以在自己的栈空间中运行了。
+
+ "mov x0, %1\n"：这行代码将 param 的值移动到寄存器 x0 中。在 ARM64 架构中，x0 寄存器通常用于传递函数的第一个参数。
+
+ "blr %2"：这行代码通过链接寄存器 lr 跳转到 block 指向的函数，并在返回时跳回 blr 指令之后的代码。这样，新的协程就开始执行了。
+
+ 总的来说，这段代码的作用是设置新的协程的栈空间，并开始执行新的协程。
+ */
 #elif defined(__arm64__)
     __asm__ (
              "mov sp, %0\n"
              "mov x0, %1\n"
-             "blr %2" :: "r"(stack), "r"(param), "r"(block));
+             "blr %2" :: "r"(routineStack), "r"(routineContext), "r"(block));
 #endif
     return 0;
 }
