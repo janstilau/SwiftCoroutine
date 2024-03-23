@@ -35,7 +35,7 @@ internal final class SharedCoroutine {
     }
     
     private func resumeContext() -> CompletionState {
-        perform { queue.context.resume(from: environment.pointee.env) }
+        perform { queue.context.resume(from: environment.pointee.stackTop) }
     }
     
     private func perform(_ block: () -> Bool) -> CompletionState {
@@ -67,7 +67,11 @@ internal final class SharedCoroutine {
     // MARK: - Stack
     
     internal func saveStack() {
-        let size = environment.pointee.sp.distance(to: queue.context.stackTop)
+        /*
+         从这里来看, 一个 queue 里面, 只有一个 CoroutineContext, 而这个 Context 的栈空间是共享的.
+         当前的协程,
+         */
+        let size = environment.pointee.sp.distance(to: queue.context.stackBottom)
         let stack = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
         stack.copyMemory(from: environment.pointee.sp, byteCount: size)
         stackBuffer = .init(stack: stack, size: size)
@@ -80,7 +84,7 @@ internal final class SharedCoroutine {
     }
     
     deinit {
-        environment?.pointee.env.deallocate()
+        environment?.pointee.stackTop.deallocate()
         environment?.deallocate()
     }
     
@@ -144,8 +148,8 @@ extension SharedCoroutine: CoroutineProtocol {
     
 }
 
+// 使用原始的类型, 加上特定常量, 也是一种比较好的表现方式, 不比 enum 差.
 fileprivate extension Int {
-    
     static let running = 0
     static let suspending = 1
     static let suspended = 2

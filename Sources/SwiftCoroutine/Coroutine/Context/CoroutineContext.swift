@@ -32,14 +32,14 @@ internal final class CoroutineContext {
         }
     }
     
-    @inlinable internal var stackTop: UnsafeMutableRawPointer {
+    @inlinable internal var stackBottom: UnsafeMutableRawPointer {
         .init(stackAddress + stackSize)
     }
     
     // MARK: - Start
     
     @inlinable internal func start() -> Bool {
-        __start(returnEnv, stackTop, Unmanaged.passUnretained(self).toOpaque()) {
+        __start(returnEnv, stackBottom, Unmanaged.passUnretained(self).toOpaque()) {
             // performBlock 返回了之前存储的 returnEnv, 然后给 __longjmp 传递 finished
             // 这也就是 start 方法的返回值了
             __longjmp(Unmanaged<CoroutineContext>
@@ -64,7 +64,7 @@ internal final class CoroutineContext {
     // MARK: - Operations
     
     internal struct SuspendData {
-        let env: UnsafeMutableRawPointer
+        let stackTop: UnsafeMutableRawPointer
         var sp: UnsafeMutableRawPointer!
     }
     
@@ -73,7 +73,7 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
-        __suspend(data.pointee.env, &data.pointee.sp, returnEnv, .suspended)
+        __suspend(data.pointee.stackTop, &data.pointee.sp, returnEnv, .suspended)
     }
     
     @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
@@ -100,7 +100,7 @@ extension Int32 {
 extension CoroutineContext.SuspendData {
     
     internal init() {
-        self = .init(env: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
+        self = .init(stackTop: .allocate(byteCount: .environmentSize, alignment: 16), sp: nil)
     }
     
 }

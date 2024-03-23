@@ -1,11 +1,3 @@
-//
-//  AtomicTuple.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 17.04.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 internal struct AtomicTuple {
     
     internal typealias Tuple = (Int32, Int32)
