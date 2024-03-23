@@ -1,13 +1,9 @@
-//
-//  CoroutineScheduler+DispatchQueue.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 28.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
 
 import Foundation
 
+/*
+ 如果是主队列, 就有一个判断. 否则直接 dispatch.
+ */
 extension DispatchQueue: CoroutineScheduler {
     
     @inlinable public func scheduleTask(_ task: @escaping () -> Void) {
@@ -17,5 +13,4 @@ extension DispatchQueue: CoroutineScheduler {
             async(execute: task)
         }
     }
-    
 }

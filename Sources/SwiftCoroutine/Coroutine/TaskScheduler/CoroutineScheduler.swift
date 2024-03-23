@@ -1,11 +1,3 @@
-//
-//  CoroutineScheduler.swift
-//  SwiftCoroutine
-//
-//  Created by Alex Belozierov on 26.03.2020.
-//  Copyright © 2020 Alex Belozierov. All rights reserved.
-//
-
 /// A protocol that defines how to execute a task.
 ///
 /// This protocol has extension methods that allow to launch coroutines on a current scheduler.
@@ -38,11 +30,42 @@
 ///
 /// }
 /// ```
+/// 一个定义了如何执行任务的协议。
+///
+/// 该协议具有扩展方法，允许在当前调度器上启动协程。
+/// 在协程内部，你可以使用诸如 `Coroutine.await(_:)`、`CoFuture.await()` 和 `CoroutineScheduler.await(_:)` 这样的方法来挂起协程，
+/// 而不阻塞线程，并在结果准备就绪时恢复协程。
+///
+/// 要启动一个协程，使用 `CoroutineScheduler.startCoroutine(_:)` 方法。
+/// ```
+/// // 在主线程上执行协程
+/// DispatchQueue.main.startCoroutine {
+///
+///     // 返回 CoFuture<(data: Data, response: URLResponse)> 的扩展
+///     let dataFuture = URLSession.shared.dataTaskFuture(for: url)
+///
+///     // 等待结果，挂起协程，不阻塞线程
+///     let data = try dataFuture.await().data
+///
+/// }
+/// ```
+///
+/// 该框架已为 `DispatchQueue` 实现了该协议，
+/// 你也可以很容易地为其他调度器做同样的实现。
+/// ```
+/// extension OperationQueue: CoroutineScheduler {
+///
+///     public func scheduleTask(_ task: @escaping () -> Void) {
+///         addOperation(task)
+///     }
+///
+/// }
+/// ```
+
 public protocol CoroutineScheduler {
     
     /// Performs the task at the next possible opportunity.
     func scheduleTask(_ task: @escaping () -> Void)
-    
 }
 
 extension CoroutineScheduler {
@@ -65,11 +88,29 @@ extension CoroutineScheduler {
     /// - Parameters:
     ///   - scope: `CoScope`to add coroutine to.
     ///   - task: The closure that will be executed inside coroutine. If the task throws an error, then the coroutine will be terminated.
+    
+    /// 在当前调度器上启动一个新的协程。
+    ///
+    /// 举个例子，你可以使用 Coroutine.await(_:) 包装带有回调的异步函数，
+    /// 同步接收其结果，而不会阻塞线程。
+    /// ```
+    /// //在主线程上启动新的协程
+    /// DispatchQueue.main.startCoroutine {
+    ///     //执行 someAsyncFunc() 并等待其回调的结果
+    ///     let result = try Coroutine.await { someAsyncFunc(callback: $0) }
+    /// }
+    /// ```
+    ///
+    /// - 参数:
+    ///   - scope: 要添加协程的 `CoScope`。
+    ///   - task: 在协程内部执行的闭包。如果任务抛出错误，则协程将被终止。
+
     public func startCoroutine(in scope: CoScope? = nil, task: @escaping () throws -> Void) {
         guard let scope = scope else { return _startCoroutine { try? task() } }
         _startCoroutine { [weak scope] in
             guard let coroutine = try? Coroutine.current(),
                 let completion = scope?.add(coroutine.cancel) else { return }
+            // 前面可以认为是在准备环境. 
             try? task()
             completion()
         }
