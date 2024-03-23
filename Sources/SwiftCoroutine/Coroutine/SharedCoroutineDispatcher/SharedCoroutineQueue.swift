@@ -54,6 +54,7 @@ internal final class SharedCoroutineQueue {
             coroutine.restoreStack()
             self.coroutine = coroutine
         }
+        // Resume 的时候, 应该在哪个线程开启任务.
         coroutine.scheduler.scheduleTask {
             self.reschedule(with: coroutine.resume())
         }
@@ -69,6 +70,7 @@ internal final class SharedCoroutineQueue {
         case .suspended:
             performNext(for: coroutine.dispatcher)
         case .restarting:
+            // restart 的时候, 应该在哪个线程开启任务.
             coroutine.scheduler.scheduleTask {
                 self.reschedule(with: self.coroutine.resume())
             }

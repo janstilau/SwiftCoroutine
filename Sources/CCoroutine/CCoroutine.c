@@ -66,16 +66,17 @@ int __start(void* ret, const void* routineStack, const void* routineContext, con
     return 0;
 }
 
-void __suspend(void* env, void** sp, void* ret, int retVal) {
-    if (_setjmp(env)) return;
+void __suspend(void* saveEnv, void** sp, void* gotoEnv, int retVal) {
+    if (_setjmp(saveEnv)) return;
     char x; *sp = (void*)&x;
-    _longjmp(ret, retVal);
+    // 这里, 保存完数据之后, 其实是跳转回原来的 retJumpBuffer 记录的位置了.
+    _longjmp(gotoEnv, retVal);
 }
 
-int __save(void* env, void* ret, int retVal) {
-    int n = _setjmp(ret);
+int __save(void* gotoEnv, void* saveEnv, int retVal) {
+    int n = _setjmp(saveEnv);
     if (n) return n;
-    _longjmp(env, retVal);
+    _longjmp(gotoEnv, retVal);
 }
 
 void __longjmp(void* env, int retVal) {

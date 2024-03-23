@@ -1,5 +1,6 @@
 internal struct AtomicTuple {
     
+    // 当前 Queue 的运行状态, 和运行数量, 必须同时更新. 
     internal typealias Tuple = (Int32, Int32)
     private(set) var rawValue = 0
     

@@ -9,11 +9,17 @@ internal final class SharedCoroutine {
     
     internal let dispatcher: SharedCoroutineDispatcher
     internal let queue: SharedCoroutineQueue
+    
+    //
     private(set) var scheduler: CoroutineScheduler
     
     private var state: Int = .running
+    
+    // 这里面, 存储了 jumpBuf, 和栈顶的地址.
     private var suspendEnv: UnsafeMutablePointer<CoroutineContext.SuspendData>!
+    // 这里面, 存储了栈里面的数据
     private var stackBuffer: StackBuffer!
+    
     private var isCanceled = 0
     private var awaitTag = 0
     
@@ -40,6 +46,7 @@ internal final class SharedCoroutine {
     
     private func perform(_ block: () -> Bool) -> CompletionState {
         if block() { return .finished }
+        
         while true {
             switch state {
             case .suspending:
@@ -94,12 +101,14 @@ internal final class SharedCoroutine {
 
 extension SharedCoroutine: CoroutineProtocol {
     
-    internal func await<T>(_ callback: (@escaping (T) -> Void) -> Void) throws -> T {
+    internal func await<T>(_ asyncAction: (@escaping (T) -> Void) -> Void) throws -> T {
+        // 在这库里面, await 的时候, 如果已经 cancel, 就直接抛出异常了.
         if isCanceled == 1 { throw CoroutineError.canceled }
         state = .suspending
         let tag = awaitTag
         var result: T!
-        callback { value in
+        // 这里, asyncAction 强引用了 routine 对象了.
+        asyncAction { value in
             while true {
                 guard self.awaitTag == tag else { return }
                 if atomicCAS(&self.awaitTag, expected: tag, desired: tag + 1) { break }
@@ -107,6 +116,8 @@ extension SharedCoroutine: CoroutineProtocol {
             result = value
             self.resumeIfSuspended()
         }
+        // 在这里, 把当前的运行环境存储一下, 然后暂停任务.
+        // 在 resumeIfSuspended 里面, 才会继续执行.
         if state == .suspending { suspend() }
         if isCanceled == 1 { throw CoroutineError.canceled }
         return result
@@ -129,6 +140,7 @@ extension SharedCoroutine: CoroutineProtocol {
     }
     
     internal func cancel() {
+        // 修改状态, 然后重新调度. 
         atomicStore(&isCanceled, value: 1)
         resumeIfSuspended()
     }

@@ -66,6 +66,9 @@
 public protocol CoroutineScheduler {
     
     /// Performs the task at the next possible opportunity.
+    /*
+     开启一个协程任务的时候, 这个协程任务 resume 的时候, 以及这个协程任务 restart 的时候, 应该在哪个环境进行启动. 
+     */
     func scheduleTask(_ task: @escaping () -> Void)
 }
 
