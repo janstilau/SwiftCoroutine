@@ -73,7 +73,7 @@ void __suspend(void* saveEnv, void** sp, void* gotoEnv, int retVal) {
     _longjmp(gotoEnv, retVal);
 }
 
-int __save(void* gotoEnv, void* saveEnv, int retVal) {
+int __resume(void* gotoEnv, void* saveEnv, int retVal) {
     int n = _setjmp(saveEnv);
     if (n) return n;
     _longjmp(gotoEnv, retVal);

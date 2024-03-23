@@ -13,7 +13,7 @@
 
 int __start(void* ret, const void* stack, const void* param, const void (*block)(const void*));
 void __suspend(void* env, void** sp, void* ret, int retVal);
-int __save(void* env, void* ret, int retVal);
+int __resume(void* env, void* ret, int retVal);
 void __longjmp(void* env, int retVal);
 
 // MARK: - atomic

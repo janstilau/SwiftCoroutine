@@ -69,7 +69,7 @@ internal final class CoroutineContext {
     }
     
     @inlinable internal func resume(from env: UnsafeMutableRawPointer) -> Bool {
-        __save(env, returnEnv, .suspended) == .finished
+        __resume(env, returnEnv, .suspended) == .finished
     }
     
     // SuspendData 中的 sp 在这里确定出来的.
@@ -79,10 +79,6 @@ internal final class CoroutineContext {
      */
     @inlinable internal func suspend(to data: UnsafeMutablePointer<SuspendData>) {
         __suspend(data.pointee.jmpBuf, &data.pointee.stackTop, returnEnv, .suspended)
-    }
-    
-    @inlinable internal func suspend(to env: UnsafeMutableRawPointer) {
-        __save(returnEnv, env, .suspended)
     }
     
     deinit {
