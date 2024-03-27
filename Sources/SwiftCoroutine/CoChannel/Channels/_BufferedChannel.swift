@@ -94,7 +94,12 @@ internal final class _BufferedChannel<T>: _Channel<T> {
             defer { if count == 1, state == 1 { finish() } }
             return getValue()
         case (_, 0):
+            // (Result<T, CoChannelError>) -> Void
+            // 这里的 routineResume 是这样的一个结果.
+            // 当 cancel 调用的时候, 会将 error 传递到 routineResume 中.
+            // .get 会将这个 error 重新进行抛出. 从而使得, 协程逻辑中, 触发了 throws
             return try CoroutineSpace.await { routineResume in
+                // routineResume 的类型, 是 receiveCallbacks 推断出来的.
                 receiveCallbacks.push(routineResume)
             }.get()
         case (_, 1):
@@ -174,8 +179,14 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     
     // MARK: - cancel
     
+    // 对于一个异步序列, cancel 会进行状态的改变, 然后把所有的等待发送, 等待接受的协程进行触发.
+    /*
+     首先是状态的改变, 然后, 会触发所有的协程, 将 cancel 这个事件抛出去.
+     */
     internal override func cancel() {
         let count = atomic.update { _ in (0, 2) }.old.0
+        // 这里会触发所有的协程.
+        // 但是应该是,
         if count < 0 {
             for _ in 0..<count.magnitude {
                 receiveCallbacks.blockingPop()(.failure(.canceled))

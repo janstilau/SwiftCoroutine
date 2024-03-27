@@ -243,6 +243,7 @@ extension CoFuture: _CoFutureCancellable {
     /// Cancels the current future.
     public func cancel() {
         // parent 唯一的作用就是这里, 当自己取消的时候, 触发父节点的取消.
+        // cancel, 就是 Future 封箱的过程. 而这个封箱的过程, 会触发各种回调. 
         parent?.cancel() ?? setResult(.failure(CoFutureError.canceled))
     }
     

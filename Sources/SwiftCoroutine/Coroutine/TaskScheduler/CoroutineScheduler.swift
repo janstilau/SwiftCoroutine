@@ -168,6 +168,13 @@ extension CoroutineScheduler {
         return promise
     }
     
+    /// 启动一个新的协程，该协程从其邮箱通道接收消息，并将其邮箱通道作为 Sender 返回。
+    ///
+    /// actor 协程构建器方便地结合了一个协程、被限定和封装到该协程中的状态，以及与其他协程通信的通道。
+    ///
+    /// - 注意: 如果取消此 CoChannel，它还将取消在其中启动的协程。
+    ///
+    
     /// Starts new coroutine that is receiving messages from its mailbox channel and returns its mailbox channel as a `Sender`.
     ///
     /// An actor coroutine builder conveniently combines a coroutine,
@@ -209,10 +216,12 @@ extension CoroutineScheduler {
     ///   - bufferType: The type of channel buffer.
     ///   - body: The closure that will be executed inside coroutine.
     /// - Returns: `CoChannel.Sender` for sending messages to an actor.
+    
     @inlinable public func actor<T>(of type: T.Type = T.self,
                                     bufferType: CoChannel<T>.BufferType = .unlimited,
                                     body: @escaping (CoChannel<T>.Receiver) throws -> Void)
         -> CoChannel<T>.Sender {
+            // body 是信息处理程序, 然后返回的 CoChannel<T>.Sender 交给外界, 不断的进行数据的投递. 
             let (receiver, sender) = CoChannel<T>(bufferType: bufferType).pair
             _startCoroutine {
                 if let coroutine = try? CoroutineSpace.current() {

@@ -18,6 +18,10 @@ extension CoFuture {
     /// - Returns: The value of the `CoFuture` when it is completed.
     @inlinable public func await() throws -> Value {
         // get() 是 Result 的一个函数.
+        // 如果有值, 返回当前值. 
+        // 如果没有, 那么就当 Future 确定了之后, 返回
+        // 这个时候会使用 get, 如果 result 是 Failure, 那么在这里会重新 throw
+        // 可以预想, task 也会是这么设计的. 
         try (result ?? CoroutineSpace.current().await(addCallback)).get()
     }
     

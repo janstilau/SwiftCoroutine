@@ -106,6 +106,9 @@ internal final class SharedCoroutine {
 
 extension SharedCoroutine: CoroutineProtocol {
     
+    /*
+     将自身暂停, 调用异步方法, 然后把将自己恢复的操作给异步方法, 由异步方法决定什么时候调用.
+     */
     internal func await<T>(_ asyncAction: (@escaping (T) -> Void) -> Void) throws -> T {
         // 在这库里面, await 的时候, 如果已经 cancel, 就直接抛出异常了.
         if isCanceled == 1 { throw CoroutineError.canceled }
@@ -128,7 +131,6 @@ extension SharedCoroutine: CoroutineProtocol {
             self.resumeIfSuspended()
         }
         // 在这里, 把当前的运行环境存储一下, 然后暂停任务.
-        // 在 resumeIfSuspended 里面, 才会继续执行.
         if state == .suspending { suspend() }
         if isCanceled == 1 { throw CoroutineError.canceled }
         return result
@@ -158,6 +160,8 @@ extension SharedCoroutine: CoroutineProtocol {
         resumeIfSuspended()
     }
     
+    // cancel 的话, 可以让协程恢复, 因为立马就要抛出异常了.
+    // 完成了任务, 也可以协程恢复. 
     private func resumeIfSuspended() {
         while true {
             switch state {
