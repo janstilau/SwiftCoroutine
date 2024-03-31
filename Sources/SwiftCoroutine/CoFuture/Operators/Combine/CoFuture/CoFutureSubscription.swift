@@ -9,13 +9,13 @@
 #if canImport(Combine)
 import Combine
 
-// 这是一个头, 所以它不用再去当 receiver 了. 
 @available(OSX 10.15, iOS 13.0, *)
 internal final class CoFutureSubscription<S: Subscriber, T>: Subscription where S.Input == T, S.Failure == Error {
     
     private let future: CoFuture<T>
     private var subscriber: S?
     
+    // 这是一个 头节点, 它所需要做的, 就是在自己产生值之后, 将值交给后面的节点. 
     @inlinable internal init(subscriber: S, future: CoFuture<T>) {
         self.future = future
         self.subscriber = subscriber

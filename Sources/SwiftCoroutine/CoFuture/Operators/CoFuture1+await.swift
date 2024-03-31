@@ -22,6 +22,10 @@ extension CoFuture {
         // 如果没有, 那么就当 Future 确定了之后, 返回
         // 这个时候会使用 get, 如果 result 是 Failure, 那么在这里会重新 throw
         // 可以预想, task 也会是这么设计的. 
+        
+        // await 的参数, 是要触发的异步动作, 这个动作的接收参数, 是唤醒 await 停止协程的闭包函数.
+        // 所以这里的结果就是, 将 唤醒当前线程的闭包, 添加到 result 确定后触发的 callback 里面.
+        /// 所以, result 确定了之后, 这里可以重新唤醒. 也就得到了 Resut 的值了. 
         try (result ?? CoroutineSpace.current().await(addCallback)).get()
     }
     
@@ -35,6 +39,7 @@ extension CoFuture {
         timer.schedule(deadline: .now() + timeout)
         defer { timer.cancel() }
         let result: Result<Value, Error> = try CoroutineSpace.current().await { callback in
+            // 协程只会唤醒一次. 
             self.addCallback(callback)
             timer.setEventHandler { callback(.failure(CoFutureError.timeout)) }
             timer.start()

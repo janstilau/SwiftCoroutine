@@ -7,8 +7,10 @@ internal final class _BufferedChannel<T>: _Channel<T> {
     }
     
     private let capacity: Int
+    
     private var receiveCallbacks = FifoQueue<ReceiveCallback>()
     private var sendBlocks = FifoQueue<SendBlock>()
+    
     private var atomic = AtomicTuple()
     
     internal init(capacity: Int) {
@@ -120,16 +122,19 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         return getValue()
     }
     
-    // 
+    // whenReceive 是在获取到值之后, 做 callback 的操作.
+    // 而 awaitReceive 则是, 如果没有值就 await. 
     internal override func whenReceive(_ callback: @escaping (Result<T, CoChannelError>) -> Void) {
         switch atomic.update({ count, state in
             if state == 0 { return (count - 1, 0) }
             return (Swift.max(0, count - 1), state)
         }).old {
+            // 如果有值, 那么立马发送出去
         case (let count, let state) where count > 0:
             // 每次消耗值之后, 才会触发 finish.
             callback(.success(getValue()))
             if count == 1, state == 1 { finish() }
+            // 没有, 那么就把回调记录起来.
         case (_, 0):
             receiveCallbacks.push(callback)
         case (_, 1):
@@ -147,6 +152,7 @@ internal final class _BufferedChannel<T>: _Channel<T> {
         atomic.value.0 <= 0
     }
     
+    // getValue 有消耗数据的含义.
     private func getValue() -> T {
         let block = sendBlocks.blockingPop()
         block.resumeBlock?(nil)

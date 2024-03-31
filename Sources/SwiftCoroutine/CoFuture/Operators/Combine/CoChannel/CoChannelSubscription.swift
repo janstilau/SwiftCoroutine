@@ -18,7 +18,10 @@ internal final class CoChannelSubscription<S: Subscriber, T>: Subscription where
     @inlinable internal init(subscriber: S, receiver: CoChannel<T>.Receiver) {
         self.receiver = receiver
         self.subscriber = subscriber
-        @inline(__always) func subscribe() {
+        func subscribe() {
+            // 使用 when 和 使用 on, 都是合理的命名方式.
+            // whenReceive 只会填充一次回调, 然后有值确定之后, 就消耗了
+            // 所以每次获取到值之后, 要主动的再次进行注册. 
             receiver.whenReceive { result in
                 guard let subscriber = self.subscriber else { return }
                 switch result {
@@ -35,6 +38,7 @@ internal final class CoChannelSubscription<S: Subscriber, T>: Subscription where
         subscribe()
     }
     
+    // cancel 不要影响到 chanel 的机制, 还可能有其他的地方在使用到. 比如别的线程在 await. 
     @inlinable internal func cancel() {
         subscriber = nil
     }

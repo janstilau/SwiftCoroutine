@@ -10,14 +10,18 @@
 ///
 /// ```
 /// let channel = CoChannel<Int>(capacity: 1)
-///
+
+// 可以通过这里, 来想一下 asyncStream 的实现.
+/// 这里是生产者的代码.
 /// DispatchQueue.global().startCoroutine {
 ///    for i in 0..<100 {
 ///        try channel.awaitSend(i)
 ///    }
 ///    channel.close()
 /// }
-///
+
+
+/// 这里是使用者的代码.
 /// DispatchQueue.global().startCoroutine {
 ///     for i in channel.makeIterator() {
 ///         print("Receive", i)
@@ -25,6 +29,7 @@
 ///     print("Done")
 /// }
 /// ```
+
 public final class CoChannel<Element> {
     
     /// `CoChannel` 缓冲区类型。
@@ -83,6 +88,7 @@ public final class CoChannel<Element> {
     
     /// Initializes a channel.
     /// - Parameter type: The type of channel buffer.
+    // 接口类, 实现了外界使用的部分. 真正的内部实现, 根据 type 不同, 使用不同的子类模型.
     public init(bufferType type: BufferType = .unlimited) {
         switch type {
         case .conflated:
@@ -127,7 +133,7 @@ extension CoChannel {
     /// Must be called inside a coroutine.
     /// - Parameter element: Value that will be sent to the channel.
     /// - Throws: CoChannelError when canceled or closed.
-    // 这里用来产生值.
+    // 这里用来产生值. 可以认为, 这里是包装了 continuation 的 resume 值的地方. 
     @inlinable public func awaitSend(_ element: Element) throws {
         try channel.awaitSend(element)
     }
